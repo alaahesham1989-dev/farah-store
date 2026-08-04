@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // توكن التحقق (سنضعه في إعدادات فيسبوك لاحقاً للتأكد من هويتنا)
-  const VERIFY_TOKEN = "farah_store_secure_token";
+  const VERIFY_TOKEN = "FarahStore2026";
 
   // ── 1. مسار GET: للتحقق من الـ Webhook الخاص بفيسبوك ──
   if (req.method === 'GET') {
