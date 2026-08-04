@@ -214,6 +214,12 @@ function initProductActions(product) {
     window.location.href = 'checkout.html';
   });
 
+  // Messenger Inquiry
+  const btnMessenger = document.getElementById('btn-messenger-inquire');
+  if (btnMessenger) {
+    btnMessenger.href = `https://m.me/61565914903592?ref=${product.sku}`;
+  }
+
   // Share WhatsApp
   btnWhatsApp?.addEventListener('click', () => {
     const url = encodeURIComponent(window.location.href);
