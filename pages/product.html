@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تفاصيل المنتج | فرح استور</title>
+  <meta name="description" content="اشتري أفضل المنتجات بجودة مضمونة من متجر فرح استور." />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="apple-touch-icon" href="../icons/icon-192.png" />
+  <meta name="theme-color" content="#0B1929" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="header scrolled" id="header">
+    <nav class="navbar">
+      <div class="container nav-inner">
+        <a href="../index.html" class="logo" aria-label="فرح استور">
+          <span class="logo-ar">فرح استور</span>
+          <span class="logo-en">FARAH</span>
+        </a>
+        <ul class="nav-links" id="nav-links">
+          <li><a href="../index.html">الرئيسية</a></li>
+          <li><a href="../index.html#categories">الأقسام</a></li>
+          <li><a href="../index.html#featured">المنتجات</a></li>
+          <li><a href="contact.html">تواصل معنا</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="btn-icon cart-btn" id="cart-toggle" aria-label="السلة">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="cart-badge" id="cart-count">0</span>
+          </button>
+          <button class="hamburger" id="hamburger" aria-label="القائمة">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========== PRODUCT PAGE ========== -->
+  <main class="product-page">
+    <div class="container">
+      <nav class="breadcrumb" id="breadcrumb" aria-label="مسار التصفح">
+        <a href="../index.html">الرئيسية</a>
+        <span class="breadcrumb-sep">‹</span>
+        <a href="../index.html#featured">المنتجات</a>
+        <span class="breadcrumb-sep">‹</span>
+        <span id="breadcrumb-name">جاري التحميل...</span>
+      </nav>
+
+      <!-- Product Layout -->
+      <div class="product-layout" id="product-layout">
+
+        <!-- Gallery -->
+        <div class="product-gallery" id="product-gallery">
+          <div class="gallery-main" id="gallery-main">
+            <img src="" alt="" id="gallery-main-img" />
+          </div>
+          <div class="gallery-thumbs" id="gallery-thumbs"></div>
+        </div>
+
+        <!-- Info -->
+        <div class="product-info" id="product-info">
+          <div class="product-category" id="info-category"></div>
+          <h1 class="product-name" id="info-name">جاري التحميل...</h1>
+
+          <div class="product-rating">
+            <div class="stars" id="info-stars"></div>
+            <span class="rating-count" id="info-reviews"></span>
+            <span style="font-size:0.8rem;color:var(--text-muted);margin-right:8px" id="info-sold"></span>
+          </div>
+
+          <p class="product-description" id="info-desc"></p>
+
+          <!-- Price -->
+          <div class="product-price-block">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <span class="price-current" id="info-price"></span>
+              <span class="discount-badge" id="info-discount-badge" style="display:none"></span>
+            </div>
+            <span class="price-original" id="info-original-price"></span>
+          </div>
+
+          <!-- Variants -->
+          <div class="product-variants" id="variants-section" style="display:none">
+            <div class="variant-label" id="variant-label"></div>
+            <div class="variant-options" id="variant-options"></div>
+          </div>
+
+          <!-- Add to Cart -->
+          <div class="add-to-cart-block">
+            <div class="qty-control">
+              <button id="qty-decrease" aria-label="تقليل">−</button>
+              <input type="number" id="qty-num" class="qty-num" value="1" min="1" max="99" readonly />
+              <button id="qty-increase" aria-label="زيادة">+</button>
+            </div>
+            <button class="btn btn-primary" id="btn-add-cart" style="flex:1">
+              🛒 أضف للسلة
+            </button>
+            <button class="btn btn-outline" id="btn-buy-now">
+              اشتري الآن
+            </button>
+          </div>
+
+          <!-- Meta -->
+          <div class="product-meta" id="product-meta">
+            <div class="meta-row"><strong>الكود:</strong> <span id="meta-sku"></span></div>
+            <div class="meta-row"><strong>الحالة:</strong> <span id="meta-stock"></span></div>
+            <div class="meta-row">
+              <strong>الشحن:</strong>
+              <span>📦 توصيل خلال 24-48 ساعة في القاهرة | 2-3 أيام لباقي المحافظات</span>
+            </div>
+            <div class="meta-row" style="color:var(--danger); background:rgba(235, 87, 87, 0.05); padding:8px; border-radius:4px; margin-top:8px;">
+              <strong style="display:block; margin-bottom:4px;">⚠️ سياسة المتجر (الضمان والاسترجاع):</strong>
+              <span style="font-size:0.85rem; line-height:1.5;">جميع المنتجات صينية الصنع بدون ضمان محلي من المتجر (الضمان إن وجد فهو على وكيل المنتج). نظراً لطبيعة المنتجات الشخصية والطبية، <strong>لا يوجد استرجاع أو استبدال أو تجربة</strong> للحفاظ على الصحة العامة.</span>
+            </div>
+          </div>
+
+          <!-- Share -->
+          <div style="margin-top:1.5rem;display:flex;gap:10px;align-items:center">
+            <span style="font-size:0.85rem;color:var(--text-muted)">شارك:</span>
+            <button class="btn btn-ghost" id="btn-share-whatsapp" style="padding:8px 16px;font-size:0.82rem">
+              واتساب 💬
+            </button>
+            <button class="btn btn-ghost" id="btn-copy-link" style="padding:8px 16px;font-size:0.82rem">
+              نسخ الرابط 🔗
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Related Products ── -->
+      <section style="margin-top:5rem">
+        <div class="section-header" style="margin-bottom:2rem">
+          <span class="section-tag">منتجات مشابهة</span>
+          <h2 class="section-title">قد يعجبك أيضاً</h2>
+        </div>
+        <div class="products-grid" id="related-grid"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© 2026 فرح استور (FARAH STORE). جميع الحقوق محفوظة.</p>
+        <div class="footer-legal">
+          <a href="privacy.html">سياسة الخصوصية</a>
+          <a href="terms.html">الشروط والأحكام</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== CART DRAWER ========== -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="سلة التسوق">
+    <div class="cart-header">
+      <h2>سلة التسوق</h2>
+      <button class="btn-icon" id="cart-close" aria-label="إغلاق">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <div class="cart-empty" id="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <p>سلتك فاضية!</p>
+        <a href="../index.html#featured" class="btn btn-primary" id="cart-empty-shop">ابدأ التسوق</a>
+      </div>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-total-row"><span>المجموع:</span><strong id="cart-total">0 ج.م</strong></div>
+      <div class="cart-total-row"><span>الشحن:</span><strong id="cart-shipping">سيتم احتسابه</strong></div>
+      <a href="checkout.html" class="btn btn-primary btn-full" id="checkout-btn">متابعة الدفع</a>
+      <button class="btn btn-ghost btn-full" id="clear-cart">إفراغ السلة</button>
+    </div>
+  </aside>
+  <div class="toast-container" id="toast-container"></div>
+  <button class="back-to-top" id="back-to-top" aria-label="العودة لأعلى">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/cart.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js')
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
+  <script src="product.js"></script>
+</body>
+</html>

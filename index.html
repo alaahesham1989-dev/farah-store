@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>فرح استور | تسوق بذكاء، ووفر أكثر</title>
+  <meta name="description" content="فرح استور — أفضل المنتجات بأسعار لا تُقاوم. شحن سريع، جودة مضمونة." />
+  <meta property="og:title" content="فرح استور | تسوق بذكاء" />
+  <meta property="og:description" content="منتجات مختارة بعناية، توصيل لباب بيتك." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="theme-color" content="#0B1929" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════ -->
+<div class="topbar" id="topbar">
+  <div class="topbar-track">
+    <span>🚚 شحن مجاني فوق 500 ج.م</span>
+    <span class="topbar-sep">✦</span>
+    <span>✅ دفع عند الاستلام متاح</span>
+    <span class="topbar-sep">✦</span>
+    <span>🎁 عروض يومية حصرية</span>
+    <span class="topbar-sep">✦</span>
+    <span>🚚 شحن مجاني فوق 500 ج.م</span>
+    <span class="topbar-sep">✦</span>
+    <span>✅ دفع عند الاستلام متاح</span>
+    <span class="topbar-sep">✦</span>
+    <span>🎁 عروض يومية حصرية</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════ -->
+<header class="navbar" id="navbar">
+  <div class="nav-container">
+
+    <button class="hamburger" id="hamburger" aria-label="القائمة">
+      <span></span><span></span><span></span>
+    </button>
+
+    <a href="index.html" class="nav-logo" aria-label="فرح استور">
+      <span class="logo-ar">فرح استور</span>
+      <span class="logo-en">FARAH</span>
+    </a>
+
+    <nav class="nav-links" id="nav-links">
+      <a href="#bento">الرئيسية</a>
+      <a href="#new-arrivals">وصل جديد</a>
+      <a href="#sections">الأقسام</a>
+      <a href="#flash-deals">عروض</a>
+      <a href="pages/contact.html">تواصل</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="nav-icon-btn" id="search-btn" aria-label="بحث">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="nav-icon-btn nav-cart-btn" id="cart-toggle" aria-label="السلة">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge" id="cart-count">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-overlay-inner">
+      <input type="search" id="search-input" placeholder="ابحث عن أي منتج..." class="search-overlay-input" autocomplete="off" />
+      <button class="search-close" id="search-close" aria-label="إغلاق">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="search-results" id="search-results"></div>
+  </div>
+</header>
+
+<!-- Mobile Nav Drawer -->
+<div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+<nav class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-header">
+    <span class="logo-ar" style="font-size:1.5rem;font-weight:900;color:var(--navy)">فرح استور</span>
+    <button id="mobile-nav-close" aria-label="إغلاق">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="mobile-nav-links">
+    <a href="#bento">🏠 الرئيسية</a>
+    <a href="#new-arrivals">✨ وصل جديد</a>
+    <a href="#sections">📦 الأقسام</a>
+    <a href="#flash-deals">⚡ عروض سريعة</a>
+    <a href="pages/contact.html">💬 تواصل معنا</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     BENTO HERO
+══════════════════════════════════════ -->
+<section class="bento-section" id="bento">
+  <div class="mesh-bg" aria-hidden="true">
+    <div class="mesh-orb orb1"></div>
+    <div class="mesh-orb orb2"></div>
+    <div class="mesh-orb orb3"></div>
+    <div class="mesh-orb orb4"></div>
+  </div>
+
+  <div class="bento-container">
+
+    <!-- A — Brand Hero Card (large) -->
+    <div class="bento-card bento-brand" id="bento-brand">
+      <div class="bento-brand-inner">
+        <div class="bento-pill">✦ اختيارات مميزة لأجلك</div>
+        <h1 class="bento-brand-title">
+          تسوّق<br/>
+          <em>بذكاء،</em><br/>
+          ووفر<br/>أكثر
+        </h1>
+        <p class="bento-brand-sub">عروض لا تُقاوم ومنتجات تهمك في كل تفاصيل يومك</p>
+        <div class="bento-brand-actions">
+          <a href="#new-arrivals" class="btn btn-gold">تسوق الآن</a>
+          <a href="#sections" class="btn btn-glass">الأقسام</a>
+        </div>
+      </div>
+      <div class="bento-brand-deco" aria-hidden="true">
+        <div class="deco-circle c1"></div>
+        <div class="deco-circle c2"></div>
+        <div class="deco-circle c3"></div>
+      </div>
+    </div>
+
+    <!-- B — Featured Product (tall) -->
+    <div class="bento-card bento-product-hero" id="bento-feat" data-product-id="prod_003">
+      <div class="bento-img-wrap">
+        <img src="images/Hazem19792019_120.jpg"
+             alt="ديرما رولر نظام متكامل" class="bento-img" loading="eager" />
+        <div class="bento-img-overlay"></div>
+      </div>
+      <div class="bento-product-info">
+        <span class="bento-cat-tag">العناية الشخصية</span>
+        <h2>ديرما رولر<br/>نظام متكامل للبشرة</h2>
+        <div class="bento-price-row">
+          <span class="bento-price">349 ج.م</span>
+          <span class="bento-price-old">490 ج.م</span>
+        </div>
+      </div>
+      <button class="bento-quick-add" data-product-id="prod_003" aria-label="أضف للسلة">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    <!-- C — Flash Deal -->
+    <div class="bento-card bento-flash" id="bento-flash">
+      <div class="bento-flash-badge">⚡ عرض سريع</div>
+      <div class="bento-flash-img-wrap">
+        <img src="images/Hazem19792019_105.jpg"
+             alt="نظارات HD Vision" class="bento-img" loading="eager" />
+      </div>
+      <div class="bento-flash-content">
+        <div class="flash-timer" id="flash-timer">
+          <div class="timer-block"><span id="t-h">02</span><small>ساعة</small></div>
+          <div class="timer-sep">:</div>
+          <div class="timer-block"><span id="t-m">45</span><small>دقيقة</small></div>
+          <div class="timer-sep">:</div>
+          <div class="timer-block"><span id="t-s">30</span><small>ثانية</small></div>
+        </div>
+        <p class="bento-flash-name">نظارات HD Vision الذكية</p>
+        <div class="bento-flash-prices">
+          <span class="flash-price-new">199 ج.م</span>
+          <span class="flash-price-old">299 ج.م</span>
+          <span class="flash-discount">33% خصم</span>
+        </div>
+        <button class="btn btn-gold w-full" data-quick-view="prod_005">شوف العرض</button>
+      </div>
+    </div>
+
+    <!-- D — Stats Card -->
+    <div class="bento-card bento-stats">
+      <div class="bento-stat">
+        <strong class="stat-num" data-target="8">0</strong>
+        <span>أقسام</span>
+      </div>
+      <div class="bento-stat-div"></div>
+      <div class="bento-stat">
+        <strong class="stat-num" data-target="2000">0</strong>
+        <span>عميل سعيد</span>
+      </div>
+      <div class="bento-stat-div"></div>
+      <div class="bento-stat">
+        <strong class="stat-num" data-target="100">0</strong>
+        <span>% ضمان جودة</span>
+      </div>
+    </div>
+
+    <!-- E — Second Product -->
+    <div class="bento-card bento-product-sm" data-quick-view="prod_001">
+      <div class="bento-img-wrap">
+        <img src="images/Hazem19792019_10.jpg"
+             alt="مبردة سكاكين" class="bento-img" loading="eager" />
+        <div class="bento-img-overlay"></div>
+      </div>
+      <div class="bento-sm-info">
+        <span>مبردة سكاكين كهربائية</span>
+        <span class="bento-sm-price">399 ج.م</span>
+      </div>
+      <button class="bento-quick-add" data-product-id="prod_001" aria-label="أضف للسلة">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    <!-- F — Third Product -->
+    <div class="bento-card bento-product-sm" data-quick-view="prod_008">
+      <div class="bento-img-wrap">
+        <img src="images/Hazem19792019_160.jpg"
+             alt="مفرمة نايسر دايسر" class="bento-img" loading="eager" />
+        <div class="bento-img-overlay"></div>
+      </div>
+      <div class="bento-sm-info">
+        <span>مفرمة Nicer Dicer</span>
+        <span class="bento-sm-price">299 ج.م</span>
+      </div>
+      <button class="bento-quick-add" data-product-id="prod_008" aria-label="أضف للسلة">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+
+    <!-- G — Trust Card -->
+    <div class="bento-card bento-trust">
+      <div class="trust-item">
+        <span class="trust-icon">🚚</span>
+        <span>توصيل 24 ساعة</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">💳</span>
+        <span>دفع آمن</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon">🔄</span>
+        <span>إرجاع 7 أيام</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     NEW ARRIVALS — Horizontal Scroll
+══════════════════════════════════════ -->
+<section class="strip-section" id="new-arrivals">
+  <div class="strip-header">
+    <div>
+      <div class="section-eyebrow">✨ وصل حديثاً</div>
+      <h2 class="section-heading">الجديد في المتجر</h2>
+    </div>
+    <button class="strip-scroll-btn" id="arrivals-scroll-btn" aria-label="تمرير">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+  </div>
+  <div class="h-scroll-track" id="new-arrivals-track">
+    <!-- Filled by JS -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION GRID — أقسام المتجر
+══════════════════════════════════════ -->
+<section class="cat-section" id="sections">
+  <div class="wide-container">
+    <div class="section-eyebrow" style="text-align:center">📦 أقسام المتجر</div>
+    <h2 class="section-heading" style="text-align:center;margin-bottom:2.5rem">تسوق حسب اهتمامك</h2>
+    <div class="cat-mosaic" id="cat-mosaic">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CURATED SECTION 1 — أفكار المنزل
+══════════════════════════════════════ -->
+<section class="curated-section" id="home-section">
+  <div class="wide-container">
+    <div class="curated-header">
+      <div>
+        <div class="section-eyebrow">🏠 أجهزة ذكية وعملية</div>
+        <h2 class="section-heading">اختيارات ذكية ليومك</h2>
+      </div>
+      <a href="#" class="see-all-link" data-filter="home">عرض الكل ←</a>
+    </div>
+    <div class="products-row" id="home-products-row"><!-- JS --></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FLASH DEALS STRIP
+══════════════════════════════════════ -->
+<section class="flash-section" id="flash-deals">
+  <div class="wide-container">
+    <div class="flash-section-header">
+      <div>
+        <div class="section-eyebrow" style="color:var(--flash-accent)">⚡ عروض سريعة</div>
+        <h2 class="section-heading" style="color:#fff">خلص قبل ما يخلص!</h2>
+      </div>
+      <div class="flash-timer-lg" id="flash-timer-lg">
+        <div class="timer-block-lg"><span id="t-h2">02</span><small>ساعة</small></div>
+        <span>:</span>
+        <div class="timer-block-lg"><span id="t-m2">45</span><small>دقيقة</small></div>
+        <span>:</span>
+        <div class="timer-block-lg"><span id="t-s2">30</span><small>ثانية</small></div>
+      </div>
+    </div>
+    <div class="flash-grid" id="flash-grid"><!-- JS --></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CURATED SECTION 2 — إكسسوارات
+══════════════════════════════════════ -->
+<section class="curated-section" id="fashion-section">
+  <div class="wide-container">
+    <div class="curated-header">
+      <div>
+        <div class="section-eyebrow">✨ العناية والموضة</div>
+        <h2 class="section-heading">اهتم بنفسك أكثر</h2>
+      </div>
+      <a href="#" class="see-all-link" data-filter="fashion">عرض الكل ←</a>
+    </div>
+    <div class="products-row" id="fashion-products-row"><!-- JS --></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     ALL PRODUCTS
+══════════════════════════════════════ -->
+<section class="all-products-section" id="all-products">
+  <div class="wide-container">
+    <div class="section-eyebrow" style="text-align:center">🛍️ تشكيلة فرح استور</div>
+    <h2 class="section-heading" style="text-align:center;margin-bottom:1.5rem">تصفح كل المنتجات</h2>
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-chip active" data-filter="all">الكل</button>
+      <!-- JS adds more -->
+    </div>
+    <div class="products-masonry" id="all-products-grid"><!-- JS --></div>
+    <div style="text-align:center;margin-top:3rem">
+      <button class="btn btn-outline-dark" id="load-more">تحميل المزيد</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     NEWSLETTER
+══════════════════════════════════════ -->
+<section class="newsletter">
+  <div class="newsletter-mesh">
+    <div class="mesh-orb orb1" style="top:-40%;left:-10%;width:500px;height:500px"></div>
+    <div class="mesh-orb orb3" style="bottom:-30%;right:-5%;width:400px;height:400px"></div>
+  </div>
+  <div class="newsletter-inner wide-container">
+    <div class="newsletter-text">
+      <div class="section-eyebrow" style="color:var(--gold-light)">📬 النشرة البريدية</div>
+      <h2>كن أول من يعلم<br/>بأقوى العروض</h2>
+      <p>اشترك واحصل على خصم 10% على أول طلب لك</p>
+    </div>
+    <form class="newsletter-form" id="newsletter-form">
+      <input type="email" placeholder="بريدك الإلكتروني..." class="nl-input" required />
+      <button type="submit" class="btn btn-gold">اشترك</button>
+    </form>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer class="footer">
+  <div class="wide-container footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <span class="logo-ar">فرح استور</span>
+        <span class="logo-en">FARAH</span>
+      </div>
+      <p>وجهتك الأولى للتسوق الذكي في مصر.<br/>أسعار لا تقبل المنافسة وجودة نضمنها لك.</p>
+      <div class="footer-social">
+        <a href="#" aria-label="فيسبوك" class="social-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="#" aria-label="انستجرام" class="social-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg>
+        </a>
+        <a href="#" aria-label="تيك توك" class="social-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.77 0 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 12.68 0V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.02-.07z"/></svg>
+        </a>
+        <a href="#" aria-label="واتساب" class="social-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>روابط سريعة</h4>
+      <a href="#bento">الرئيسية</a>
+      <a href="#new-arrivals">وصل جديد</a>
+      <a href="#flash-deals">عروض سريعة</a>
+      <a href="pages/contact.html">تواصل معنا</a>
+    </div>
+    <div class="footer-col">
+      <h4>خدمة العملاء</h4>
+      <a href="pages/contact.html">تتبع الطلب</a>
+      <a href="pages/contact.html">الإرجاع والاستبدال</a>
+      <a href="pages/contact.html">الأسئلة الشائعة</a>
+      <a href="pages/contact.html">اتصلي بنا</a>
+    </div>
+    <div class="footer-col">
+      <h4>طرق الدفع</h4>
+      <div class="pay-methods">
+        <span class="pay-chip">فيزا</span>
+        <span class="pay-chip">ماستركارد</span>
+        <span class="pay-chip">Paymob</span>
+        <span class="pay-chip">كاش</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="wide-container footer-bottom-inner">
+      <p>© 2026 فرح استور. جميع الحقوق محفوظة.</p>
+      <div>
+        <a href="pages/privacy.html">سياسة الخصوصية</a>
+        <a href="pages/terms.html">الشروط والأحكام</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════
+     CART DRAWER
+══════════════════════════════════════ -->
+<div class="drawer-overlay" id="cart-overlay"></div>
+<aside class="cart-drawer" id="cart-drawer" aria-label="سلة التسوق">
+  <div class="drawer-header">
+    <div>
+      <h2>سلتك 🛒</h2>
+      <span class="cart-count-label" id="cart-items-count">0 منتج</span>
+    </div>
+    <button class="drawer-close" id="cart-close" aria-label="إغلاق">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="cart-body" id="cart-items">
+    <div class="cart-empty-state" id="cart-empty">
+      <div style="font-size:3.5rem">🛒</div>
+      <p>سلتك فاضية حالياً</p>
+      <button class="btn btn-gold" id="cart-empty-shop">ابدأ التسوق</button>
+    </div>
+  </div>
+  <div class="cart-footer-panel" id="cart-footer" style="display:none">
+    <div class="cart-summary">
+      <div class="cart-summary-row"><span>المجموع</span><strong id="cart-total">—</strong></div>
+      <div class="cart-summary-row"><span>الشحن</span><strong id="cart-shipping">—</strong></div>
+      <div class="cart-summary-row total-row"><span>الإجمالي</span><strong id="cart-grand-total">—</strong></div>
+    </div>
+    <a href="pages/checkout.html" class="btn btn-gold w-full" style="font-size:1.05rem;padding:16px">متابعة الدفع ←</a>
+    <button class="btn btn-ghost w-full" id="clear-cart" style="margin-top:8px">إفراغ السلة</button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════
+     QUICK VIEW DRAWER
+══════════════════════════════════════ -->
+<div class="drawer-overlay" id="qv-overlay"></div>
+<aside class="qv-drawer" id="qv-drawer" aria-label="عرض سريع">
+  <div class="drawer-header">
+    <h2 id="qv-title">عرض سريع</h2>
+    <button class="drawer-close" id="qv-close" aria-label="إغلاق">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="qv-body" id="qv-body"><!-- JS --></div>
+</aside>
+
+<!-- ══════════════════════════════════════
+     TOAST
+══════════════════════════════════════ -->
+<div class="toast-stack" id="toast-container"></div>
+
+<!-- Back to top -->
+<button class="back-top" id="back-to-top" aria-label="للأعلى">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/main.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+</script>
+</body>
+</html>

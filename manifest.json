@@ -1,0 +1,44 @@
+{
+  "name": "فرح استور",
+  "short_name": "فرح",
+  "description": "فرح استور — أفضل المنتجات بأسعار لا تُقاوم. توصيل سريع لكل مصر.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#0B1929",
+  "orientation": "portrait-primary",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["shopping", "lifestyle"],
+  "screenshots": [],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "المنتجات الجديدة",
+      "short_name": "جديد",
+      "description": "شوف آخر المنتجات",
+      "url": "/#new-arrivals",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "العروض السريعة",
+      "short_name": "عروض",
+      "description": "أقوى العروض اليوم",
+      "url": "/#flash-deals",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

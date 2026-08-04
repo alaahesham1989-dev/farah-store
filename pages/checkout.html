@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>فرح استور | إتمام الطلب</title>
+  <meta name="description" content="أكمل طلبك بأمان من متجر فرح استور." />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="apple-touch-icon" href="../icons/icon-192.png" />
+  <meta name="theme-color" content="#0B1929" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="header scrolled" id="header">
+    <nav class="navbar">
+      <div class="container nav-inner">
+        <a href="../index.html" class="logo" aria-label="فرح استور">
+          <span class="logo-ar">فرح استور</span>
+          <span class="logo-en">FARAH</span>
+        </a>
+        <div style="display:flex;align-items:center;gap:12px;font-size:0.85rem;color:var(--text-muted)">
+          <span>🔒 دفع آمن ومشفر</span>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========== PAGE HERO ========== -->
+  <div class="page-hero">
+    <div class="container">
+      <h1>إتمام الطلب</h1>
+      <p>خطوات بسيطة وطلبك في الطريق إليك</p>
+    </div>
+  </div>
+
+  <!-- ========== CHECKOUT FORM ========== -->
+  <section class="form-section">
+    <div class="container">
+
+      <!-- Empty cart message -->
+      <div id="empty-cart-msg" style="display:none;text-align:center;padding:4rem">
+        <div style="font-size:4rem;margin-bottom:1rem">🛒</div>
+        <h2 style="margin-bottom:1rem">سلتك فارغة!</h2>
+        <a href="../index.html" class="btn btn-primary">ابدأ التسوق</a>
+      </div>
+
+      <!-- Checkout content -->
+      <div class="form-layout" id="checkout-content">
+
+        <!-- LEFT: Form -->
+        <div>
+          <!-- Step 1: Shipping Info -->
+          <div class="form-card" style="margin-bottom:1.5rem">
+            <h2>📍 بيانات التوصيل</h2>
+            <form id="checkout-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="field-name">الاسم الكامل *</label>
+                  <input type="text" id="field-name" class="form-control" placeholder="الاسم الكامل" required autocomplete="name" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="field-phone">رقم الهاتف *</label>
+                  <input type="tel" id="field-phone" class="form-control" placeholder="01XXXXXXXXX" required autocomplete="tel" pattern="^01[0-9]{9}$" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="field-gov">المحافظة *</label>
+                  <select id="field-gov" class="form-control" required>
+                    <option value="" disabled selected>اختار المحافظة</option>
+                    <option value="cairo">القاهرة</option>
+                    <option value="giza">الجيزة</option>
+                    <option value="alexandria">الإسكندرية</option>
+                    <option value="dakahlia">الدقهلية</option>
+                    <option value="sharqia">الشرقية</option>
+                    <option value="qalyubia">القليوبية</option>
+                    <option value="gharbia">الغربية</option>
+                    <option value="monufia">المنوفية</option>
+                    <option value="beheira">البحيرة</option>
+                    <option value="kafr_el_sheikh">كفر الشيخ</option>
+                    <option value="fayoum">الفيوم</option>
+                    <option value="beni_suef">بني سويف</option>
+                    <option value="minya">المنيا</option>
+                    <option value="asyut">أسيوط</option>
+                    <option value="sohag">سوهاج</option>
+                    <option value="qena">قنا</option>
+                    <option value="luxor">الأقصر</option>
+                    <option value="aswan">أسوان</option>
+                    <option value="port_said">بورسعيد</option>
+                    <option value="suez">السويس</option>
+                    <option value="ismailia">الإسماعيلية</option>
+                    <option value="damietta">دمياط</option>
+                    <option value="north_sinai">شمال سيناء</option>
+                    <option value="south_sinai">جنوب سيناء</option>
+                    <option value="red_sea">البحر الأحمر</option>
+                    <option value="new_valley">الوادي الجديد</option>
+                    <option value="matrouh">مطروح</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="field-city">المدينة / المنطقة *</label>
+                  <input type="text" id="field-city" class="form-control" placeholder="مثال: مدينة نصر" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="field-street">العنوان بالتفصيل *</label>
+                <input type="text" id="field-street" class="form-control" placeholder="الشارع، رقم المبنى، الدور، الشقة" required />
+                <p class="form-hint">مثال: شارع النصر، مبنى 12، الدور 3، شقة 15</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="field-notes">ملاحظات التوصيل (اختياري)</label>
+                <textarea id="field-notes" class="form-control" rows="2" placeholder="أي تعليمات إضافية للتوصيل..."></textarea>
+              </div>
+            </form>
+          </div>
+
+          <!-- Step 2: Payment Method -->
+          <div class="form-card">
+            <h2>💳 طريقة الدفع</h2>
+            <div class="payment-method-cards" id="payment-methods">
+
+              <label class="payment-method-card selected" for="pay-cod">
+                <input type="radio" id="pay-cod" name="payment" value="cash_on_delivery" checked />
+                <span class="payment-icon">💵</span>
+                <div>
+                  <div class="payment-method-name">الدفع عند الاستلام</div>
+                  <div class="payment-method-desc">الدفع نقداً عند استلام الطلب</div>
+                </div>
+              </label>
+
+              <label class="payment-method-card" for="pay-card">
+                <input type="radio" id="pay-card" name="payment" value="paymob_card" />
+                <span class="payment-icon">💳</span>
+                <div>
+                  <div class="payment-method-name">بطاقة فيزا / ماستركارد (Paymob)</div>
+                  <div class="payment-method-desc">دفع أونلاين آمن — سيتم تحويلك لصفحة الدفع</div>
+                </div>
+              </label>
+
+              <label class="payment-method-card" for="pay-wallet">
+                <input type="radio" id="pay-wallet" name="payment" value="paymob_wallet" />
+                <span class="payment-icon">📱</span>
+                <div>
+                  <div class="payment-method-name">محفظة إلكترونية</div>
+                  <div class="payment-method-desc">فودافون كاش / اتصالات كاش / أورنج كاش</div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Store Policy Warning -->
+            <div id="store-policy-note" style="margin-top:1rem;padding:12px 16px;background:rgba(235, 87, 87, 0.08);border:1px solid rgba(235, 87, 87, 0.2);border-radius:var(--radius);font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">
+              <strong style="color:var(--danger);display:block;margin-bottom:4px;">⚠️ تنبيه هام (سياسة المتجر):</strong>
+              جميع منتجاتنا صينية الصنع ولا يوجد عليها ضمان من قِبل المتجر (الضمان إن وجد يكون على الوكيل). نظراً لأن المنتجات ذات طبيعة شخصية وطبية، <strong>لا يوجد استرجاع أو استبدال أو تجربة</strong> للمنتجات حفاظاً على الصحة العامة.
+            </div>
+
+            <!-- Paymob note -->
+            <div id="paymob-note" style="display:none;margin-top:1rem;padding:12px 16px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:var(--radius);font-size:0.85rem;color:var(--text-secondary)">
+              ⚡ بعد تأكيد الطلب، ستُحوَّل لبوابة Paymob الآمنة لإتمام الدفع.
+            </div>
+
+            <button type="button" class="btn btn-primary btn-full" id="btn-place-order" style="margin-top:1.5rem;font-size:1.05rem;padding:16px">
+              ✅ تأكيد الطلب
+            </button>
+            <p style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-top:0.75rem">
+              بالضغط على "تأكيد الطلب" أنت تقر بقراءتك لسياسة المتجر وموافقتك على <a href="terms.html" style="color:var(--gold-dark)">شروط الاستخدام</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- RIGHT: Order Summary -->
+        <div class="order-summary-card" id="order-summary">
+          <h3>ملخص طلبك</h3>
+          <div class="summary-items-list" id="summary-items"></div>
+          <div class="summary-item"><span>المجموع الجزئي</span><span id="sum-subtotal">—</span></div>
+          <div class="summary-item"><span>الشحن</span><span id="sum-shipping">—</span></div>
+          <div class="summary-item total"><span>الإجمالي</span><span id="sum-total">—</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SUCCESS MODAL ========== -->
+  <div id="success-modal" style="
+    display:none;
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.7);
+    z-index:2000;
+    align-items:center;
+    justify-content:center;
+    padding:1rem;
+    backdrop-filter:blur(8px);
+  ">
+    <div style="
+      background:white;
+      border-radius:var(--radius-xl);
+      padding:3rem 2.5rem;
+      max-width:460px;
+      width:100%;
+      text-align:center;
+      animation:fadeInUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    ">
+      <div style="font-size:4rem;margin-bottom:1rem">🎉</div>
+      <h2 style="font-size:1.6rem;font-weight:900;color:var(--navy);margin-bottom:0.75rem">تم استلام طلبك!</h2>
+      <p style="color:var(--text-secondary);line-height:1.8;margin-bottom:0.5rem">
+        سيقوم فريقنا بالتواصل معكم خلال ساعات قليلة لتأكيد الطلب وترتيب موعد التوصيل.
+      </p>
+      <div id="order-id-display" style="background:var(--bg-subtle);border-radius:var(--radius);padding:12px;margin:1.25rem 0;font-weight:800;color:var(--navy);font-size:0.95rem;letter-spacing:0.05em;border:1px solid var(--border)"></div>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.5rem">
+        يرجى الاحتفاظ برقم الطلب للمتابعة
+      </p>
+      <a href="../index.html" class="btn btn-primary btn-full">متابعة التسوق</a>
+    </div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© 2026 فرح استور (FARAH STORE). جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/cart.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js')
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
+  <script src="checkout.js"></script>
+</body>
+</html>

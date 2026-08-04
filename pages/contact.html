@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تواصل معنا | فرح استور</title>
+  <meta name="description" content="تواصل مع فريق فرح استور لأي استفسار أو مشكلة. نحن هنا لمساعدتك." />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="apple-touch-icon" href="../icons/icon-192.png" />
+  <meta name="theme-color" content="#0B1929" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header scrolled" id="header">
+    <nav class="navbar">
+      <div class="container nav-inner">
+        <a href="../index.html" class="logo">
+          <span class="logo-ar">فرح استور</span>
+          <span class="logo-en">FARAH</span>
+        </a>
+        <ul class="nav-links" id="nav-links">
+          <li><a href="../index.html">الرئيسية</a></li>
+          <li><a href="../index.html#featured">المنتجات</a></li>
+          <li><a href="contact.html" style="color:var(--gold-dark)">تواصل معنا</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="btn-icon cart-btn" id="cart-toggle" aria-label="السلة">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="cart-badge" id="cart-count">0</span>
+          </button>
+          <button class="hamburger" id="hamburger" aria-label="القائمة">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="container">
+      <h1>تواصل معنا</h1>
+      <p>فريقنا متاح لمساعدتك 7 أيام في الأسبوع</p>
+    </div>
+  </div>
+
+  <!-- CONTACT SECTION -->
+  <section class="form-section">
+    <div class="container">
+
+      <!-- Quick contact cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem;margin-bottom:3rem">
+
+        <a href="https://wa.me/201000000000" target="_blank" rel="noopener" class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
+          <div class="why-icon">💬</div>
+          <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">واتساب</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">تواصل مباشرة على واتساب — الأسرع</p>
+          <span style="margin-top:1rem;color:var(--gold-dark);font-weight:700;font-size:0.85rem">01X XXXX XXXX</span>
+        </a>
+
+        <a href="tel:+201000000000" class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
+          <div class="why-icon">📞</div>
+          <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">اتصل بنا</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">من 10 صباحاً حتى 10 مساءً يومياً</p>
+          <span style="margin-top:1rem;color:var(--gold-dark);font-weight:700;font-size:0.85rem">01X XXXX XXXX</span>
+        </a>
+
+        <a href="mailto:hello@farah.store" class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
+          <div class="why-icon">📧</div>
+          <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">البريد الإلكتروني</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">نرد خلال 24 ساعة</p>
+          <span style="margin-top:1rem;color:var(--gold-dark);font-weight:700;font-size:0.85rem">hello@farah.store</span>
+        </a>
+
+        <div class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg)">
+          <div class="why-icon">⏰</div>
+          <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">أوقات العمل</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">السبت – الخميس<br/>10 ص – 10 م</p>
+        </div>
+      </div>
+
+      <!-- Contact form -->
+      <div style="max-width:640px;margin:0 auto">
+        <div class="form-card">
+          <h2>📝 أرسل رسالة</h2>
+          <form id="contact-form" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="contact-name">اسمك *</label>
+                <input type="text" id="contact-name" class="form-control" placeholder="اسمك الكريم" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contact-phone">رقم هاتفك *</label>
+                <input type="tel" id="contact-phone" class="form-control" placeholder="01XXXXXXXXX" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-subject">الموضوع *</label>
+              <select id="contact-subject" class="form-control" required>
+                <option value="" disabled selected>اختار موضوع الرسالة</option>
+                <option value="order">استفسار عن طلب</option>
+                <option value="product">استفسار عن منتج</option>
+                <option value="return">إرجاع أو استبدال</option>
+                <option value="shipping">مشكلة في الشحن</option>
+                <option value="complaint">شكوى</option>
+                <option value="other">أخرى</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-message">رسالتك *</label>
+              <textarea id="contact-message" class="form-control" rows="5" placeholder="اكتب رسالتك هنا..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" style="font-size:1rem;padding:15px">
+              إرسال الرسالة ✈️
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div style="margin-top:4rem">
+        <div class="section-header" style="margin-bottom:2rem">
+          <span class="section-tag">أسئلة شائعة</span>
+          <h2 class="section-title">إجابات سريعة</h2>
+        </div>
+        <div id="faq-list" style="max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:12px">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© 2026 فرح استور (FARAH STORE). جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CART DRAWER -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h2>سلة التسوق</h2>
+      <button class="btn-icon" id="cart-close"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <div class="cart-empty" id="cart-empty">
+        <div class="cart-empty-icon">🛒</div><p>سلتك فاضية!</p>
+        <a href="../index.html#featured" class="btn btn-primary" id="cart-empty-shop">ابدأ التسوق</a>
+      </div>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-total-row"><span>المجموع:</span><strong id="cart-total">0 ج.م</strong></div>
+      <div class="cart-total-row"><span>الشحن:</span><strong id="cart-shipping">سيتم احتسابه</strong></div>
+      <a href="checkout.html" class="btn btn-primary btn-full">متابعة الدفع</a>
+      <button class="btn btn-ghost btn-full" id="clear-cart">إفراغ السلة</button>
+    </div>
+  </aside>
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/cart.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js')
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+
+    // ── Contact Form ──
+    document.getElementById('contact-form')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = '⏳ جاري الإرسال...';
+      // Simulate send
+      await new Promise(r => setTimeout(r, 1000));
+      showToast('✅ تم استلام رسالتك! سنتواصل معك قريباً', 'success', 5000);
+      e.target.reset();
+      btn.disabled = false;
+      btn.textContent = 'إرسال الرسالة ✈️';
+    });
+
+    // ── FAQ ──
+    const FAQS = [
+      { q: 'كم تستغرق عملية الشحن؟', a: 'القاهرة والجيزة: 24-48 ساعة. باقي المحافظات: 2-3 أيام عمل.' },
+      { q: 'هل يمكنني الإرجاع إذا لم يعجبني المنتج؟', a: 'نعم! لديك 7 أيام من استلام الطلب للإرجاع بشرط أن يكون المنتج في حالته الأصلية.' },
+      { q: 'ما هي طرق الدفع المتاحة؟', a: 'الدفع عند الاستلام (كاش)، أو أونلاين عبر Paymob (فيزا / ماستركارد / محافظ إلكترونية).' },
+      { q: 'هل الشحن مجاني؟', a: 'نعم! الشحن مجاني على الطلبات التي تتجاوز 500 جنيه. للطلبات الأقل: 65 ج.م القاهرة والجيزة، 90 ج.م للمحافظات.' },
+      { q: 'كيف أتتبع طلبي؟', a: 'بعد الشحن ستصلك رسالة واتساب برقم التتبع من شركة الشحن.' },
+      { q: 'هل المنتجات أصلية؟', a: 'كل منتج على فرح استور يمر بمراجعة جودة قبل الإدراج. نضمن الجودة أو نرد لك فلوسك.' },
+    ];
+
+    const faqList = document.getElementById('faq-list');
+    if (faqList) {
+      faqList.innerHTML = FAQS.map((faq, i) => `
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+          <button onclick="toggleFaq(${i})" id="faq-btn-${i}" style="
+            width:100%;padding:1rem 1.25rem;
+            display:flex;align-items:center;justify-content:space-between;
+            font-family:var(--font);font-weight:700;font-size:0.95rem;
+            color:var(--navy);background:none;border:none;cursor:pointer;
+            text-align:right;
+          ">
+            <span>${faq.q}</span>
+            <span id="faq-icon-${i}" style="font-size:1.2rem;color:var(--gold);transition:transform 0.3s;flex-shrink:0;margin-right:0.5rem">+</span>
+          </button>
+          <div id="faq-ans-${i}" style="display:none;padding:0 1.25rem 1rem;color:var(--text-secondary);font-size:0.9rem;line-height:1.7;border-top:1px solid var(--border)">
+            ${faq.a}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleFaq(i) {
+      const ans  = document.getElementById(`faq-ans-${i}`);
+      const icon = document.getElementById(`faq-icon-${i}`);
+      const open = ans.style.display === 'block';
+      ans.style.display   = open ? 'none' : 'block';
+      icon.textContent    = open ? '+' : '−';
+      icon.style.transform = open ? 'rotate(0)' : 'rotate(45deg)';
+    }
+
+    // ── Nav hamburger ──
+    const hamburger = document.getElementById('hamburger');
+    const navLinks  = document.getElementById('nav-links');
+    hamburger?.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks?.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
