@@ -19,9 +19,9 @@ export default async function handler(req, res) {
     return res.status(200).send('Webhook is live!');
   }
 
-  // ── 2. مسار POST: لاستقبال رسائل العملاء وتمريرها لجوجل شيت ──
+  // 2. أمر POST: استقبال الداتا من الموقع (أوردر جديد) أو من تليجرام وإرسالها إلى سكريبت جوجل
   if (req.method === 'POST') {
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5jcrNpzC1oiMSQA3geOI8d883UezPlp1CElgDwdZCuWbJSBj84AnDewhgtfYhDHIh/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnobWXg4W-2dwaoJGw7WyUiUfhHiyC1285qpcRo0x0QE7w74d8kNwSk6i3Dyvh0HWOQ/exec";
 
     try {
       // إرسال البيانات فوراً إلى جوجل شيت دون انتظار الرد
