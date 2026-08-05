@@ -428,8 +428,8 @@ input,select,textarea{font-family:var(--font)}
 /* ── C: Flash ── */
 .bento-flash{
   grid-column:span 3;
-  background:#fff;
-  border:1.5px solid var(--cream-2);
+  background:rgba(20, 20, 20, 0.8);
+  border:1px solid rgba(255, 255, 255, 0.05);
   box-shadow:var(--shadow-sm);
   display:flex;flex-direction:column;
 }
@@ -445,18 +445,18 @@ input,select,textarea{font-family:var(--font)}
   display:flex;align-items:center;gap:4px;
 }
 .timer-block{
-  background:var(--navy);color:#fff;
+  background:rgba(255, 255, 255, 0.1);color:#fff;
   border-radius:6px;padding:4px 6px;
   text-align:center;min-width:36px;
 }
 .timer-block span{display:block;font-size:.9rem;font-weight:800;line-height:1}
 .timer-block small{font-size:.55rem;opacity:.6}
-.timer-sep{color:var(--navy);font-weight:900;font-size:.9rem}
+.timer-sep{color:rgba(255,255,255,0.5);font-weight:900;font-size:.9rem}
 .bento-flash-name{font-weight:700;font-size:.9rem;color:var(--text-dark)}
 .bento-flash-prices{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.flash-price-new{font-size:1.1rem;font-weight:900;color:var(--navy)}
+.flash-price-new{font-size:1.1rem;font-weight:900;color:var(--text-dark)}
 .flash-price-old{font-size:.8rem;color:var(--text-soft);text-decoration:line-through}
-.flash-discount{background:#FFF0E8;color:var(--flash-accent);font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:var(--r-full)}
+.flash-discount{background:rgba(230, 57, 70, 0.2);color:#ff6b6b;font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:var(--r-full)}
 
 /* ── D: Stats ── */
 .bento-stats{
