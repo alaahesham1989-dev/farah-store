@@ -841,3 +841,99 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+/* ═══════════════════════════════════════════════
+   DS HERO LOGIC & CLICK SOUND
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Video toggle logic for new DS Hero
+  const video = document.getElementById('hero-ds-video');
+  const muteBtn = document.getElementById('ds-mute-toggle-btn');
+  const iconMuted = document.getElementById('ds-icon-muted');
+  const iconUnmuted = document.getElementById('ds-icon-unmuted');
+  
+  if(video && muteBtn) {
+    muteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      video.muted = !video.muted;
+      if(video.muted) {
+        iconMuted.style.display = 'block';
+        iconUnmuted.style.display = 'none';
+      } else {
+        iconMuted.style.display = 'none';
+        iconUnmuted.style.display = 'block';
+      }
+    });
+  }
+
+  // Global click sound & ripple effect
+  // A tiny, soft 'pop' sound as base64 (very lightweight, 10ms)
+  const clickAudio = new Audio('data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq'); 
+  // Above is a silent placeholder. I'll use a valid tiny blip data URI or a simple oscillator.
+});
+
+// Using a lightweight oscillator for the click sound so we don't need external files!
+let audioCtx;
+window.playClickSound = function() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.type = 'sine';
+    // Frequency sweep for a nice 'blip' sound
+    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.05);
+    
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); // Volume
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.1);
+  } catch(e) {}
+};
+
+// Add ripple effect and sound to all buttons and links globally
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('button, a, .cat-tile, .flash-card');
+  if (target) {
+    // Play sound
+    if(!target.classList.contains('ds-mute-btn')) {
+      window.playClickSound();
+    }
+    
+    // Ripple Effect
+    const rect = target.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    
+    const diameter = Math.max(rect.width, rect.height);
+    const radius = diameter / 2;
+    
+    ripple.style.width = ripple.style.height = diameter + 'px';
+    ripple.style.left = (e.clientX - rect.left - radius) + 'px';
+    ripple.style.top = (e.clientY - rect.top - radius) + 'px';
+    
+    // Ensure parent is relative and overflow hidden
+    const origPos = window.getComputedStyle(target).position;
+    if(origPos === 'static') target.style.position = 'relative';
+    const origOverflow = window.getComputedStyle(target).overflow;
+    if(origOverflow !== 'hidden' && !target.classList.contains('ds-cta')) {
+      // Don't clip glowing buttons
+      target.style.overflow = 'hidden'; 
+    }
+    
+    target.appendChild(ripple);
+    
+    setTimeout(() => {
+      ripple.remove();
+    }, 600);
+  }
+});
