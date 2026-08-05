@@ -791,3 +791,22 @@ document.addEventListener('DOMContentLoaded', () => {
     revealObserver.observe(el);
   });
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const video = document.getElementById('hero-video');
+  const muteBtn = document.getElementById('mute-toggle-btn');
+  const iconMuted = document.getElementById('icon-muted');
+  const iconUnmuted = document.getElementById('icon-unmuted');
+  
+  if(video && muteBtn) {
+    muteBtn.addEventListener('click', () => {
+      video.muted = !video.muted;
+      if(video.muted) {
+        iconMuted.style.display = 'block';
+        iconUnmuted.style.display = 'none';
+      } else {
+        iconMuted.style.display = 'none';
+        iconUnmuted.style.display = 'block';
+      }
+    });
+  }
+});

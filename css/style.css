@@ -1268,3 +1268,32 @@ body {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
+/* Animated Brand Text Overlay */
+.animated-brand-text {
+  font-size: 3.5rem !important;
+  color: #fff !important;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.animated-brand-text span {
+  display: block;
+  background: linear-gradient(45deg, #fff, var(--gold-light), #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shine 4s linear infinite;
+}
+
+.brand-ar { font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 4rem; }
+.brand-en { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 300; font-size: 1.5rem; letter-spacing: 8px; opacity: 0.9; margin-top: -5px; }
+
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+
+#mute-toggle-btn:hover { background: rgba(255,255,255,0.4) !important; transform: scale(1.1); }
