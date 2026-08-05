@@ -1531,3 +1531,60 @@ body {
   .ds-video-wrap { aspect-ratio: 1/1; width: 100%; max-width: 500px; margin: 0 auto; }
 }
 
+/* ══════════════════════════════════════
+   FLORAL BACKGROUND
+══════════════════════════════════════ */
+body {
+  background: linear-gradient(rgba(255, 255, 255, 0.93), rgba(255, 255, 255, 0.93)), url('../images/floral-bg.jpg');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+/* ══════════════════════════════════════
+   TICKER TAPE (شريط متحرك)
+══════════════════════════════════════ */
+.ticker-wrap {
+  width: 100%;
+  background-color: var(--gold);
+  overflow: hidden;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+.ticker {
+  display: inline-flex;
+  white-space: nowrap;
+  padding-right: 100%;
+  animation: tickerAnim 20s linear infinite;
+}
+.ticker span {
+  display: inline-block;
+  padding: 0 2rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--white);
+}
+@keyframes tickerAnim {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ══════════════════════════════════════
+   HAMBURGER PROFESSIONAL
+══════════════════════════════════════ */
+.hamburger-btn {
+  background: transparent;
+  color: var(--navy);
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.hamburger-btn:hover {
+  background: var(--cream-2);
+}
