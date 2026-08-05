@@ -41,46 +41,26 @@
 ══════════════════════════════════════ -->
 <header class="navbar" id="navbar">
   <div class="nav-container">
-
-    <button class="hamburger" id="hamburger" aria-label="القائمة">
-      <span></span><span></span><span></span>
-    </button>
-
-    <a href="index.html" class="nav-logo" aria-label="فرح استور">
-      <span class="logo-ar">فرح استور</span>
-      <span class="logo-en">FARAH</span>
-    </a>
-
-    <nav class="nav-links" id="nav-links">
-      <a href="#bento" data-i18n="nav_home">الرئيسية</a>
-      <a href="#new-arrivals" data-i18n="nav_new">وصل جديد</a>
-      <a href="#sections" data-i18n="nav_categories">الأقسام</a>
-      <a href="#flash-deals" data-i18n="nav_offers">عروض</a>
-      <a href="pages/contact.html" data-i18n="nav_contact">تواصل</a>
-    </nav>
-
+    
     <div class="nav-actions">
       <button class="nav-icon-btn lang-toggle-btn" aria-label="Language">EN</button>
-      <button class="nav-icon-btn theme-toggle-btn" aria-label="Theme">☀️</button>
-      <button class="nav-icon-btn" id="search-btn" aria-label="بحث">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      </button>
       <button class="nav-icon-btn nav-cart-btn" id="cart-toggle" aria-label="السلة">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="cart-badge" id="cart-count">0</span>
       </button>
     </div>
-  </div>
 
-  <!-- Search Overlay -->
-  <div class="search-overlay" id="search-overlay">
-    <div class="search-overlay-inner">
-      <input type="search" id="search-input" placeholder="ابحث عن أي منتج..." class="search-overlay-input" autocomplete="off" />
-      <button class="search-close" id="search-close" aria-label="إغلاق">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <a href="index.html" class="nav-logo" aria-label="متجر فرح مصر">
+      <span class="logo-ar" style="font-family: 'Tajawal', sans-serif; font-size: 2rem; font-weight: 800; color: var(--gold); letter-spacing: -1px;">متجر فرح مصر</span>
+      <span class="logo-en" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 2px;">FARAH EGYPT STORE</span>
+    </a>
+
+    <div class="nav-right">
+      <button class="hamburger-btn" id="hamburger" aria-label="القائمة">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
     </div>
-    <div class="search-results" id="search-results"></div>
+    
   </div>
 </header>
 
@@ -88,66 +68,32 @@
 <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
 <nav class="mobile-nav" id="mobile-nav">
   <div class="mobile-nav-header">
-    <span class="logo-ar" style="font-size:1.5rem;font-weight:900;color:var(--navy)">فرح استور</span>
+    <span class="logo-ar" style="font-size:1.6rem;font-weight:900;color:var(--gold);">متجر فرح مصر</span>
     <button id="mobile-nav-close" aria-label="إغلاق">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
   <div class="mobile-nav-links">
-    <a href="#bento">🏠 الرئيسية</a>
-    <a href="#new-arrivals">✨ وصل جديد</a>
-    <a href="#sections">📦 الأقسام</a>
-    <a href="#flash-deals">⚡ عروض سريعة</a>
-    <a href="pages/contact.html">💬 تواصل معنا</a>
+    <a href="#hero">الرئيسية</a>
+    <a href="#new-arrivals">وصل حديثاً</a>
+    <a href="#sections">الأقسام</a>
+    <a href="#flash-deals">عروض حصرية</a>
+    <a href="pages/contact.html">تواصل معنا</a>
   </div>
 </nav>
 
 <!-- ══════════════════════════════════════
-     DIRECT SALES HERO
+     CINEMATIC VIDEO HERO
 ══════════════════════════════════════ -->
-<section class="ds-hero-section" id="hero">
-  <div class="mesh-bg" aria-hidden="true">
-    <div class="mesh-orb orb1"></div>
-    <div class="mesh-orb orb2"></div>
-    <div class="mesh-orb orb3"></div>
-  </div>
-
-  <div class="container">
-    <div class="ds-hero-container">
-      <div class="ds-hero-content">
-        <div class="ds-eyebrow">🔥 الأقوى مبيعاً في مصر</div>
-        <h1 class="ds-hero-title">تسوق بذكاء<br>ووفّر أكثر مع <span>فرح استور</span></h1>
-        <p class="ds-hero-desc">منتجات ذكية تسهل حياتك اليومية بأسعار لا تقبل المنافسة. جودة مضمونة 100% مع ضمان استرجاع حقيقي وتوصيل سريع لباب بيتك.</p>
-        
-        <div class="ds-hero-features">
-          <div class="ds-feat"><span class="ds-feat-icon">✅</span> الدفع عند الاستلام</div>
-          <div class="ds-feat"><span class="ds-feat-icon">🚚</span> شحن سريع لمحافظتك</div>
-          <div class="ds-feat"><span class="ds-feat-icon">💯</span> منتجات مجربة ومضمونة</div>
-        </div>
-
-        <div class="ds-hero-actions">
-          <a href="#flash-deals" class="btn btn-gold ds-cta pulse-anim" style="padding:18px 40px;font-size:1.2rem;border-radius:100px;display:inline-block;" onclick="if(window.playClickSound) window.playClickSound()">
-            تسوق عروض اليوم 🎁
-          </a>
-        </div>
-      </div>
-
-      <div class="ds-hero-visual">
-        <div class="ds-video-wrap">
-          <video autoplay loop muted playsinline id="hero-ds-video">
-            <source src="images/hero.mp4" type="video/mp4">
-          </video>
-          <button id="ds-mute-toggle-btn" class="ds-mute-btn" aria-label="Toggle Sound">
-            <svg id="ds-icon-muted" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-            <svg id="ds-icon-unmuted" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-          </button>
-          <div class="ds-glass-badge">
-            <span class="pulse-dot"></span>
-            عروض حصرية
-          </div>
-        </div>
-      </div>
-    </div>
+<section class="cinematic-hero" id="hero">
+  <video autoplay loop muted playsinline class="hero-bg-video">
+    <source src="images/hero.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="hero-brand-name">متجر فرح مصر</h1>
+    <p class="hero-tagline">أناقة وعصرية في كل التفاصيل</p>
+    <a href="#new-arrivals" class="btn btn-gold hero-cta">اكتشف المجموعة</a>
   </div>
 </section>
 
@@ -432,5 +378,6 @@
 </script>
 </body>
 </html>
+
 
 
