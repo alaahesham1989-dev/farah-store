@@ -230,7 +230,52 @@
     }
   </script>
   <script src="checkout.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const applyBtn = document.getElementById('apply-coupon-btn');
+    const couponInput = document.getElementById('coupon-code');
+    const msg = document.getElementById('coupon-msg');
+    
+    // Listen for custom renderCheckoutSummary event from main.js if it exists, otherwise monkey patch
+    // Actually simpler: just attach click handler
+    if(applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const code = couponInput.value.trim().toUpperCase();
+        if(!code) return;
+        
+        let discount = 0;
+        if(code === 'SUMMER20' || code === 'FARAH20') {
+          discount = 0.20; // 20%
+          msg.textContent = 'تم تطبيق خصم 20% بنجاح! 🎉';
+          msg.style.color = 'green';
+        } else if (code === 'VIP50') {
+          discount = 50; // 50 EGP
+          msg.textContent = 'تم خصم 50 ج.م بنجاح! 🎉';
+          msg.style.color = 'green';
+        } else {
+          msg.textContent = 'الكود غير صحيح أو منتهي الصلاحية';
+          msg.style.color = 'red';
+          discount = 0;
+        }
+        msg.style.display = 'block';
+        
+        // Save discount globally so main.js checkout logic picks it up (we will modify main.js to use window.appliedDiscount)
+        window.appliedDiscount = discount;
+        
+        // Re-render summary
+        if(typeof renderCheckoutSummary === 'function') {
+           renderCheckoutSummary();
+        } else {
+           // Fallback trigger event
+           window.dispatchEvent(new Event('couponApplied'));
+        }
+      });
+    }
+  });
+</script>
 </body>
 </html>
+
+
 
 
