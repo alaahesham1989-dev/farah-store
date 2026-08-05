@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   // Simple Mock Login
   const loginBtn = document.getElementById('admin-login-btn');
   const passwordInput = document.getElementById('admin-password');
@@ -6,8 +6,14 @@
   const dashboard = document.getElementById('admin-dashboard');
   const errorMsg = document.getElementById('admin-login-error');
 
+    passwordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      loginBtn.click();
+    }
+  });
+
   loginBtn.addEventListener('click', () => {
-    if (passwordInput.value === '1234') { // Mock password
+    if (passwordInput.value.trim() === '1234') { // Mock password
       loginModal.classList.remove('active');
       dashboard.style.display = 'flex';
       initDashboard();
@@ -50,18 +56,18 @@
       let html = '';
       snapshot.forEach(doc => {
         const p = doc.data();
-        html += 
+        html += `
           <tr>
-            <td><img src="../ + (p.images && p.images[0] ? p.images[0] : 'images/placeholder.jpg') + " alt="Product"></td>
-            <td> + p.name + </td>
-            <td> + p.price +  ج.م</td>
-            <td> + (p.stock || 100) + </td>
+            <td><img src="../${p.images && p.images[0] ? p.images[0] : 'images/placeholder.jpg'}" alt="Product"></td>
+            <td>${p.name}</td>
+            <td>${p.price} ج.م</td>
+            <td>${p.stock || 100}</td>
             <td>
               <button class="btn-sm btn-edit">تعديل</button>
               <button class="btn-sm btn-delete">حذف</button>
             </td>
           </tr>
-        ;
+        `;
       });
       tbody.innerHTML = html;
     } catch (e) {
@@ -99,18 +105,17 @@
     tbody.innerHTML = '';
     PRODUCTS.forEach(p => {
       const tr = document.createElement('tr');
-      tr.innerHTML = 
-        <td><img src="../ + (p.images && p.images[0] ? p.images[0] : 'images/placeholder.jpg') + " alt="Product"></td>
-        <td> + p.name + </td>
-        <td> + p.price +  ج.م</td>
-        <td> + (p.stock || 100) + </td>
+      tr.innerHTML = `
+        <td><img src="../${p.images && p.images[0] ? p.images[0] : 'images/placeholder.jpg'}" alt="Product"></td>
+        <td>${p.name}</td>
+        <td>${p.price} ج.م</td>
+        <td>${p.stock || 100}</td>
         <td>
           <button class="btn-sm btn-edit">تعديل</button>
           <button class="btn-sm btn-delete">حذف</button>
         </td>
-      ;
+      `;
       tbody.appendChild(tr);
     });
   }
 });
-
