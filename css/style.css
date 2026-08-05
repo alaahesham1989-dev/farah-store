@@ -42,12 +42,12 @@
   /* Shadows */
   --shadow-xs: 0 1px 4px rgba(11,25,41,.06);
   --shadow-sm: 0 4px 16px rgba(11,25,41,.09);
-  --shadow-md: 0 8px 32px rgba(11,25,41,.13);
-  --shadow-lg: 0 20px 60px rgba(11,25,41,.18);
+  --shadow-md: 0 12px 32px rgba(17,17,17,0.08);
+  --shadow-lg: 0 24px 64px rgba(17,17,17,0.12);
   --shadow-gold: 0 8px 32px rgba(200,168,75,.28);
 
   /* Motion */
-  --ease:      cubic-bezier(.4,0,.2,1);
+  --ease: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-out:  cubic-bezier(0,.55,.45,1);
   --ease-spring: cubic-bezier(.34,1.56,.64,1);
   --t-fast:    150ms;
@@ -1134,4 +1134,125 @@ input,select,textarea{font-family:var(--font)}
     flex-shrink:0;width:200px;
     scroll-snap-align:start;
   }
+}
+
+/* ══════════════════════════════════════
+   FARAH STORE 2026/2027 OVERRIDES
+   Ultra-Minimalism & Neo-Glassmorphism
+══════════════════════════════════════ */
+
+/* Typography & Spacing */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cairo', sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--navy);
+}
+
+.section-heading {
+  font-size: 2.5rem !important;
+  margin-bottom: 3rem !important;
+}
+
+body {
+  background-color: var(--cream) !important;
+  padding-bottom: 90px;
+}
+
+/* Floating Glassmorphism Cards (Bento) */
+.bento-card {
+  background: rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(30px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 36px !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.03) !important;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+
+.bento-card:hover {
+  transform: translateY(-10px) scale(1.02) !important;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.08) !important;
+  z-index: 10;
+}
+
+/* 2026 Bottom Mobile Navigation */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 420px;
+  height: 75px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 100px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  z-index: 9999;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+}
+
+@media (max-width: 768px) {
+  .navbar, .topbar { display: none !important; }
+  .mobile-bottom-nav { display: flex; }
+}
+
+.mobile-bottom-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  gap: 6px;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+}
+
+.mobile-bottom-nav a.active {
+  color: var(--navy);
+  transform: translateY(-5px);
+}
+
+.mobile-bottom-nav a svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.2;
+}
+
+.cart-badge-bottom {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--flash-accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+/* Scroll Reveal Micro-Animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(60px) scale(0.96);
+  transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }

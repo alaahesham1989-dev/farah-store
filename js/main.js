@@ -755,3 +755,39 @@ function getCatName(id) {
 function getCatIcon(id) {
   return MaysaraDB.CATEGORIES.find(c => c.id === id)?.icon || '📦';
 }
+
+/* ══════════════════════════════════════
+   FARAH STORE 2026/2027 OVERRIDES JS
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Mobile Bottom Nav Cart Toggle
+  const cartToggleBottom = document.getElementById('cart-toggle-bottom');
+  if (cartToggleBottom) {
+    cartToggleBottom.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('cart-drawer')?.classList.add('open');
+      document.getElementById('cart-overlay')?.classList.add('open');
+    });
+  }
+
+  // 2. Advanced IntersectionObserver for Smooth Reveals
+  const revealElements = document.querySelectorAll('section, .bento-card, .prod-grid-card, .product-card');
+  const revealOptions = {
+    threshold: 0.05,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+        // observer.unobserve(entry.target); // keep observing for dynamic scrolling or unobserve for performance
+      }
+    });
+  }, revealOptions);
+
+  revealElements.forEach(el => {
+    el.classList.add('reveal');
+    revealObserver.observe(el);
+  });
+});

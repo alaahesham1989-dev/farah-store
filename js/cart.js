@@ -77,10 +77,16 @@ const Cart = (() => {
     // Badge count
     const count    = getCount();
     const badgeEl  = document.getElementById('cart-count');
+    const bottomEl = document.getElementById('cart-count-bottom');
+    
     if (badgeEl) {
       badgeEl.textContent = count;
       badgeEl.style.opacity    = count > 0 ? '1' : '0';
       badgeEl.style.transform  = count > 0 ? 'scale(1)' : 'scale(0)';
+    }
+
+    if (bottomEl) {
+      bottomEl.textContent = count;
     }
 
     // Drawer items
