@@ -26,13 +26,13 @@
     <span class="topbar-sep">✦</span>
     <span>✅ دفع عند الاستلام متاح</span>
     <span class="topbar-sep">✦</span>
-    <span>🎁 عروض يومية حصرية</span>
+    <span data-i18n="trust_daily_offers">🎁 عروض يومية حصرية</span>
     <span class="topbar-sep">✦</span>
     <span>🚚 شحن مجاني فوق 500 ج.م</span>
     <span class="topbar-sep">✦</span>
     <span>✅ دفع عند الاستلام متاح</span>
     <span class="topbar-sep">✦</span>
-    <span>🎁 عروض يومية حصرية</span>
+    <span data-i18n="trust_daily_offers">🎁 عروض يومية حصرية</span>
   </div>
 </div>
 
@@ -52,11 +52,11 @@
     </a>
 
     <nav class="nav-links" id="nav-links">
-      <a href="#bento">الرئيسية</a>
-      <a href="#new-arrivals">وصل جديد</a>
-      <a href="#sections">الأقسام</a>
-      <a href="#flash-deals">عروض</a>
-      <a href="pages/contact.html">تواصل</a>
+      <a href="#bento" data-i18n="nav_home">الرئيسية</a>
+      <a href="#new-arrivals" data-i18n="nav_new">وصل جديد</a>
+      <a href="#sections" data-i18n="nav_categories">الأقسام</a>
+      <a href="#flash-deals" data-i18n="nav_offers">عروض</a>
+      <a href="pages/contact.html" data-i18n="nav_contact">تواصل</a>
     </nav>
 
     <div class="nav-actions">
@@ -124,8 +124,8 @@
         </h1>
         <p class="bento-brand-sub">عروض لا تُقاوم ومنتجات تهمك في كل تفاصيل يومك</p>
         <div class="bento-brand-actions">
-          <a href="#new-arrivals" class="btn btn-gold">تسوق الآن</a>
-          <a href="#sections" class="btn btn-glass">الأقسام</a>
+          <a href="#new-arrivals" class="btn btn-gold" data-i18n="hero_btn">تسوق الآن</a>
+          <a href="#sections" class="btn btn-glass" data-i18n="nav_categories">الأقسام</a>
         </div>
       </div>
       <div class="bento-brand-deco" aria-hidden="true">
@@ -234,15 +234,15 @@
     <div class="bento-card bento-trust">
       <div class="trust-item">
         <span class="trust-icon">🚚</span>
-        <span>توصيل 24 ساعة</span>
+        <span data-i18n="trust_fast_delivery">توصيل 24 ساعة</span>
       </div>
       <div class="trust-item">
         <span class="trust-icon">💳</span>
-        <span>دفع آمن</span>
+        <span data-i18n="trust_secure_pay">دفع آمن</span>
       </div>
       <div class="trust-item">
         <span class="trust-icon">🔄</span>
-        <span>إرجاع 7 أيام</span>
+        <span data-i18n="trust_returns">إرجاع 7 أيام</span>
       </div>
     </div>
 
@@ -255,8 +255,8 @@
 <section class="strip-section" id="new-arrivals">
   <div class="strip-header">
     <div>
-      <div class="section-eyebrow">✨ وصل حديثاً</div>
-      <h2 class="section-heading">الجديد في المتجر</h2>
+      <div class="section-eyebrow" data-i18n="new_arrivals_badge">✨ وصل حديثاً</div>
+      <h2 class="section-heading" data-i18n="new_arrivals_title">الجديد في المتجر</h2>
     </div>
     <button class="strip-scroll-btn" id="arrivals-scroll-btn" aria-label="تمرير">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -272,8 +272,8 @@
 ══════════════════════════════════════ -->
 <section class="cat-section" id="sections">
   <div class="wide-container">
-    <div class="section-eyebrow" style="text-align:center">📦 أقسام المتجر</div>
-    <h2 class="section-heading" style="text-align:center;margin-bottom:2.5rem">تسوق حسب اهتمامك</h2>
+    <div class="section-eyebrow" style="text-align:center" data-i18n="categories_badge">📦 أقسام المتجر</div>
+    <h2 class="section-heading" style="text-align:center;margin-bottom:2.5rem" data-i18n="categories_title">تسوق حسب اهتمامك</h2>
     <div class="cat-mosaic" id="cat-mosaic">
       <!-- Filled by JS -->
     </div>
@@ -287,10 +287,10 @@
   <div class="wide-container">
     <div class="curated-header">
       <div>
-        <div class="section-eyebrow">🏠 أجهزة ذكية وعملية</div>
-        <h2 class="section-heading">اختيارات ذكية ليومك</h2>
+        <div class="section-eyebrow" data-i18n="curated_home_badge">🏠 أجهزة ذكية وعملية</div>
+        <h2 class="section-heading" data-i18n="curated_home_title">اختيارات ذكية ليومك</h2>
       </div>
-      <a href="#" class="see-all-link" data-filter="home">عرض الكل ←</a>
+      <a href="#" class="see-all-link" data-filter="home" data-i18n="see_all">عرض الكل ←</a>
     </div>
     <div class="products-row" id="home-products-row"><!-- JS --></div>
   </div>
@@ -328,7 +328,7 @@
         <div class="section-eyebrow">✨ العناية والموضة</div>
         <h2 class="section-heading">اهتم بنفسك أكثر</h2>
       </div>
-      <a href="#" class="see-all-link" data-filter="fashion">عرض الكل ←</a>
+      <a href="#" class="see-all-link" data-filter="fashion" data-i18n="see_all">عرض الكل ←</a>
     </div>
     <div class="products-row" id="fashion-products-row"><!-- JS --></div>
   </div>
@@ -401,8 +401,8 @@
     </div>
     <div class="footer-col">
       <h4>روابط سريعة</h4>
-      <a href="#bento">الرئيسية</a>
-      <a href="#new-arrivals">وصل جديد</a>
+      <a href="#bento" data-i18n="nav_home">الرئيسية</a>
+      <a href="#new-arrivals" data-i18n="nav_new">وصل جديد</a>
       <a href="#flash-deals">عروض سريعة</a>
       <a href="pages/contact.html">تواصل معنا</a>
     </div>
@@ -459,7 +459,7 @@
     <div class="cart-summary">
       <div class="cart-summary-row"><span>المجموع</span><strong id="cart-total">—</strong></div>
       <div class="cart-summary-row"><span>الشحن</span><strong id="cart-shipping">—</strong></div>
-      <div class="cart-summary-row total-row"><span>الإجمالي</span><strong id="cart-grand-total">—</strong></div>
+      <div class="cart-summary-row total-row"><span data-i18n="cart_total">الإجمالي</span><strong id="cart-grand-total">—</strong></div>
     </div>
     <a href="pages/checkout.html" class="btn btn-gold w-full" style="font-size:1.05rem;padding:16px">متابعة الدفع ←</a>
     <button class="btn btn-ghost w-full" id="clear-cart" style="margin-top:8px">إفراغ السلة</button>
@@ -504,6 +504,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
     جديدنا
   </a>
+  <a href="#" class="lang-toggle-btn">EN</a>
   <a href="#" id="cart-toggle-bottom">
     <div style="position:relative;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -513,6 +514,7 @@
   </a>
 </nav>
 
+<script src="js/i18n.js"></script>
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/main.js"></script>

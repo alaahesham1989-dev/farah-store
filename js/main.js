@@ -214,13 +214,13 @@ function buildProdCard(product, type = 'card') {
         </div>
       </div>
       <div class="prod-card-body">
-        <div class="prod-card-cat">${catName}</div>
-        <div class="prod-card-name">${product.name}</div>
+        <div class="prod-card-cat" data-i18n="cat_${product.category}">${typeof i18n !== 'undefined' ? i18n[currentLang]['cat_'+product.category] : catName}</div>
+        <div class="prod-card-name">${typeof currentLang !== 'undefined' && currentLang === 'en' && product.nameEn ? product.nameEn : product.name}</div>
         <div class="prod-card-stars">${stars} <span>(${product.reviews})</span></div>
         <div class="prod-card-footer">
           <div class="prod-card-price">
-            <span class="prod-price-now">${product.price.toLocaleString('ar-EG')} ج.م</span>
-            ${hasDisc ? `<span class="prod-price-was">${product.priceOriginal.toLocaleString('ar-EG')} ج.م</span>` : ''}
+            <span class="prod-price-now">${product.price.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>
+            ${hasDisc ? `<span class="prod-price-was">${product.priceOriginal.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>` : ''}
           </div>
           <button class="prod-add-btn add-cart-btn" data-id="${product.id}" aria-label="أضف للسلة">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -242,13 +242,13 @@ function buildProdCard(product, type = 'card') {
       </div>
     </div>
     <div class="prod-card-body">
-      <div class="prod-card-cat">${catName}</div>
-      <div class="prod-card-name">${product.name}</div>
+      <div class="prod-card-cat" data-i18n="cat_${product.category}">${typeof i18n !== 'undefined' ? i18n[currentLang]['cat_'+product.category] : catName}</div>
+      <div class="prod-card-name">${typeof currentLang !== 'undefined' && currentLang === 'en' && product.nameEn ? product.nameEn : product.name}</div>
       <div class="prod-card-stars">${stars} <span>(${product.reviews})</span></div>
       <div class="prod-card-footer">
         <div class="prod-card-price">
-          <span class="prod-price-now">${product.price.toLocaleString('ar-EG')} ج.م</span>
-          ${hasDisc ? `<span class="prod-price-was">${product.priceOriginal.toLocaleString('ar-EG')} ج.م</span>` : ''}
+          <span class="prod-price-now">${product.price.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>
+          ${hasDisc ? `<span class="prod-price-was">${product.priceOriginal.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>` : ''}
         </div>
         <button class="prod-add-btn add-cart-btn" data-id="${product.id}" aria-label="أضف للسلة">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -319,8 +319,8 @@ function initCategoryMosaic() {
   grid.innerHTML = cats.map((cat, i) => `
     <div class="cat-tile fade-up fade-up-${(i % 4) + 1}" data-cat="${cat.id}" role="button" tabindex="0" aria-label="${cat.name}">
       <span class="cat-icon">${cat.icon}</span>
-      <div class="cat-name">${cat.name}</div>
-      <div class="cat-count">${cat.count} منتج</div>
+      <div class="cat-name" data-i18n="cat_${cat.id}">${typeof i18n !== 'undefined' ? i18n[currentLang]['cat_'+cat.id] : cat.name}</div>
+      <div class="cat-count">${cat.count} <span data-i18n="product_items">${typeof i18n !== 'undefined' ? i18n[currentLang]['product_items'] : 'منتج'}</span></div>
     </div>
   `).join('');
 
