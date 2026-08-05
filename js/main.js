@@ -810,3 +810,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+/* ?? Theme Switcher ?? */
+document.addEventListener('DOMContentLoaded', () => {
+  const themeToggles = document.querySelectorAll('.theme-toggle-btn');
+  
+  // 1. Check local storage or default to dark (since site is built for dark primarily)
+  let currentTheme = localStorage.getItem('theme') || 'dark';
+  
+  const applyTheme = (theme) => {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeToggles.forEach(btn => btn.textContent = '??'); // Show sun to switch to light
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      themeToggles.forEach(btn => btn.textContent = '??'); // Show moon to switch to dark
+    }
+    localStorage.setItem('theme', theme);
+  };
+
+  // Apply on load
+  applyTheme(currentTheme);
+
+  // Toggle on click
+  themeToggles.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(currentTheme);
+    });
+  });
+});
