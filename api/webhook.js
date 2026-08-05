@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   // 2. أمر POST: استقبال الداتا من الموقع (أوردر جديد) أو من تليجرام وإرسالها إلى سكريبت جوجل
   if (req.method === 'POST') {
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9EN2MdpfGbVuWlb6_m4BPPvHR9SSwpqj9k2qbaLJakLJ9YMm10-jjiU8TmYPXJrmK-w/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwExBfgyi4bgDUwnBCfAYZvAgrTfKL5g3bPeZyZt3fB8IAhWD29EwTZdUH0FEQUiMGdow/exec";
 
     try {
       // إرسال البيانات فوراً إلى جوجل شيت دون انتظار الرد
