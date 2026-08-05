@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    FARAH 2026 — Design System
    Modern RTL · Mesh Gradients · Bento Grid
    ═══════════════════════════════════════════════ */
@@ -255,7 +255,7 @@ input,select,textarea{font-family:var(--font)}
 .nav-cart-btn svg{stroke:var(--navy)}
 
 .cart-badge{
-  position:absolute;top:4px;inset-inline-start:4px;
+  position:absolute;top:4px;left:4px;
   background:var(--gold);color:var(--navy);
   font-size:.62rem;font-weight:900;
   width:17px;height:17px;border-radius:50%;
@@ -316,7 +316,7 @@ input,select,textarea{font-family:var(--font)}
 }
 .mobile-nav-overlay.open{opacity:1;pointer-events:all}
 .mobile-nav{
-  position:fixed;top:0;inset-inline-end:0;
+  position:fixed;top:0;right:0;
   width:min(320px,85vw);height:100%;
   background:var(--white);z-index:1100;
   transform:translateX(100%);
@@ -361,10 +361,10 @@ input,select,textarea{font-family:var(--font)}
   filter:blur(80px);
   pointer-events:none;
 }
-.orb1{width:600px;height:600px;top:-20%;inset-inline-end:-10%;background:radial-gradient(circle,var(--orb1),transparent 70%)}
-.orb2{width:500px;height:500px;bottom:-10%;inset-inline-start:-5%;background:radial-gradient(circle,var(--orb2),transparent 70%)}
-.orb3{width:400px;height:400px;top:30%;inset-inline-start:30%;background:radial-gradient(circle,var(--orb3),transparent 70%)}
-.orb4{width:350px;height:350px;bottom:20%;inset-inline-end:20%;background:radial-gradient(circle,var(--orb4),transparent 70%)}
+.orb1{width:600px;height:600px;top:-20%;right:-10%;background:radial-gradient(circle,var(--orb1),transparent 70%)}
+.orb2{width:500px;height:500px;bottom:-10%;left:-5%;background:radial-gradient(circle,var(--orb2),transparent 70%)}
+.orb3{width:400px;height:400px;top:30%;left:30%;background:radial-gradient(circle,var(--orb3),transparent 70%)}
+.orb4{width:350px;height:350px;bottom:20%;right:20%;background:radial-gradient(circle,var(--orb4),transparent 70%)}
 
 .bento-container{
   position:relative;z-index:1;
@@ -402,9 +402,9 @@ input,select,textarea{font-family:var(--font)}
   position:absolute;border-radius:50%;
   border:1px solid rgba(200,168,75,.2);
 }
-.deco-circle.c1{width:300px;height:300px;top:-80px;inset-inline-start:-80px}
-.deco-circle.c2{width:200px;height:200px;top:10px;inset-inline-start:-10px;border-color:rgba(200,168,75,.1)}
-.deco-circle.c3{width:120px;height:120px;bottom:60px;inset-inline-end:-30px;background:rgba(200,168,75,.04)}
+.deco-circle.c1{width:300px;height:300px;top:-80px;left:-80px}
+.deco-circle.c2{width:200px;height:200px;top:10px;left:-10px;border-color:rgba(200,168,75,.1)}
+.deco-circle.c3{width:120px;height:120px;bottom:60px;right:-30px;background:rgba(200,168,75,.04)}
 
 .bento-pill{
   display:inline-flex;align-items:center;gap:6px;
@@ -452,7 +452,7 @@ input,select,textarea{font-family:var(--font)}
   background:linear-gradient(to top,rgba(11,25,41,.85) 0%,transparent 55%);
 }
 .bento-product-info{
-  position:absolute;bottom:0;inset-inline-start:0;inset-inline-end:0;
+  position:absolute;bottom:0;left:0;right:0;
   padding:1.5rem;z-index:2;
 }
 .bento-cat-tag{
@@ -472,7 +472,7 @@ input,select,textarea{font-family:var(--font)}
 .bento-price-old{color:rgba(255,255,255,.45);font-size:.82rem;text-decoration:line-through}
 
 .bento-quick-add{
-  position:absolute;top:12px;inset-inline-start:12px;z-index:3;
+  position:absolute;top:12px;left:12px;z-index:3;
   width:38px;height:38px;border-radius:50%;
   background:rgba(255,255,255,.9);
   backdrop-filter:blur(8px);
@@ -492,7 +492,7 @@ input,select,textarea{font-family:var(--font)}
   display:flex;flex-direction:column;
 }
 .bento-flash-badge{
-  position:absolute;top:12px;inset-inline-end:12px;z-index:3;
+  position:absolute;top:12px;right:12px;z-index:3;
   background:var(--flash-accent);color:#fff;
   font-size:.7rem;font-weight:800;
   padding:4px 10px;border-radius:var(--r-full);
@@ -535,7 +535,7 @@ input,select,textarea{font-family:var(--font)}
   cursor:pointer;
 }
 .bento-sm-info{
-  position:absolute;bottom:0;inset-inline-start:0;inset-inline-end:0;
+  position:absolute;bottom:0;left:0;right:0;
   padding:1rem;z-index:2;
   display:flex;justify-content:space-between;align-items:flex-end;
 }
@@ -629,7 +629,7 @@ input,select,textarea{font-family:var(--font)}
 .prod-card:hover .prod-card-img img{transform:scale(1.06)}
 
 .prod-card-badge{
-  position:absolute;top:10px;inset-inline-end:10px;
+  position:absolute;top:10px;right:10px;
   font-size:.65rem;font-weight:800;
   padding:3px 10px;border-radius:var(--r-full);
   z-index:2;
@@ -639,7 +639,7 @@ input,select,textarea{font-family:var(--font)}
 .badge-hot{background:linear-gradient(135deg,#FF6B35,#FFB347);color:var(--navy)}
 
 .prod-card-actions{
-  position:absolute;top:10px;inset-inline-start:10px;
+  position:absolute;top:10px;left:10px;
   display:flex;flex-direction:column;gap:6px;
   z-index:2;
   opacity:0;transform:translateX(-8px);
@@ -793,7 +793,7 @@ input,select,textarea{font-family:var(--font)}
 .flash-card-img img{width:100%;height:100%;object-fit:cover;transition:transform var(--t-slow)}
 .flash-card:hover .flash-card-img img{transform:scale(1.06)}
 .flash-discount-badge{
-  position:absolute;top:10px;inset-inline-end:10px;
+  position:absolute;top:10px;right:10px;
   background:var(--flash-accent);color:#fff;
   font-size:.68rem;font-weight:800;
   padding:3px 10px;border-radius:var(--r-full);
@@ -908,7 +908,7 @@ input,select,textarea{font-family:var(--font)}
   flex-wrap:wrap;gap:8px;
   font-size:.8rem;color:rgba(255,255,255,.3);
 }
-.footer-bottom-inner a{color:rgba(255,255,255,.3);transition:color var(--t-fast);margin-inset-inline-end:1.5rem}
+.footer-bottom-inner a{color:rgba(255,255,255,.3);transition:color var(--t-fast);margin-right:1.5rem}
 .footer-bottom-inner a:hover{color:var(--gold-light)}
 
 /* ═══════════════════════════════════════════════
@@ -926,7 +926,7 @@ input,select,textarea{font-family:var(--font)}
 
 .cart-drawer{
   position:fixed;
-  top:0;inset-inline-start:0;
+  top:0;left:0;
   width:min(420px,100vw);height:100%;
   background:var(--white);
   z-index:1201;
@@ -1021,7 +1021,7 @@ input,select,textarea{font-family:var(--font)}
 ═══════════════════════════════════════════════ */
 .qv-drawer{
   position:fixed;
-  top:0;inset-inline-end:0;
+  top:0;right:0;
   width:min(500px,100vw);height:100%;
   background:var(--white);
   z-index:1201;
@@ -1055,7 +1055,7 @@ input,select,textarea{font-family:var(--font)}
 .qv-desc{font-size:.88rem;color:var(--text-mid);line-height:1.7;margin-bottom:1.25rem}
 .qv-price-block{margin-bottom:1.25rem}
 .qv-price-now{font-size:1.5rem;font-weight:900;color:var(--navy)}
-.qv-price-was{font-size:.9rem;color:var(--text-soft);text-decoration:line-through;margin-inset-inline-end:8px}
+.qv-price-was{font-size:.9rem;color:var(--text-soft);text-decoration:line-through;margin-right:8px}
 .qv-discount{background:#FFF0E8;color:var(--flash-accent);font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:var(--r-full)}
 .qv-variants{margin-bottom:1.25rem}
 .qv-variant-label{font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--navy)}
@@ -1081,7 +1081,7 @@ input,select,textarea{font-family:var(--font)}
    TOAST
 ═══════════════════════════════════════════════ */
 .toast-stack{
-  position:fixed;bottom:1.5rem;inset-inline-end:1.5rem;
+  position:fixed;bottom:1.5rem;right:1.5rem;
   z-index:2000;display:flex;flex-direction:column;gap:8px;
   pointer-events:none;
 }
@@ -1104,7 +1104,7 @@ input,select,textarea{font-family:var(--font)}
 
 /* Back to top */
 .back-top{
-  position:fixed;bottom:1.5rem;inset-inline-start:1.5rem;
+  position:fixed;bottom:1.5rem;left:1.5rem;
   width:44px;height:44px;
   background:var(--navy);color:var(--gold-light);
   border-radius:50%;
@@ -1163,7 +1163,7 @@ input,select,textarea{font-family:var(--font)}
     display: none;
     position: fixed;
     bottom: 0;
-    inset-inline-start: 0;
+    left: 0;
     width: 100%;
     background: rgba(15, 15, 15, 0.85);
     backdrop-filter: blur(20px) saturate(180%);
@@ -1268,7 +1268,7 @@ body {
   display: none;
   position: fixed;
   bottom: 20px;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translateX(-50%);
   width: 92%;
   max-width: 420px;
@@ -1318,7 +1318,7 @@ body {
 .cart-badge-bottom {
   position: absolute;
   top: -8px;
-  inset-inline-end: -8px;
+  right: -8px;
   background: var(--flash-accent);
   color: #fff;
   font-size: 0.7rem;
@@ -1371,7 +1371,6 @@ body {
 }
 
 #mute-toggle-btn:hover { background: rgba(255,255,255,0.4) !important; transform: scale(1.1); }
-
 
 /* ═══════════════════════════════════════════════
    DIRECT SALES HERO
