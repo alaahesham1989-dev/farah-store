@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Farah Egypt | لوحة التحكم</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+
+  <!-- Login Modal -->
+  <div id="admin-login-modal" class="modal-overlay active">
+    <div class="modal-content" style="max-width: 400px;">
+      <h2 style="font-family: 'Tajawal', sans-serif; color: var(--gold); text-align: center; margin-bottom: 20px;">تسجيل الدخول للإدارة</h2>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="admin-password" class="form-control" placeholder="أدخل كلمة المرور..." />
+      </div>
+      <button id="admin-login-btn" class="btn btn-gold" style="width: 100%;">دخول</button>
+      <div id="admin-login-error" style="color: red; text-align: center; margin-top: 10px; display: none;">كلمة المرور غير صحيحة</div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admin-dashboard" style="display: none;">
+    <div class="admin-sidebar">
+      <div class="admin-logo">لوحة التحكم</div>
+      <ul class="admin-menu">
+        <li class="active" data-tab="tab-products">إدارة المنتجات</li>
+        <li data-tab="tab-orders">إدارة الطلبات <span class="badge">0</span></li>
+        <li data-tab="tab-settings">الإعدادات (قريباً)</li>
+        <li><a href="../index.html" style="color: inherit; text-decoration: none;">العودة للمتجر</a></li>
+      </ul>
+    </div>
+
+    <div class="admin-main">
+      <div class="admin-header">
+        <h2>نظرة عامة</h2>
+        <div class="admin-stats">
+          <div class="stat-card">المبيعات: <strong id="stat-sales">0 ج.م</strong></div>
+          <div class="stat-card">الطلبات: <strong id="stat-orders">0</strong></div>
+        </div>
+      </div>
+
+      <!-- Products Tab -->
+      <div id="tab-products" class="admin-tab active">
+        <div class="tab-header" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+          <h3>المنتجات</h3>
+          <button class="btn btn-gold" id="add-product-btn">إضافة منتج جديد +</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>صورة</th>
+              <th>الاسم</th>
+              <th>السعر</th>
+              <th>المخزون</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-products-tbody">
+            <!-- JS populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Orders Tab -->
+      <div id="tab-orders" class="admin-tab">
+        <div class="tab-header" style="margin-bottom: 20px;">
+          <h3>الطلبات الحديثة</h3>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>رقم الطلب</th>
+              <th>العميل</th>
+              <th>الإجمالي</th>
+              <th>الحالة</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody id="admin-orders-tbody">
+            <!-- JS populated -->
+            <tr><td colspan="5" style="text-align: center;">لا توجد طلبات بعد</td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Settings Tab -->
+      <div id="tab-settings" class="admin-tab">
+        <p>إعدادات بوابات الدفع وقاعدة البيانات (قريباً في المرحلة التالية).</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
