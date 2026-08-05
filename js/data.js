@@ -41,7 +41,7 @@ const PRODUCTS = [
     "discount": 34,
     "stock": 100,
     "images": [
-      "images/products/SK-001.jpg"
+      "images/feat3.jpg"
     ],
     "variants": {},
     "rating": 4.5,

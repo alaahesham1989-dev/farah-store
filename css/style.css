@@ -7,28 +7,28 @@
 
 /* ── Variables ── */
 :root {
-  /* Palette */
-  --navy:          #111111;
-  --navy-mid:      #222222;
-  --navy-light:    #333333;
+  /* Dark Palette */
+  --navy:          #FBFBFB; /* Inverted for light text accents */
+  --navy-mid:      #E0E0E0;
+  --navy-light:    #C0C0C0;
   --gold:          #D89A83;
   --gold-light:    #F0C5B5;
   --gold-dark:     #B07661;
-  --cream:         #FBFBFB;
-  --cream-2:       #F2F2F5;
-  --white:         #FFFFFF;
-  --flash-bg:      #000000;
-  --flash-accent:  #E63946;
+  --cream:         #0a0a0a; /* True black background */
+  --cream-2:       #151515; /* Slightly lighter for cards */
+  --white:         #1a1a1a; /* Replaced white with dark grey for contrast */
+  --flash-bg:      #E63946;
+  --flash-accent:  #ffffff;
 
-  /* Mesh orb colors */
-  --orb1: #D89A8322;
-  --orb2: #1111110A;
-  --orb3: #F0C5B51A;
-  --orb4: #E6394605;
+  /* Mesh orb colors - adjusted for dark mode */
+  --orb1: rgba(216, 154, 131, 0.15);
+  --orb2: rgba(255, 255, 255, 0.03);
+  --orb3: rgba(240, 197, 181, 0.1);
+  --orb4: rgba(230, 57, 70, 0.05);
 
-  /* Text */
-  --text-dark:     #111111;
-  --text-mid:      #4A4A4A;
+  /* Text - Dark Mode */
+  --text-dark:     #FBFBFB;
+  --text-mid:      #B0B0B0;
   --text-soft:     #888888;
   --text-white:    #FFFFFF;
 
@@ -148,17 +148,16 @@ input,select,textarea{font-family:var(--font)}
 
 /* ═══════════════════════════════════════════════
    NAVBAR
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════/* ── Header ── */
 .navbar{
-  position:fixed;
-  top:var(--top-h);
-  inset-inline:0;
-  z-index:1000;
-  background:rgba(250,247,242,.92);
-  backdrop-filter:blur(20px) saturate(160%);
-  -webkit-backdrop-filter:blur(20px) saturate(160%);
-  border-bottom:1px solid rgba(200,168,75,.15);
-  transition:background var(--t-base),box-shadow var(--t-base);
+  position:fixed;top:0;width:100%;height:var(--nav-h);
+  background:rgba(10, 10, 10, 0.85);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(255, 255, 255, 0.05);
+  z-index:900;
+  display:flex;align-items:center;
+  transition:all var(--t-base) var(--ease);
 }
 .navbar.scrolled{
   background:rgba(250,247,242,.98);
@@ -1100,6 +1099,22 @@ input,select,textarea{font-family:var(--font)}
   .flash-section-header{flex-direction:column;align-items:flex-start}
   .newsletter-inner{flex-direction:column;gap:2rem}
   .footer-grid{grid-template-columns:1fr 1fr;gap:2rem}
+  
+  /* 2026 Bottom Mobile Navigation */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 999;
+    padding: 0.5rem 1rem;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)); /* For iPhone Home Indicator */
+  }
 }
 
 @media(max-width:600px){
@@ -1162,18 +1177,19 @@ body {
 
 /* Floating Glassmorphism Cards (Bento) */
 .bento-card {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(25, 25, 25, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 28px !important;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.03) !important;
-  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4) !important;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), border 0.3s ease !important;
 }
 
 .bento-card:hover {
   transform: translateY(-6px) scale(1.01) !important;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.08) !important;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6) !important;
+  border: 1px solid rgba(216, 154, 131, 0.3) !important; /* Gold hint on hover */
   z-index: 10;
 }
 
