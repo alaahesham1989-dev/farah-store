@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════
    FARAH 2026 — Design System
    Modern RTL · Mesh Gradients · Bento Grid
    ═══════════════════════════════════════════════ */
@@ -7,87 +7,89 @@
 
 /* ── Variables ── */
 :root {
-  /* Light Palette */
-  --navy:          #111111;
-  --navy-mid:      #222222;
-  --navy-light:    #333333;
-  --gold:          #D89A83;
-  --gold-light:    #F0C5B5;
-  --gold-dark:     #B07661;
-  --cream:         #FBFBFB;
-  --cream-2:       #F2F2F5;
+  /* Elegant Minimal Palette */
+  --navy:          #333333; /* Dark gray for standard text */
+  --navy-mid:      #555555;
+  --navy-light:    #777777;
+  --gold:          #C9A84C; /* Main Elegant Gold */
+  --gold-light:    #E0C57A;
+  --gold-dark:     #A68A3D;
+  --cream:         #FFFFFF; /* Pure White Background */
+  --cream-2:       #F9F9F9; /* Very light gray for panels */
   --white:         #FFFFFF;
-  --flash-bg:      #000000;
-  --flash-accent:  #E63946;
+  --flash-bg:      #FFFFFF;
+  --flash-accent:  #C9A84C;
 
-  /* Mesh orb colors */
-  --orb1: #D89A8322;
-  --orb2: #1111110A;
-  --orb3: #F0C5B51A;
-  --orb4: #E6394605;
+  /* Remove Mesh orb colors */
+  --orb1: transparent;
+  --orb2: transparent;
+  --orb3: transparent;
+  --orb4: transparent;
 
-  /* Text - Light Mode */
-  --text-dark:     #111111;
-  --text-mid:      #4A4A4A;
-  --text-soft:     #888888;
+  /* Text - Minimal */
+  --text-dark:     #333333;
+  --text-mid:      #666666;
+  --text-soft:     #999999;
   --text-white:    #FFFFFF;
 
-  /* Glass Effects - Light */
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-shadow: rgba(0,0,0,0.03);
-  --glass-shadow-hover: rgba(0,0,0,0.08);
-  --glass-nav: rgba(251,251,251,0.85);
-  --glass-nav-border: rgba(17,17,17,0.05);
+  /* Clean Borders & Shadows instead of Glass */
+  --glass-bg: #FFFFFF;
+  --glass-border: #EEEEEE;
+  --glass-shadow: rgba(0,0,0,0.02);
+  --glass-shadow-hover: rgba(0,0,0,0.06);
+  --glass-nav: #FFFFFF;
+  --glass-nav-border: #E5E5E5;
   
-  --flash-card-bg: #fff;
-  --flash-timer-bg: var(--navy);
-  --flash-timer-text: #fff;
-  --flash-timer-sep: var(--navy);
-  --flash-discount-bg: #FFF0E8;
-  --flash-discount-text: var(--flash-accent);
+  --flash-card-bg: #FFFFFF;
+  --flash-timer-bg: #F9F9F9;
+  --flash-timer-text: #333333;
+  --flash-timer-sep: #999999;
+  --flash-discount-bg: rgba(201,168,76,0.1);
+  --flash-discount-text: var(--gold-dark);
 }
 
+/* Remove dark theme completely to force light mode always */
 [data-theme="dark"] {
-  /* Dark Palette */
-  --navy:          #FBFBFB; /* Inverted for light text accents */
-  --navy-mid:      #E0E0E0;
-  --navy-light:    #C0C0C0;
-  --gold:          #D89A83;
-  --gold-light:    #F0C5B5;
-  --gold-dark:     #B07661;
-  --cream:         #0a0a0a; /* True black background */
-  --cream-2:       #151515; /* Slightly lighter for cards */
-  --white:         #1a1a1a; /* Replaced white with dark grey for contrast */
-  --flash-bg:      #E63946;
-  --flash-accent:  #ffffff;
+  /* Forced Light Mode for Farah Egypt clone */
+}
 
-  /* Mesh orb colors - adjusted for dark mode */
-  --orb1: rgba(216, 154, 131, 0.15);
-  --orb2: rgba(255, 255, 255, 0.03);
-  --orb3: rgba(240, 197, 181, 0.1);
-  --orb4: rgba(230, 57, 70, 0.05);
-
-  /* Text - Dark Mode */
-  --text-dark:     #FBFBFB;
-  --text-mid:      #B0B0B0;
-  --text-soft:     #888888;
-  --text-white:    #FFFFFF;
-
-  /* Glass Effects - Dark */
-  --glass-bg: rgba(25, 25, 25, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: rgba(0,0,0,0.4);
-  --glass-shadow-hover: rgba(0,0,0,0.6);
-  --glass-nav: rgba(10, 10, 10, 0.85);
-  --glass-nav-border: rgba(255, 255, 255, 0.05);
-
-  --flash-card-bg: rgba(20, 20, 20, 0.8);
-  --flash-timer-bg: rgba(255, 255, 255, 0.1);
-  --flash-timer-text: #fff;
-  --flash-timer-sep: rgba(255,255,255,0.5);
-  --flash-discount-bg: rgba(230, 57, 70, 0.2);
-  --flash-discount-text: #ff6b6b;
+/* ══════════════════════════════════════
+   TOP ANNOUNCEMENT BAR
+══════════════════════════════════════ */
+.top-bar {
+  background-color: var(--gold);
+  color: var(--white);
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+.top-bar .social-icons {
+  display: flex;
+  gap: 12px;
+  position: absolute;
+  inset-inline-end: 5%;
+}
+.top-bar .social-icons a {
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 768px) {
+  .top-bar {
+    font-size: 0.8rem;
+    flex-direction: column;
+    padding: 10px;
+    gap: 8px;
+  }
+  .top-bar .social-icons {
+    position: static;
+  }
 }
 
   /* Radius */
@@ -124,14 +126,20 @@
 /* ── Reset ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  font-family:var(--font);
-  background:var(--cream);
-  color:var(--text-dark);
-  direction:rtl;
-  overflow-x:hidden;
-  line-height:1.7;
+body {
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+  background-color: var(--cream);
+  color: var(--text-dark);
+  line-height: 1.6;
+  direction: rtl;
+  overflow-x: hidden;
 }
+
+/* ══════════════════════════════════════
+   MESH BACKGROUND (Disabled for minimal theme)
+══════════════════════════════════════ */
+.mesh-bg { display: none !important; }
+
 a{text-decoration:none;color:inherit}
 img{max-width:100%;display:block;object-fit:cover}
 button{cursor:pointer;font-family:var(--font);border:none;background:none;padding:0}
@@ -1260,7 +1268,7 @@ body {
 
 @media (min-width: 769px) {
   .nav-links { gap: 2rem !important; }
-  .navbar { height: 85px !important; }
+  .navbar { height: var(--nav-h); display: flex; align-items: center; background: transparent; margin: 0 auto; transition: all var(--t-fast); }
 }
 
 /* 2026 Bottom Mobile Navigation */
@@ -1522,3 +1530,4 @@ body {
   .ds-hero-features { align-items: center; }
   .ds-video-wrap { aspect-ratio: 1/1; width: 100%; max-width: 500px; margin: 0 auto; }
 }
+

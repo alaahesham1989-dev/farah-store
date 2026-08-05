@@ -1,4 +1,4 @@
-/**
+﻿/**
  * FARAH 2026 — Main Page Controller
  * Bento Grid · Quick View · Flash Deals · Scroll Animations
  */
@@ -874,31 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Using a lightweight oscillator for the click sound so we don't need external files!
 let audioCtx;
-window.playClickSound = function() {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    
-    oscillator.type = 'sine';
-    // Frequency sweep for a nice 'blip' sound
-    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.05);
-    
-    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime); // Volume
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.1);
-  } catch(e) {}
-};
+window.playClickSound = function() { /* Disabled for minimal theme */ };
 
 // Add ripple effect and sound to all buttons and links globally
 document.addEventListener('click', function(e) {
@@ -937,3 +913,4 @@ document.addEventListener('click', function(e) {
     }, 600);
   }
 });
+
