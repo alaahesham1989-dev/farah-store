@@ -22,3 +22,41 @@
 .btn-edit { background: #e0f2fe; color: #0284c7; }
 .btn-delete { background: #fee2e2; color: #dc2626; }
 .modal-overlay.active { display: flex; }
+
+/* FULL MODAL STYLES FOR ADMIN */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none; /* hidden by default */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-overlay.active {
+  display: flex !important;
+}
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+body { background: #f4f6f8 !important; } /* override floral bg */
