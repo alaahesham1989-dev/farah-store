@@ -1,5 +1,5 @@
 /**
- * MAYSARA STORE — Checkout Controller
+ * FARAH STORE — Checkout Controller
  */
 
 'use strict';

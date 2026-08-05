@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   MAYSARA 2026 — Design System
+   FARAH 2026 — Design System
    Modern RTL · Mesh Gradients · Bento Grid
    ═══════════════════════════════════════════════ */
 
@@ -8,28 +8,28 @@
 /* ── Variables ── */
 :root {
   /* Palette */
-  --navy:          #0B1929;
-  --navy-mid:      #132338;
-  --navy-light:    #1C3252;
-  --gold:          #C8A84B;
-  --gold-light:    #E5C97A;
-  --gold-dark:     #9E7B2A;
-  --cream:         #FAF7F2;
-  --cream-2:       #F3EFE7;
+  --navy:          #111111;
+  --navy-mid:      #222222;
+  --navy-light:    #333333;
+  --gold:          #D89A83;
+  --gold-light:    #F0C5B5;
+  --gold-dark:     #B07661;
+  --cream:         #FBFBFB;
+  --cream-2:       #F2F2F5;
   --white:         #FFFFFF;
-  --flash-bg:      #0E0B1E;
-  --flash-accent:  #FF6B35;
+  --flash-bg:      #000000;
+  --flash-accent:  #E63946;
 
   /* Mesh orb colors */
-  --orb1: #C8A84B22;
-  --orb2: #667eea18;
-  --orb3: #f093fb14;
-  --orb4: #4facfe12;
+  --orb1: #D89A8322;
+  --orb2: #1111110A;
+  --orb3: #F0C5B51A;
+  --orb4: #E6394605;
 
   /* Text */
-  --text-dark:     #0B1929;
-  --text-mid:      #3D5068;
-  --text-soft:     #7A8FA6;
+  --text-dark:     #111111;
+  --text-mid:      #4A4A4A;
+  --text-soft:     #888888;
   --text-white:    #FFFFFF;
 
   /* Radius */

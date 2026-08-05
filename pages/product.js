@@ -1,5 +1,5 @@
 /**
- * MAYSARA STORE — Product Page Controller
+ * FARAH STORE — Product Page Controller
  */
 
 'use strict';
@@ -27,7 +27,7 @@ function redirectHome() {
 // ─── Render ───────────────────────────────────────
 function renderProduct(product) {
   // Page title
-  document.title = `${product.name} | ميسرة`;
+  document.title = `${product.name} | فرح استور`;
   document.querySelector('meta[name="description"]').content = product.description;
 
   // Breadcrumb
@@ -223,7 +223,7 @@ function initProductActions(product) {
   // Share WhatsApp
   btnWhatsApp?.addEventListener('click', () => {
     const url = encodeURIComponent(window.location.href);
-    const msg = encodeURIComponent(`🛍️ شوف المنتج ده على ميسرة:\n${product.name}\nبـ ${product.price} ج.م\n${window.location.href}`);
+    const msg = encodeURIComponent(`🛍️ شوف المنتج ده على فرح استور:\n${product.name}\nبـ ${product.price} ج.م\n${window.location.href}`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   });
 

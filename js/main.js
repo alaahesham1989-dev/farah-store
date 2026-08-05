@@ -1,5 +1,5 @@
 /**
- * MAYSARA 2026 — Main Page Controller
+ * FARAH 2026 — Main Page Controller
  * Bento Grid · Quick View · Flash Deals · Scroll Animations
  */
 

@@ -1,5 +1,5 @@
 /**
- * MAYSARA STORE — Cart Manager
+ * FARAH STORE — Cart Manager
  * يعمل عبر localStorage، متزامن مع كل صفحة
  */
 
