@@ -59,28 +59,30 @@
       <!-- Quick contact cards -->
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem;margin-bottom:3rem">
 
-        <a href="https://wa.me/201000000000" target="_blank" rel="noopener" class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
+        <a href="https://wa.me/201000000000" target="_blank" rel="noopener" class="why-card contact-card-whatsapp pulse-glow" style="background:var(--bg-card);border:1.5px solid #25D366;text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition);box-shadow: 0 4px 15px rgba(37,211,102,0.2);">
           <div class="why-icon">💬</div>
           <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">واتساب</h3>
           <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">تواصل مباشرة على واتساب — الأسرع</p>
+          <!-- TODO: تحديث بيانات التواصل الحقيقية -->
           <span style="margin-top:1rem;color:var(--gold-dark);font-weight:700;font-size:0.85rem">01X XXXX XXXX</span>
         </a>
 
-        <a href="tel:+201000000000" class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
+        <a href="tel:+201000000000" class="why-card contact-card-phone" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
           <div class="why-icon">📞</div>
           <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">اتصل بنا</h3>
           <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">من 10 صباحاً حتى 10 مساءً يومياً</p>
+          <!-- TODO: تحديث بيانات التواصل الحقيقية -->
           <span style="margin-top:1rem;color:var(--gold-dark);font-weight:700;font-size:0.85rem">01X XXXX XXXX</span>
         </a>
 
-        <a href="mailto:hello@farah.store" class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
+        <a href="mailto:hello@farah.store" class="why-card contact-card-email" style="background:var(--bg-card);border:1.5px solid var(--border);text-decoration:none;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg);transition:var(--transition)">
           <div class="why-icon">📧</div>
           <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">البريد الإلكتروني</h3>
           <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">نرد خلال 24 ساعة</p>
           <span style="margin-top:1rem;color:var(--gold-dark);font-weight:700;font-size:0.85rem">hello@farah.store</span>
         </a>
 
-        <div class="why-card" style="background:var(--bg-card);border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg)">
+        <div class="why-card contact-card-hours" style="background:var(--bg-card);border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem;border-radius:var(--radius-lg)">
           <div class="why-icon">⏰</div>
           <h3 style="color:var(--navy);font-weight:800;margin-bottom:0.4rem">أوقات العمل</h3>
           <p style="font-size:0.85rem;color:var(--text-muted);text-align:center">السبت – الخميس<br/>10 ص – 10 م</p>
@@ -169,6 +171,7 @@
   </aside>
   <div class="toast-container" id="toast-container"></div>
 
+  <script src="../js/i18n.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/cart.js"></script>
   <script>
@@ -196,7 +199,7 @@
     // ── FAQ ──
     const FAQS = [
       { q: 'كم تستغرق عملية الشحن؟', a: 'القاهرة والجيزة: 24-48 ساعة. باقي المحافظات: 2-3 أيام عمل.' },
-      { q: 'هل يمكنني الإرجاع إذا لم يعجبني المنتج؟', a: 'نعم! لديك 7 أيام من استلام الطلب للإرجاع بشرط أن يكون المنتج في حالته الأصلية.' },
+      { q: 'هل يمكنني الإرجاع أو الاستبدال؟', a: 'لا يوجد استرجاع أو استبدال بعد الاستلام، وذلك حفاظاً على الصحة العامة لأن منتجاتنا تتعلق بالعناية الشخصية والبشرة. يرجى التأكد من اختيارك قبل الطلب.' },
       { q: 'ما هي طرق الدفع المتاحة؟', a: 'الدفع عند الاستلام (كاش)، أو أونلاين عبر Paymob (فيزا / ماستركارد / محافظ إلكترونية).' },
       { q: 'هل الشحن مجاني؟', a: 'نعم! الشحن مجاني على الطلبات التي تتجاوز 500 جنيه. للطلبات الأقل: 65 ج.م القاهرة والجيزة، 90 ج.م للمحافظات.' },
       { q: 'كيف أتتبع طلبي؟', a: 'بعد الشحن ستصلك رسالة واتساب برقم التتبع من شركة الشحن.' },
@@ -206,8 +209,8 @@
     const faqList = document.getElementById('faq-list');
     if (faqList) {
       faqList.innerHTML = FAQS.map((faq, i) => `
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
-          <button onclick="toggleFaq(${i})" id="faq-btn-${i}" style="
+        <div class="faq-item" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+          <button class="faq-question" onclick="toggleFaq(${i})" id="faq-btn-${i}" style="
             width:100%;padding:1rem 1.25rem;
             display:flex;align-items:center;justify-content:space-between;
             font-family:var(--font);font-weight:700;font-size:0.95rem;
@@ -217,7 +220,7 @@
             <span>${faq.q}</span>
             <span id="faq-icon-${i}" style="font-size:1.2rem;color:var(--gold);transition:transform 0.3s;flex-shrink:0;margin-right:0.5rem">+</span>
           </button>
-          <div id="faq-ans-${i}" style="display:none;padding:0 1.25rem 1rem;color:var(--text-secondary);font-size:0.9rem;line-height:1.7;border-top:1px solid var(--border)">
+          <div class="faq-answer" id="faq-ans-${i}" style="display:none;padding:0 1.25rem 1rem;color:var(--text-secondary);font-size:0.9rem;line-height:1.7;border-top:1px solid var(--border)">
             ${faq.a}
           </div>
         </div>

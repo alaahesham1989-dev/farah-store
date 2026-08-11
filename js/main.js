@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FARAH 2026 — Main Page Controller
  * Bento Grid · Quick View · Flash Deals · Scroll Animations
  */
@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollUtils();
   initNewsletter();
   initSeeAll();
+
+  // Consolidated initializations
+  initCartDrawer();
+  Cart.updateUI();
+  initMobileBottomNav();
+  initAdvancedIntersectionObserver();
+  initHeroVideo();
+  initThemeSwitcher();
+  initDSHero();
 });
 
 /* ══════════════════════════════════════
@@ -78,7 +87,7 @@ function initSearch() {
     debounce = setTimeout(() => {
       const q = searchInput.value.trim();
       if (!q) { resultsEl.innerHTML = ''; return; }
-      const results = MaysaraDB.searchProducts(q).slice(0, 6);
+      const results = FarahDB.searchProducts(q).slice(0, 6);
       if (!resultsEl) return;
       if (!results.length) {
         resultsEl.innerHTML = `<p style="color:var(--text-soft);font-size:.9rem">لا توجد نتائج لـ "${q}"</p>`;
@@ -92,7 +101,7 @@ function initSearch() {
           text-decoration:none;color:inherit;
           transition:border-color .15s;min-width:200px;
           flex:1 0 180px;
-        " onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor='var(--cream-2)'">
+        " onmouseenter="this.classList.add('search-hover')" onmouseleave="this.classList.remove('search-hover')">
           <img src="${p.images[0]}" alt="${p.name}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;background:var(--cream)" />
           <div>
             <div style="font-size:.82rem;font-weight:700;color:var(--navy)">${p.name}</div>
@@ -112,7 +121,7 @@ function initBento() {
   document.querySelectorAll('.bento-quick-add[data-product-id]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      const p = MaysaraDB.getProductById(btn.dataset.productId);
+      const p = FarahDB.getProductById(btn.dataset.productId);
       if (p) { Cart.add(p); animateAddBtn(btn); }
     });
   });
@@ -147,12 +156,12 @@ function animateAddBtn(btn) {
 ══════════════════════════════════════ */
 let flashEnd;
 function initFlashTimer() {
-  const saved = MaysaraDB.Storage.get('flash_end');
+  const saved = FarahDB.Storage.get('flash_end');
   if (saved && saved > Date.now()) {
     flashEnd = saved;
   } else {
     flashEnd = Date.now() + (3 * 3600 + 27 * 60 + 45) * 1000;
-    MaysaraDB.Storage.set('flash_end', flashEnd);
+    FarahDB.Storage.set('flash_end', flashEnd);
   }
   tickTimer();
   setInterval(tickTimer, 1000);
@@ -262,7 +271,7 @@ function attachCardEvents(container) {
   container.querySelectorAll('.add-cart-btn[data-id]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      const p = MaysaraDB.getProductById(btn.dataset.id);
+      const p = FarahDB.getProductById(btn.dataset.id);
       if (p) { Cart.add(p); animateAddBtn(btn); }
     });
   });
@@ -295,7 +304,7 @@ function initNewArrivals() {
   const track = document.getElementById('new-arrivals-track');
   if (!track) return;
 
-  const sorted = [...MaysaraDB.PRODUCTS]
+  const sorted = [...FarahDB.PRODUCTS]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 8);
 
@@ -315,7 +324,7 @@ function initCategoryMosaic() {
   const grid = document.getElementById('cat-mosaic');
   if (!grid) return;
 
-  const cats = MaysaraDB.enrichCategoriesWithCount();
+  const cats = FarahDB.enrichCategoriesWithCount();
   grid.innerHTML = cats.map((cat, i) => `
     <div class="cat-tile fade-up fade-up-${(i % 4) + 1}" data-cat="${cat.id}" role="button" tabindex="0" aria-label="${cat.name}">
       <span class="cat-icon">${cat.icon}</span>
@@ -340,7 +349,7 @@ function initCategoryMosaic() {
 function initCuratedSection(categoryId, containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  const products = MaysaraDB.getProductsByCategory(categoryId).slice(0, 4);
+  const products = FarahDB.getProductsByCategory(categoryId).slice(0, 4);
   if (!products.length) { el.closest('section')?.remove(); return; }
   el.innerHTML = products.map(p => buildProdCard(p, 'grid')).join('');
   attachCardEvents(el);
@@ -356,7 +365,7 @@ function initFlashDeals() {
   const grid = document.getElementById('flash-grid');
   if (!grid) return;
 
-  const products = FLASH_PRODUCTS.map(id => MaysaraDB.getProductById(id)).filter(Boolean);
+  const products = FLASH_PRODUCTS.map(id => FarahDB.getProductById(id)).filter(Boolean);
   grid.innerHTML = products.map(p => {
     const stockPct = FLASH_STOCKS[p.id] || 60;
     return `
@@ -383,7 +392,7 @@ function initFlashDeals() {
   grid.querySelectorAll('.add-cart-btn[data-id]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      const p = MaysaraDB.getProductById(btn.dataset.id);
+      const p = FarahDB.getProductById(btn.dataset.id);
       if (p) { Cart.add(p); animateAddBtn(btn); }
     });
   });
@@ -405,7 +414,7 @@ const PAGE_SIZE = 4;
 function initAllProducts() {
   const bar = document.getElementById('filter-bar');
   if (bar) {
-    const cats = MaysaraDB.enrichCategoriesWithCount().filter(c => c.count > 0);
+    const cats = FarahDB.enrichCategoriesWithCount().filter(c => c.count > 0);
     cats.forEach(cat => {
       const btn = document.createElement('button');
       btn.className = 'filter-chip';
@@ -447,7 +456,7 @@ function renderAllProducts() {
   const btn  = document.getElementById('load-more');
   if (!grid) return;
 
-  const all   = MaysaraDB.getProductsByCategory(allFilter);
+  const all   = FarahDB.getProductsByCategory(allFilter);
   const slice = all.slice(0, allVisible);
 
   grid.innerHTML = slice.length
@@ -476,7 +485,7 @@ function initQuickView() {
 }
 
 function openQuickView(productId) {
-  const product = MaysaraDB.getProductById(productId);
+  const product = FarahDB.getProductById(productId);
   if (!product) return;
 
   const drawer  = document.getElementById('qv-drawer');
@@ -646,7 +655,7 @@ function renderCartDrawerNew() {
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
         ${variantLabel}
-        <div class="cart-item-price">${MaysaraDB.formatPrice(item.price * item.qty)}</div>
+        <div class="cart-item-price">${FarahDB.formatPrice(item.price * item.qty)}</div>
         <div class="cart-item-row">
           <div class="qty-control">
             <button class="qty-btn" data-action="dec">−</button>
@@ -660,20 +669,19 @@ function renderCartDrawerNew() {
     el.querySelector('[data-action="dec"]').addEventListener('click', () => Cart.updateQty(item.productId, item.variantKey, item.qty - 1));
     el.querySelector('[data-action="inc"]').addEventListener('click', () => Cart.updateQty(item.productId, item.variantKey, item.qty + 1));
     el.querySelector('[data-action="remove"]').addEventListener('click', () => {
-      el.style.opacity = '0';el.style.transform='translateX(-20px)';el.style.transition='.25s ease';
+      el.classList.add('removing');
       setTimeout(() => Cart.remove(item.productId, item.variantKey), 240);
     });
     itemsEl.appendChild(el);
   });
 
   const { subtotal, shipping, total } = Cart.getTotal();
-  if (totalEl)  totalEl.textContent  = MaysaraDB.formatPrice(subtotal);
-  if (shipEl)   shipEl.textContent   = shipping === 0 ? '🎉 مجاني' : MaysaraDB.formatPrice(shipping);
-  if (grandEl)  grandEl.textContent  = MaysaraDB.formatPrice(total);
+  if (totalEl)  totalEl.textContent  = FarahDB.formatPrice(subtotal);
+  if (shipEl)   shipEl.textContent   = shipping === 0 ? '🎉 مجاني' : FarahDB.formatPrice(shipping);
+  if (grandEl)  grandEl.textContent  = FarahDB.formatPrice(total);
 }
 
 // Patch Cart.updateUI
-const _origSave = Cart.updateUI;
 document.addEventListener('cart:updated', () => {
   // Update badge
   const count = Cart.getCount();
@@ -685,11 +693,7 @@ document.addEventListener('cart:updated', () => {
   renderCartDrawerNew();
 });
 
-// Init cart drawer
-document.addEventListener('DOMContentLoaded', () => {
-  initCartDrawer();
-  Cart.updateUI();
-});
+// Cart drawer init consolidated at the top
 
 /* ══════════════════════════════════════
    SEE ALL LINKS
@@ -714,8 +718,8 @@ function initNewsletter() {
     const input = e.target.querySelector('.nl-input');
     const email = input?.value?.trim();
     if (!email) return;
-    const subs = MaysaraDB.Storage.get('newsletter', []);
-    if (!subs.includes(email)) { subs.push(email); MaysaraDB.Storage.set('newsletter', subs); }
+    const subs = FarahDB.Storage.get('newsletter', []);
+    if (!subs.includes(email)) { subs.push(email); FarahDB.Storage.set('newsletter', subs); }
     showToast('🎉 تم الاشتراك! استنّي العروض الحصرية', 'success', 4000);
     if (input) input.value = '';
   });
@@ -750,16 +754,16 @@ function renderStars(rating) {
   return '★'.repeat(full) + (half ? '⭐' : '') + '☆'.repeat(empty);
 }
 function getCatName(id) {
-  return MaysaraDB.CATEGORIES.find(c => c.id === id)?.name || id;
+  return FarahDB.CATEGORIES.find(c => c.id === id)?.name || id;
 }
 function getCatIcon(id) {
-  return MaysaraDB.CATEGORIES.find(c => c.id === id)?.icon || '📦';
+  return FarahDB.CATEGORIES.find(c => c.id === id)?.icon || '📦';
 }
 
 /* ══════════════════════════════════════
    FARAH STORE 2026/2027 OVERRIDES JS
 ══════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
+function initMobileBottomNav() {
   // 1. Mobile Bottom Nav Cart Toggle
   const cartToggleBottom = document.getElementById('cart-toggle-bottom');
   if (cartToggleBottom) {
@@ -769,7 +773,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('cart-overlay')?.classList.add('open');
     });
   }
+}
 
+function initAdvancedIntersectionObserver() {
   // 2. Advanced IntersectionObserver for Smooth Reveals
   const revealElements = document.querySelectorAll('section, .bento-card, .prod-grid-card, .product-card');
   const revealOptions = {
@@ -790,8 +796,8 @@ document.addEventListener('DOMContentLoaded', () => {
     el.classList.add('reveal');
     revealObserver.observe(el);
   });
-});
-document.addEventListener('DOMContentLoaded', () => {
+}
+function initHeroVideo() {
   const video = document.getElementById('hero-video');
   const muteBtn = document.getElementById('mute-toggle-btn');
   const iconMuted = document.getElementById('icon-muted');
@@ -809,10 +815,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+}
 
-/* ?? Theme Switcher ?? */
-document.addEventListener('DOMContentLoaded', () => {
+/* Theme Switcher */
+function initThemeSwitcher() {
   const themeToggles = document.querySelectorAll('.theme-toggle-btn');
   
   // 1. Check local storage or default to dark (since site is built for dark primarily)
@@ -821,10 +827,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const applyTheme = (theme) => {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-      themeToggles.forEach(btn => btn.textContent = '??'); // Show sun to switch to light
+      themeToggles.forEach(btn => btn.textContent = '☀️'); // Show sun to switch to light
     } else {
       document.documentElement.removeAttribute('data-theme');
-      themeToggles.forEach(btn => btn.textContent = '??'); // Show moon to switch to dark
+      themeToggles.forEach(btn => btn.textContent = '🌙'); // Show moon to switch to dark
     }
     localStorage.setItem('theme', theme);
   };
@@ -840,12 +846,12 @@ document.addEventListener('DOMContentLoaded', () => {
       applyTheme(currentTheme);
     });
   });
-});
+}
 
 /* ═══════════════════════════════════════════════
    DS HERO LOGIC & CLICK SOUND
 ═══════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
+function initDSHero() {
   // Video toggle logic for new DS Hero
   const video = document.getElementById('hero-ds-video');
   const muteBtn = document.getElementById('ds-mute-toggle-btn');
@@ -865,18 +871,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+}
 
-  // Global click sound & ripple effect
-  // A tiny, soft 'pop' sound as base64 (very lightweight, 10ms)
-  const clickAudio = new Audio('data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq'); 
-  // Above is a silent placeholder. I'll use a valid tiny blip data URI or a simple oscillator.
-});
-
-// Using a lightweight oscillator for the click sound so we don't need external files!
-let audioCtx;
-window.playClickSound = function() { /* Disabled for minimal theme */ };
-
-// Add ripple effect and sound to all buttons and links globally
+// Minimal theme - Audio context removed
 document.addEventListener('click', function(e) {
   const target = e.target.closest('button, a, .cat-tile, .flash-card');
   if (target) {
@@ -899,11 +896,11 @@ document.addEventListener('click', function(e) {
     
     // Ensure parent is relative and overflow hidden
     const origPos = window.getComputedStyle(target).position;
-    if(origPos === 'static') target.style.position = 'relative';
+    if(origPos === 'static') target.classList.add('relative-pos');
     const origOverflow = window.getComputedStyle(target).overflow;
     if(origOverflow !== 'hidden' && !target.classList.contains('ds-cta')) {
       // Don't clip glowing buttons
-      target.style.overflow = 'hidden'; 
+      target.classList.add('overflow-hidden'); 
     }
     
     target.appendChild(ripple);

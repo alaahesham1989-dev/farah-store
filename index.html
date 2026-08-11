@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -12,11 +12,10 @@
   <meta name="theme-color" content="#0B1929" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@700;800;900&family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="ticker-wrap"><div class="ticker"><span>🚚 شحن مجاني للطلبات فوق 500 جنيه — عرض محدود!</span><span>✨ خصم 20% على جميع الطرح بمناسبة الافتتاح!</span><span>🎁 هدايا مجانية مع كل طلب فوق 1000 جنيه</span></div></div>
   <div class="mesh-bg"></div><!-- ══════════════════════════════════════
      TOPBAR
 ══════════════════════════════════════ -->
@@ -91,9 +90,20 @@
   </video>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <h1 class="hero-brand-name">متجر فرح مصر</h1>
-    <p class="hero-tagline">أناقة وعصرية في كل التفاصيل</p>
-    <a href="#new-arrivals" class="btn btn-gold hero-cta">اكتشف المجموعة</a>
+    <div class="hero-inner">
+      <h1 class="hero-brand-name">متجر فرح مصر</h1>
+      <p class="hero-tagline">منتجات يومية مختارة بعناية — جودة، موثوقية، وأسعار منافسة</p>
+      <div class="hero-ctas">
+        <a href="#all-products" class="btn btn-primary hero-cta">تسوق الآن</a>
+        <a href="#sections" class="btn btn-outline-dark hero-cta">اكتشف الأقسام</a>
+      </div>
+      <div class="hero-quick-links" aria-hidden="false">
+        <a href="#sections" class="quick-link">🧴 <span>العناية</span></a>
+        <a href="#sections" class="quick-link">👶 <span>الأطفال</span></a>
+        <a href="#sections" class="quick-link">🔌 <span>إلكترونيات</span></a>
+        <a href="#sections" class="quick-link">🏃 <span>رياضة</span></a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -119,7 +129,7 @@
      SECTION GRID — أقسام المتجر
 ══════════════════════════════════════ -->
 <section class="cat-section" id="sections">
-  <div class="wide-container">
+  <div class="wide-container reveal">
     <div class="section-eyebrow" style="text-align:center" data-i18n="categories_badge">📦 أقسام المتجر</div>
     <h2 class="section-heading" style="text-align:center;margin-bottom:2.5rem" data-i18n="categories_title">تسوق حسب اهتمامك</h2>
     <div class="cat-mosaic" id="cat-mosaic">
@@ -132,7 +142,7 @@
      CURATED SECTION 1 — أفكار المنزل
 ══════════════════════════════════════ -->
 <section class="curated-section" id="home-section">
-  <div class="wide-container">
+  <div class="wide-container reveal">
     <div class="curated-header">
       <div>
         <div class="section-eyebrow" data-i18n="curated_home_badge">🏠 أجهزة ذكية وعملية</div>
@@ -148,7 +158,7 @@
      FLASH DEALS STRIP
 ══════════════════════════════════════ -->
 <section class="flash-section" id="flash-deals">
-  <div class="wide-container">
+  <div class="wide-container reveal">
     <div class="flash-section-header">
       <div>
         <div class="section-eyebrow" style="color:var(--flash-accent)">⚡ عروض سريعة</div>
@@ -170,7 +180,7 @@
      CURATED SECTION 2 — إكسسوارات
 ══════════════════════════════════════ -->
 <section class="curated-section seasonal-section" id="seasonal-offers">
-  <div class="wide-container">
+  <div class="wide-container reveal">
     <div class="curated-header">
       <div>
         <div class="section-eyebrow">✨ العناية والموضة</div>
@@ -208,7 +218,7 @@
     <div class="mesh-orb orb1" style="top:-40%;left:-10%;width:500px;height:500px"></div>
     <div class="mesh-orb orb3" style="bottom:-30%;right:-5%;width:400px;height:400px"></div>
   </div>
-  <div class="newsletter-inner wide-container">
+  <div class="newsletter-inner wide-container reveal">
     <div class="newsletter-text">
       <div class="section-eyebrow" style="color:var(--gold-light)">📬 النشرة البريدية</div>
       <h2>كن أول من يعلم<br/>بأقوى العروض</h2>
@@ -228,7 +238,7 @@
   <div class="wide-container footer-grid">
     <div class="footer-brand">
       <div class="footer-logo">
-        <span class="logo-ar">فرح استور</span>
+        <span class="logo-ar">متجر فرح مصر</span>
         <span class="logo-en">FARAH</span>
       </div>
       <p>وجهتك الأولى للتسوق الذكي في مصر.<br/>أسعار لا تقبل المنافسة وجودة نضمنها لك.</p>
@@ -378,7 +388,3 @@
 </script>
 </body>
 </html>
-
-
-
-

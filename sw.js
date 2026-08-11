@@ -5,15 +5,16 @@
 
 const CACHE_NAME  = 'farah-store-v1';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/data.js',
-  '/js/cart.js',
-  '/js/main.js',
-  '/pages/product.html',
-  '/pages/checkout.html',
-  '/pages/contact.html',
+  './',
+  './index.html',
+  './css/style.css',
+  './js/data.js',
+  './js/cart.js',
+  './js/main.js',
+  './js/i18n.js',
+  './pages/product.html',
+  './pages/checkout.html',
+  './pages/contact.html',
   'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap'
 ];
 
@@ -79,17 +80,17 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-192.png',
       dir: 'rtl',
       lang: 'ar',
       vibrate: [100, 50, 100],
-      data: { url: data.url || '/' }
+      data: { url: data.url || './' }
     })
   );
 });
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  e.waitUntil(clients.openWindow(e.notification.data.url || '/'));
+  e.waitUntil(clients.openWindow(e.notification.data.url || './'));
 });

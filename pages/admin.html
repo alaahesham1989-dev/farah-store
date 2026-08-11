@@ -1,107 +1,462 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Farah Egypt | لوحة التحكم</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/admin.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فرح لستور | لوحة التحكم الإدارية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/admin-style.css">
 </head>
 <body>
 
   <!-- Login Modal -->
-  <div id="admin-login-modal" class="modal-overlay active">
-    <div class="modal-content" style="max-width: 400px;">
-      <h2 style="font-family: 'Tajawal', sans-serif; color: var(--gold); text-align: center; margin-bottom: 20px;">تسجيل الدخول للإدارة</h2>
+  <div id="login-modal">
+    <div class="login-card">
+      <h2>فرح لستور</h2>
+      <p>لوحة الإدارة</p>
       <div class="form-group">
-        <label>كلمة المرور</label>
-        <input type="password" id="admin-password" class="form-control" placeholder="أدخل كلمة المرور..." />
+        <input type="password" id="login-password" class="form-control" placeholder=" ">
+        <label class="floating-label">كلمة المرور</label>
+        <div class="login-error" id="login-error">كلمة المرور غير صحيحة</div>
       </div>
-      <button id="admin-login-btn" class="btn btn-gold" style="width: 100%;">دخول</button>
-      <div id="admin-login-error" style="color: red; text-align: center; margin-top: 10px; display: none;">كلمة المرور غير صحيحة</div>
+      <button class="login-btn" id="login-btn">تسجيل الدخول</button>
     </div>
   </div>
 
-  <!-- Admin Dashboard -->
-  <div id="admin-dashboard" style="display: none;">
-    <div class="admin-sidebar">
-      <div class="admin-logo">لوحة التحكم</div>
-      <ul class="admin-menu">
-        <li class="active" data-tab="tab-products">إدارة المنتجات</li>
-        <li data-tab="tab-orders">إدارة الطلبات <span class="badge">0</span></li>
-        <li data-tab="tab-settings">الإعدادات (قريباً)</li>
-        <li><a href="../index.html" style="color: inherit; text-decoration: none;">العودة للمتجر</a></li>
-      </ul>
-    </div>
+  <!-- Main Dashboard -->
+  <div class="dashboard-container" id="dashboard" style="display: none;">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-logo">
+        <h1>فرح لستور</h1>
+      </div>
+      <div class="nav-menu">
+        <div class="nav-group">
+          <div class="nav-group-title">الرئيسية</div>
+          <a class="nav-item active" data-tab="tab-overview">
+            <span class="icon">📊</span> <span>نظرة عامة</span>
+          </a>
+        </div>
+        
+        <div class="nav-group">
+          <div class="nav-group-title">إدارة المتجر</div>
+          <a class="nav-item" data-tab="tab-products">
+            <span class="icon">📦</span> <span>المنتجات</span>
+          </a>
+          <a class="nav-item" data-tab="tab-orders">
+            <span class="icon">🛒</span> <span>الطلبات</span>
+          </a>
+          <a class="nav-item" data-tab="tab-invoices">
+            <span class="icon">🧾</span> <span>الفواتير</span>
+          </a>
+          <a class="nav-item" data-tab="tab-payments">
+            <span class="icon">💳</span> <span>المدفوعات</span>
+          </a>
+          <a class="nav-item" data-tab="tab-discounts">
+            <span class="icon">🏷️</span> <span>الخصومات والكوبونات</span>
+          </a>
+        </div>
 
-    <div class="admin-main">
-      <div class="admin-header">
-        <h2>نظرة عامة</h2>
-        <div class="admin-stats">
-          <div class="stat-card">المبيعات: <strong id="stat-sales">0 ج.م</strong></div>
-          <div class="stat-card">الطلبات: <strong id="stat-orders">0</strong></div>
+        <div class="nav-group">
+          <div class="nav-group-title">إدارة المحتوى</div>
+          <a class="nav-item" data-tab="tab-blog">
+            <span class="icon">📝</span> <span>المدونة</span>
+          </a>
+          <a class="nav-item" data-tab="tab-faq">
+            <span class="icon">❓</span> <span>الأسئلة الشائعة</span>
+          </a>
+          <a class="nav-item" data-tab="tab-reviews">
+            <span class="icon">⭐</span> <span>المراجعات والتقييمات</span>
+          </a>
+          <a class="nav-item" data-tab="tab-notifications">
+            <span class="icon">🔔</span> <span>الإشعارات</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-group-title">إدارة الخدمات</div>
+          <a class="nav-item" data-tab="tab-fleet">
+            <span class="icon">🚚</span> <span>الأسطول والسائقين</span>
+          </a>
+          <a class="nav-item" data-tab="tab-locations">
+            <span class="icon">📍</span> <span>المواقع والوجهات</span>
+          </a>
+          <a class="nav-item" data-tab="tab-affiliates">
+            <span class="icon">💰</span> <span>العمولات والشركاء</span>
+          </a>
+          <a class="nav-item" data-tab="tab-pricing">
+            <span class="icon">📈</span> <span>التسعير الديناميكي</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-group-title">التقارير</div>
+          <a class="nav-item" data-tab="tab-reports">
+            <span class="icon">📊</span> <span>التقارير</span>
+          </a>
+          <a class="nav-item" data-tab="tab-analytics">
+            <span class="icon">📈</span> <span>الإحصائيات</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-group-title">الإعدادات</div>
+          <a class="nav-item" data-tab="tab-settings">
+            <span class="icon">⚙️</span> <span>إعدادات المتجر</span>
+          </a>
+          <a class="nav-item" data-tab="tab-templates">
+            <span class="icon">🎨</span> <span>التصميم والقوالب</span>
+          </a>
         </div>
       </div>
-
-      <!-- Products Tab -->
-      <div id="tab-products" class="admin-tab active">
-        <div class="tab-header" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-          <h3>المنتجات</h3>
-          <button class="btn btn-gold" id="add-product-btn">إضافة منتج جديد +</button>
-        </div>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>صورة</th>
-              <th>الاسم</th>
-              <th>السعر</th>
-              <th>المخزون</th>
-              <th>الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody id="admin-products-tbody">
-            <!-- JS populated -->
-          </tbody>
-        </table>
+      <div class="sidebar-footer">
+        <a class="nav-item" id="logout-btn">
+          <span class="icon">🚪</span> <span>تسجيل الخروج</span>
+        </a>
+        <button class="toggle-sidebar-btn" id="toggle-sidebar">
+          <span>⏴</span>
+        </button>
       </div>
+    </aside>
 
-      <!-- Orders Tab -->
-      <div id="tab-orders" class="admin-tab">
-        <div class="tab-header" style="margin-bottom: 20px;">
-          <h3>الطلبات الحديثة</h3>
-        </div>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>رقم الطلب</th>
-              <th>العميل</th>
-              <th>الإجمالي</th>
-              <th>الحالة</th>
-              <th>التاريخ</th>
-            </tr>
-          </thead>
-          <tbody id="admin-orders-tbody">
-            <!-- JS populated -->
-            <tr><td colspan="5" style="text-align: center;">لا توجد طلبات بعد</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Main Content Area -->
+    <div class="main-content-wrapper" style="display: flex; flex-direction: column; width: 100%;">
       
-      <!-- Settings Tab -->
-      <div id="tab-settings" class="admin-tab">
-        <p>إعدادات بوابات الدفع وقاعدة البيانات (قريباً في المرحلة التالية).</p>
-      </div>
+      <!-- Header -->
+      <header>
+        <div class="search-bar">
+          <span>🔍</span>
+          <input type="text" placeholder="بحث في لوحة التحكم...">
+        </div>
+        <div class="header-actions">
+          <div class="notification-bell" id="notif-toggle">
+            🔔
+            <span class="notif-badge">3</span>
+            <div class="dropdown-menu" id="notif-dropdown">
+              <a href="#" class="dropdown-item">طلب جديد #1024</a>
+              <a href="#" class="dropdown-item">تم تسجيل مستخدم جديد</a>
+              <a href="#" class="dropdown-item">تحذير: انخفاض المخزون</a>
+            </div>
+          </div>
+          <div class="user-profile" id="user-toggle">
+            <div class="avatar">ع</div>
+            <span class="user-name">علاء الجزار</span>
+            <div class="dropdown-menu" id="user-dropdown">
+              <a href="#" class="dropdown-item">الملف الشخصي</a>
+              <a href="#" class="dropdown-item">الإعدادات</a>
+            </div>
+          </div>
+        </div>
+      </header>
 
+      <!-- Content -->
+      <main class="main-content">
+        
+        <!-- Tab: Overview -->
+        <div id="tab-overview" class="tab-content active">
+          <div class="page-header">
+            <h2>نظرة عامة</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>إجمالي المبيعات</span>
+                <span class="stat-icon">💰</span>
+              </div>
+              <div class="stat-value counter" data-target="125400">0 ج.م</div>
+              <div class="stat-change up">↑ 12.5% من الشهر الماضي</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>الطلبات الجديدة</span>
+                <span class="stat-icon">🛒</span>
+              </div>
+              <div class="stat-value counter" data-target="84">0</div>
+              <div class="stat-change up">↑ 8.3% من الأسبوع الماضي</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>المنتجات النشطة</span>
+                <span class="stat-icon">📦</span>
+              </div>
+              <div class="stat-value counter" data-target="320">0</div>
+              <div class="stat-change">عدد المنتجات المتاحة</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <span>العملاء</span>
+                <span class="stat-icon">👥</span>
+              </div>
+              <div class="stat-value counter" data-target="1250">0</div>
+              <div class="stat-change up">↑ 5.2% مستخدم جديد</div>
+            </div>
+          </div>
+
+          <div class="glass-panel">
+            <h3 style="margin-bottom: 20px;">المبيعات الشهرية</h3>
+            <div class="chart-container">
+              <canvas id="salesChart"></canvas>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div class="glass-panel">
+              <h3 style="margin-bottom: 20px;">أحدث الطلبات</h3>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>العميل</th>
+                      <th>المبلغ</th>
+                      <th>الحالة</th>
+                      <th>التاريخ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1024</td>
+                      <td>أحمد محمد</td>
+                      <td>450 ج.م</td>
+                      <td><span class="badge badge-success">مكتمل</span></td>
+                      <td>اليوم</td>
+                    </tr>
+                    <tr>
+                      <td>1025</td>
+                      <td>سارة محمود</td>
+                      <td>1,200 ج.م</td>
+                      <td><span class="badge badge-warning">قيد التجهيز</span></td>
+                      <td>اليوم</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="glass-panel">
+              <h3 style="margin-bottom: 20px;">سجل النشاط</h3>
+              <div class="activity-feed">
+                <div class="activity-item">
+                  <div class="activity-time">منذ 10 دقائق</div>
+                  <div class="activity-text">تم تسجيل طلب جديد #1025</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-time">منذ ساعة</div>
+                  <div class="activity-text">تم تحديث حالة المخزون</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-time">منذ ساعتين</div>
+                  <div class="activity-text">تم إضافة منتج جديد (ساعة ذكية)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Products -->
+        <div id="tab-products" class="tab-content">
+          <div class="page-header">
+            <h2>إدارة المنتجات</h2>
+            <button class="btn btn-gold">+ إضافة منتج</button>
+          </div>
+          <div class="filter-bar">
+            <div class="search-bar">
+              <span>🔍</span>
+              <input type="text" placeholder="بحث عن منتج...">
+            </div>
+            <select class="form-control" style="width: auto;">
+              <option>جميع الفئات</option>
+              <option>إلكترونيات</option>
+              <option>ملابس</option>
+            </select>
+          </div>
+          <div class="glass-panel table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>صورة</th>
+                  <th>الاسم</th>
+                  <th>الفئة</th>
+                  <th>السعر</th>
+                  <th>المخزون</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>📷</td>
+                  <td>سماعة رأس بلوتوث</td>
+                  <td>إلكترونيات</td>
+                  <td>650 ج.م</td>
+                  <td>45</td>
+                  <td><span class="badge badge-success">نشط</span></td>
+                  <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon" style="color: var(--admin-danger)">🗑️</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>📷</td>
+                  <td>تيشيرت قطن ياقة دائرية</td>
+                  <td>ملابس</td>
+                  <td>250 ج.م</td>
+                  <td>12</td>
+                  <td><span class="badge badge-warning">منخفض</span></td>
+                  <td>
+                    <button class="btn-icon">✏️</button>
+                    <button class="btn-icon" style="color: var(--admin-danger)">🗑️</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab: Orders -->
+        <div id="tab-orders" class="tab-content">
+          <div class="page-header">
+            <h2>إدارة الطلبات</h2>
+          </div>
+          <div class="filter-bar">
+            <select class="form-control" style="width: auto;">
+              <option>الكل</option>
+              <option>جديد</option>
+              <option>قيد التجهيز</option>
+              <option>تم الشحن</option>
+              <option>مكتمل</option>
+              <option>ملغي</option>
+            </select>
+          </div>
+          <div class="glass-panel table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>رقم الطلب</th>
+                  <th>العميل</th>
+                  <th>الهاتف</th>
+                  <th>المبلغ</th>
+                  <th>طريقة الدفع</th>
+                  <th>الحالة</th>
+                  <th>التاريخ</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#ORD-1024</td>
+                  <td>محمود علي</td>
+                  <td>01012345678</td>
+                  <td>1,500 ج.م</td>
+                  <td>الدفع عند الاستلام</td>
+                  <td><span class="badge badge-warning">قيد التجهيز</span></td>
+                  <td>2023-10-15</td>
+                  <td><button class="btn-icon">👁️</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Other Tabs (Placeholders for brevity, similar structure) -->
+        <div id="tab-invoices" class="tab-content">
+          <div class="page-header">
+            <h2>الفواتير</h2>
+            <button class="btn btn-gold">+ إنشاء فاتورة</button>
+          </div>
+          <div class="glass-panel table-container">
+            <table>
+              <thead><tr><th>رقم الفاتورة</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th></tr></thead>
+              <tbody><tr><td>INV-001</td><td>شركة الأمل</td><td>5,000 ج.م</td><td><span class="badge badge-success">مدفوعة</span></td><td>2023-10-10</td><td><button class="btn-icon">👁️</button></td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-payments" class="tab-content">
+          <div class="page-header"><h2>المدفوعات والتحصيل</h2></div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header"><span>إجمالي التحصيل</span></div>
+              <div class="stat-value">45,000 ج.م</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header"><span>معلق</span></div>
+              <div class="stat-value">3,500 ج.م</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-discounts" class="tab-content">
+          <div class="page-header">
+            <h2>الخصومات والكوبونات</h2>
+            <button class="btn btn-gold">+ إضافة كوبون</button>
+          </div>
+          <div class="glass-panel">
+            <form style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+              <div class="form-group"><input type="text" class="form-control" placeholder=" "><label class="floating-label">كود الكوبون</label></div>
+              <div class="form-group"><input type="number" class="form-control" placeholder=" "><label class="floating-label">القيمة</label></div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="color: var(--admin-text-soft); margin-left: 15px;">تفعيل الكوبون</label>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </form>
+            <div class="table-container">
+              <table>
+                <thead><tr><th>كود الكوبون</th><th>نوع الخصم</th><th>القيمة</th><th>الحد الأدنى</th><th>تاريخ الانتهاء</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+                <tbody><tr><td>WINTER23</td><td>نسبة مئوية</td><td>20%</td><td>500 ج.م</td><td>2023-12-31</td><td><span class="badge badge-success">نشط</span></td><td><button class="btn-icon">🗑️</button></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-blog" class="tab-content"><div class="page-header"><h2>إدارة المدونة</h2><button class="btn btn-gold">+ مقال جديد</button></div></div>
+        <div id="tab-faq" class="tab-content"><div class="page-header"><h2>الأسئلة الشائعة</h2><button class="btn btn-gold">+ سؤال جديد</button></div></div>
+        <div id="tab-reviews" class="tab-content"><div class="page-header"><h2>المراجعات والتقييمات</h2></div></div>
+        <div id="tab-notifications" class="tab-content"><div class="page-header"><h2>الإشعارات</h2><button class="btn btn-gold">+ إشعار جديد</button></div></div>
+        <div id="tab-fleet" class="tab-content"><div class="page-header"><h2>إدارة الأسطول والسائقين</h2><button class="btn btn-gold">+ إضافة سائق</button></div></div>
+        <div id="tab-locations" class="tab-content"><div class="page-header"><h2>المواقع والوجهات</h2><button class="btn btn-gold">+ إضافة منطقة</button></div></div>
+        <div id="tab-affiliates" class="tab-content"><div class="page-header"><h2>العمولات والشركاء</h2><button class="btn btn-gold">+ إضافة شريك</button></div></div>
+        <div id="tab-pricing" class="tab-content"><div class="page-header"><h2>التسعير الديناميكي</h2></div></div>
+        <div id="tab-reports" class="tab-content"><div class="page-header"><h2>التقارير</h2></div></div>
+        <div id="tab-analytics" class="tab-content"><div class="page-header"><h2>الإحصائيات</h2></div></div>
+        
+        <div id="tab-settings" class="tab-content">
+          <div class="page-header"><h2>إعدادات المتجر</h2></div>
+          <div class="glass-panel">
+            <h3 style="margin-bottom: 20px; color: var(--admin-gold);">معلومات المتجر</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group"><input type="text" class="form-control" value="فرح لستور" placeholder=" "><label class="floating-label">اسم المتجر</label></div>
+              <div class="form-group"><input type="text" class="form-control" value="01000000000" placeholder=" "><label class="floating-label">الهاتف</label></div>
+            </div>
+            <h3 style="margin-bottom: 20px; margin-top: 30px; color: var(--admin-gold);">إعدادات الدفع</h3>
+            <div style="display: flex; gap: 40px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                <span>تفعيل الدفع عند الاستلام</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                <span>تفعيل Paymob</span>
+              </div>
+            </div>
+            <div style="margin-top: 30px;">
+              <button class="btn btn-gold">حفظ الإعدادات</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-templates" class="tab-content"><div class="page-header"><h2>التصميم والقوالب</h2></div></div>
+
+      </main>
     </div>
   </div>
 
-    <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script src="../js/firebase-init.js"></script>
-  <script src="../js/data.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="../js/admin.js"></script>
 </body>
 </html>
-

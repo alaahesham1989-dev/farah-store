@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -21,7 +21,7 @@
       <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
     </div>
   </div>
-  <div class="mesh-bg"></div><div class="mesh-bg" aria-hidden="true" style="position:fixed;inset:0;z-index:-1">
+  <div class="mesh-bg" aria-hidden="true" style="position:fixed;inset:0;z-index:-1">
     <div class="mesh-orb orb1"></div>
     <div class="mesh-orb orb2"></div>
     <div class="mesh-orb orb3"></div>
@@ -72,17 +72,17 @@
             <form id="checkout-form" novalidate>
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label" for="field-name">الاسم الكامل *</label>
+                  <label class="form-label" for="field-name">👤 الاسم الكامل *</label>
                   <input type="text" id="field-name" class="form-control" placeholder="الاسم الكامل" required autocomplete="name" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="field-phone">رقم الهاتف *</label>
+                  <label class="form-label" for="field-phone">📱 رقم الهاتف *</label>
                   <input type="tel" id="field-phone" class="form-control" placeholder="01XXXXXXXXX" required autocomplete="tel" pattern="^01[0-9]{9}$" />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label" for="field-gov">المحافظة *</label>
+                  <label class="form-label" for="field-gov">📍 المحافظة *</label>
                   <select id="field-gov" class="form-control" required>
                     <option value="" disabled selected>اختار المحافظة</option>
                     <option value="cairo">القاهرة</option>
@@ -115,17 +115,17 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="field-city">المدينة / المنطقة *</label>
+                  <label class="form-label" for="field-city">🏘️ المدينة / المنطقة *</label>
                   <input type="text" id="field-city" class="form-control" placeholder="مثال: مدينة نصر" required />
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="field-street">العنوان بالتفصيل *</label>
+                <label class="form-label" for="field-street">🏠 العنوان بالتفصيل *</label>
                 <input type="text" id="field-street" class="form-control" placeholder="الشارع، رقم المبنى، الدور، الشقة" required />
                 <p class="form-hint">مثال: شارع النصر، مبنى 12، الدور 3، شقة 15</p>
               </div>
               <div class="form-group">
-                <label class="form-label" for="field-notes">ملاحظات التوصيل (اختياري)</label>
+                <label class="form-label" for="field-notes">📝 ملاحظات التوصيل (اختياري)</label>
                 <textarea id="field-notes" class="form-control" rows="2" placeholder="أي تعليمات إضافية للتوصيل..."></textarea>
               </div>
             </form>
@@ -175,7 +175,7 @@
               ⚡ بعد تأكيد الطلب، ستُحوَّل لبوابة Paymob الآمنة لإتمام الدفع.
             </div>
 
-            <button type="button" class="btn btn-primary btn-full" id="btn-place-order" style="margin-top:1.5rem;font-size:1.05rem;padding:16px">
+            <button type="button" class="btn btn-primary btn-full pulse-glow" id="btn-place-order" style="margin-top:1.5rem;font-size:1.15rem;padding:18px;font-weight:bold;">
               ✅ تأكيد الطلب
             </button>
             <p style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-top:0.75rem">
@@ -187,6 +187,14 @@
         <!-- RIGHT: Order Summary -->
         <div class="order-summary-card" id="order-summary">
           <h3>ملخص طلبك</h3>
+          
+          <!-- Coupon Code Section -->
+          <div style="margin-bottom: 1rem; display: flex; gap: 8px;">
+            <input type="text" id="coupon-code" class="form-control" placeholder="كود الخصم" style="flex:1" />
+            <button type="button" id="apply-coupon-btn" class="btn btn-outline" style="white-space:nowrap">تطبيق</button>
+          </div>
+          <div id="coupon-msg" style="display:none; font-size:0.85rem; margin-bottom:1rem; font-weight:600;"></div>
+
           <div class="summary-items-list" id="summary-items"></div>
           <div class="summary-item"><span>المجموع الجزئي</span><span id="sum-subtotal">—</span></div>
           <div class="summary-item"><span>الشحن</span><span id="sum-shipping">—</span></div>
@@ -199,7 +207,6 @@
   <!-- ========== SUCCESS MODAL ========== -->
   <div id="success-modal" style="display:none; padding: 2rem 1rem;">
     <div style="background:var(--white); max-width:600px; margin:0 auto; text-align:center;">
-      <
       <div style="border: 2px dashed #7A9B76; padding: 1.5rem; margin-bottom: 2rem; color: #5B7A58; font-size: 1.5rem; font-weight: 700;">شكراً لك. تم استلام طلبك.</div>
       
       <div id="order-id-display" style="background:var(--bg-subtle);border-radius:var(--radius);padding:12px;margin:1.25rem 0;font-weight:800;color:var(--navy);font-size:0.95rem;letter-spacing:0.05em;border:1px solid var(--border)"></div>
@@ -219,6 +226,7 @@
 
   <div class="toast-container" id="toast-container"></div>
 
+  <script src="../js/i18n.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/cart.js"></script>
   <script>

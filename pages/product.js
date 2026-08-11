@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!id) { redirectHome(); return; }
 
-  const product = MaysaraDB.getProductById(id);
+  const product = FarahDB.getProductById(id);
   if (!product) { redirectHome(); return; }
 
   renderProduct(product);
@@ -31,7 +31,7 @@ function renderProduct(product) {
   document.querySelector('meta[name="description"]').content = product.description;
 
   // Breadcrumb
-  document.getElementById('breadcrumb-name').textContent = product.name;
+  document.getElementById('breadcrumb-name')?.textContent = product.name;
 
   // Gallery
   const mainImg = document.getElementById('gallery-main-img');
@@ -58,29 +58,38 @@ function renderProduct(product) {
   }
 
   // Category
-  const cat = MaysaraDB.CATEGORIES.find(c => c.id === product.category);
-  document.getElementById('info-category').textContent = cat ? `${cat.icon} ${cat.name}` : product.category;
+  const cat = FarahDB.CATEGORIES.find(c => c.id === product.category);
+  const infoCat = document.getElementById('info-category');
+  if(infoCat) infoCat.textContent = cat ? `${cat.icon} ${cat.name}` : product.category;
 
   // Name
-  document.getElementById('info-name').textContent = product.name;
+  const infoName = document.getElementById('info-name');
+  if(infoName) infoName.textContent = product.name;
 
   // Rating
-  document.getElementById('info-stars').textContent = renderStars(product.rating);
-  document.getElementById('info-reviews').textContent = `(${product.reviews.toLocaleString('ar-EG')} تقييم)`;
-  document.getElementById('info-sold').textContent    = `${product.sold.toLocaleString('ar-EG')} مبيع`;
+  const infoStars = document.getElementById('info-stars');
+  if(infoStars) infoStars.textContent = renderStars(product.rating);
+  const infoReviews = document.getElementById('info-reviews');
+  if(infoReviews) infoReviews.textContent = `(${product.reviews.toLocaleString('ar-EG')} تقييم)`;
+  const infoSold = document.getElementById('info-sold');
+  if(infoSold) infoSold.textContent    = `${product.sold.toLocaleString('ar-EG')} مبيع`;
 
   // Description
-  document.getElementById('info-desc').textContent = product.description;
+  const infoDesc = document.getElementById('info-desc');
+  if(infoDesc) infoDesc.textContent = product.description;
 
   // Price
-  document.getElementById('info-price').innerHTML =
+  const infoPrice = document.getElementById('info-price');
+  if(infoPrice) infoPrice.innerHTML =
     `${product.price.toLocaleString('ar-EG')} <span style="font-size:1rem">ج.م</span>`;
   if (product.discount > 0 && product.priceOriginal) {
     const badge = document.getElementById('info-discount-badge');
-    badge.textContent    = `خصم ${product.discount}%`;
-    badge.style.display  = 'inline-block';
+    if(badge) {
+      badge.textContent    = `خصم ${product.discount}%`;
+      badge.style.display  = 'inline-block';
+    }
     const origEl = document.getElementById('info-original-price');
-    origEl.textContent   = `${product.priceOriginal.toLocaleString('ar-EG')} ج.م`;
+    if(origEl) origEl.textContent   = `${product.priceOriginal.toLocaleString('ar-EG')} ج.م`;
   }
 
   // Variants
@@ -89,7 +98,8 @@ function renderProduct(product) {
     variantsSection.style.display = 'block';
     const [key, values] = Object.entries(product.variants)[0];
     const labelMap = { colors: 'اختار اللون', sizes: 'اختار المقاس' };
-    document.getElementById('variant-label').textContent = labelMap[key] || key;
+    const vLabel = document.getElementById('variant-label');
+    if(vLabel) vLabel.textContent = labelMap[key] || key;
 
     const optionsEl = document.getElementById('variant-options');
     optionsEl.innerHTML = values.map((v, i) => `
@@ -105,16 +115,19 @@ function renderProduct(product) {
   }
 
   // SKU & Stock
-  document.getElementById('meta-sku').textContent = product.sku;
+  const metaSku = document.getElementById('meta-sku');
+  if(metaSku) metaSku.textContent = product.sku;
   const stockEl = document.getElementById('meta-stock');
   if (product.stock > 10) {
-    stockEl.innerHTML = `<span style="color:var(--success)">✅ متاح (${product.stock} قطعة)</span>`;
+    if(stockEl) stockEl.innerHTML = `<span style="color:var(--success)">✅ متاح (${product.stock} قطعة)</span>`;
   } else if (product.stock > 0) {
-    stockEl.innerHTML = `<span style="color:var(--warning)">⚠️ آخر ${product.stock} قطع</span>`;
+    if(stockEl) stockEl.innerHTML = `<span style="color:var(--warning)">⚠️ آخر ${product.stock} قطع</span>`;
   } else {
-    stockEl.innerHTML = `<span style="color:var(--danger)">❌ نفذت الكمية</span>`;
-    document.getElementById('btn-add-cart').disabled = true;
-    document.getElementById('btn-buy-now').disabled  = true;
+    if(stockEl) stockEl.innerHTML = `<span style="color:var(--danger)">❌ نفذت الكمية</span>`;
+    const btnAdd = document.getElementById('btn-add-cart');
+    if(btnAdd) btnAdd.disabled = true;
+    const btnBuy = document.getElementById('btn-buy-now');
+    if(btnBuy) btnBuy.disabled  = true;
   }
 }
 
@@ -131,7 +144,7 @@ function renderRelated(product) {
   const grid = document.getElementById('related-grid');
   if (!grid) return;
 
-  const related = MaysaraDB.PRODUCTS
+  const related = FarahDB.PRODUCTS
     .filter(p => p.id !== product.id && p.category === product.category)
     .slice(0, 4);
 
@@ -164,7 +177,7 @@ function renderRelated(product) {
   grid.querySelectorAll('[data-id]').forEach(el => {
     el.querySelector('.btn-add-cart')?.addEventListener('click', e => {
       e.stopPropagation();
-      const p = MaysaraDB.getProductById(el.dataset.id);
+      const p = FarahDB.getProductById(el.dataset.id);
       if (p) Cart.add(p);
     });
     el.addEventListener('click', () => {

@@ -32,7 +32,7 @@ function renderOrderSummary(governorate = 'cairo') {
         <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/52x52/f3f0ea/0d1b2a?text=📦'" />
         <div class="summary-product-info">
           <div class="summary-product-name">${item.name}</div>
-          <div class="summary-product-price">${item.qty} × ${MaysaraDB.formatPrice(item.price)}</div>
+          <div class="summary-product-price">${item.qty} × ${FarahDB.formatPrice(item.price)}</div>
           ${item.variant && Object.values(item.variant).length ? `<div style="font-size:0.75rem;color:var(--text-muted)">${Object.values(item.variant).join(' / ')}</div>` : ''}
         </div>
       </div>
@@ -43,12 +43,12 @@ function renderOrderSummary(governorate = 'cairo') {
   const shipEl = document.getElementById('sum-shipping');
   const totEl  = document.getElementById('sum-total');
 
-  if (subEl)  subEl.textContent  = MaysaraDB.formatPrice(subtotal);
+  if (subEl)  subEl.textContent  = FarahDB.formatPrice(subtotal);
   if (shipEl) shipEl.textContent = shipping === 0
     ? '🎉 مجاني'
-    : MaysaraDB.formatPrice(shipping);
+    : FarahDB.formatPrice(shipping);
   if (totEl) {
-    totEl.textContent = MaysaraDB.formatPrice(total);
+    totEl.textContent = FarahDB.formatPrice(total);
     totEl.style.color = 'var(--navy)';
   }
 }
@@ -135,9 +135,9 @@ function initPlaceOrder() {
     const order = Cart.prepareOrderPayload(customerData);
 
     // ── Save order locally (until backend is ready) ──
-    const orders = MaysaraDB.Storage.get('orders', []);
+    const orders = FarahDB.Storage.get('orders', []);
     orders.unshift(order);
-    MaysaraDB.Storage.set('orders', orders);
+    FarahDB.Storage.set('orders', orders);
 
     // ── Loading state ──
     btn.disabled     = true;

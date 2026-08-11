@@ -9,11 +9,11 @@ const Cart = (() => {
   const CART_KEY = 'cart';
 
   // ─── State ──────────────────────────────────────
-  let items = MaysaraDB.Storage.get(CART_KEY, []);
+  let items = FarahDB.Storage.get(CART_KEY, []);
 
   // ─── Persistence ────────────────────────────────
   function save() {
-    MaysaraDB.Storage.set(CART_KEY, items);
+    FarahDB.Storage.set(CART_KEY, items);
     updateUI();
     document.dispatchEvent(new CustomEvent('cart:updated', { detail: { items, total: getTotal() } }));
   }
@@ -67,7 +67,7 @@ const Cart = (() => {
   function getSubtotal() { return items.reduce((sum, i) => sum + i.price * i.qty, 0); }
   function getTotal(governorate = 'cairo') {
     const sub      = getSubtotal();
-    const shipping = MaysaraDB.calculateShipping(sub, governorate);
+    const shipping = FarahDB.calculateShipping(sub, governorate);
     return { subtotal: sub, shipping, total: sub + shipping };
   }
   function isEmpty()   { return items.length === 0; }
@@ -122,8 +122,8 @@ const Cart = (() => {
 
     // Update totals
     const { subtotal, shipping, total } = getTotal();
-    if (totalEl)   totalEl.textContent   = MaysaraDB.formatPrice(subtotal);
-    if (shippingEl) shippingEl.textContent = shipping === 0 ? '🎉 مجاني' : MaysaraDB.formatPrice(shipping);
+    if (totalEl)   totalEl.textContent   = FarahDB.formatPrice(subtotal);
+    if (shippingEl) shippingEl.textContent = shipping === 0 ? '🎉 مجاني' : FarahDB.formatPrice(shipping);
   }
 
   function createCartItemElement(item) {
@@ -141,7 +141,7 @@ const Cart = (() => {
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
         ${variantLabel}
-        <div class="cart-item-price">${MaysaraDB.formatPrice(item.price * item.qty)}</div>
+        <div class="cart-item-price">${FarahDB.formatPrice(item.price * item.qty)}</div>
         <div class="cart-item-actions">
           <button class="qty-btn" data-action="decrease" aria-label="تقليل الكمية">−</button>
           <span class="qty-display">${item.qty}</span>
@@ -168,7 +168,7 @@ const Cart = (() => {
   function prepareOrderPayload(customerData) {
     const { subtotal, shipping, total } = getTotal(customerData.governorate);
     return {
-      id:              MaysaraDB.generateOrderId(),
+      id:              FarahDB.generateOrderId(),
       customerName:    customerData.name,
       customerPhone:   customerData.phone,
       customerAddress: customerData.address,
@@ -195,7 +195,7 @@ const Cart = (() => {
 
   // ─── Sync across tabs ─────────────────────────────
   window.addEventListener('storage', (e) => {
-    if (e.key === 'maysara_cart') {
+    if (e.key === 'farah_cart') {
       items = JSON.parse(e.newValue || '[]');
       updateUI();
     }

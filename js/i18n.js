@@ -105,7 +105,14 @@ function applyLang(lang) {
       if (el.tagName === 'INPUT' && el.type === 'search') {
         el.placeholder = i18n[lang][key];
       } else {
-        el.textContent = i18n[lang][key];
+        const textNode = Array.from(el.childNodes).find(n => n.nodeType === 3 && n.nodeValue.trim() !== '');
+        if (textNode) {
+          textNode.nodeValue = i18n[lang][key];
+        } else if (el.children.length > 0) {
+          el.append(document.createTextNode(' ' + i18n[lang][key]));
+        } else {
+          el.textContent = i18n[lang][key];
+        }
       }
     }
   });
@@ -116,7 +123,7 @@ function applyLang(lang) {
   });
   
   if (typeof initCategoryMosaic === 'function') initCategoryMosaic();
-  if (typeof renderAllSections === 'function') renderAllSections();
+  if (typeof renderAllProducts === 'function') renderAllProducts();
 }
 
 function toggleLang() {
