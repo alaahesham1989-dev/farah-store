@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.session
+firebase_key.json
+groq_key.txt
+imgbb_key.txt
+*.key
+*.env
+node_modules/
+.DS_Store
