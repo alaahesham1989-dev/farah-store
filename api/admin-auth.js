@@ -4,8 +4,12 @@ export default function handler(req, res) {
   }
 
   const { email, password } = req.body || {};
-  const ADMIN_EMAIL = process.env.FARAH_ADMIN_EMAIL || 'ALAAHESHAM1989@GMAIL.COM';
-  const ADMIN_PASSWORD = process.env.FARAH_ADMIN_PASSWORD || 'FarahStore!2026Secure';
+  const ADMIN_EMAIL = process.env.FARAH_ADMIN_EMAIL;
+  const ADMIN_PASSWORD = process.env.FARAH_ADMIN_PASSWORD;
+
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    return res.status(500).json({ message: 'Server configuration error: admin credentials are not configured.' });
+  }
 
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required.' });
