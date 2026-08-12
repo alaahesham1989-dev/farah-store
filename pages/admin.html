@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
   <title>فرح لستور | لوحة التحكم الإدارية</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/admin-style.css">
@@ -15,9 +16,13 @@
       <h2>فرح لستور</h2>
       <p>لوحة الإدارة</p>
       <div class="form-group">
+        <input type="email" id="login-email" class="form-control" placeholder=" ">
+        <label class="floating-label">البريد الإلكتروني</label>
+      </div>
+      <div class="form-group">
         <input type="password" id="login-password" class="form-control" placeholder=" ">
         <label class="floating-label">كلمة المرور</label>
-        <div class="login-error" id="login-error">كلمة المرور غير صحيحة</div>
+        <div class="login-error" id="login-error">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
       </div>
       <button class="login-btn" id="login-btn">تسجيل الدخول</button>
     </div>
@@ -455,7 +460,9 @@
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="../js/firebase-init.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="../js/admin.js"></script>
 </body>

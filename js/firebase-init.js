@@ -16,5 +16,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 window.db = db; // Make available globally
+window.auth = auth;

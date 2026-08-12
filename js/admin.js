@@ -1,39 +1,124 @@
-// Mock authentication
+// Firebase authentication
 const loginBtn = document.getElementById('login-btn');
+const emailInput = document.getElementById('login-email');
 const passwordInput = document.getElementById('login-password');
 const loginError = document.getElementById('login-error');
 const loginModal = document.getElementById('login-modal');
 const dashboard = document.getElementById('dashboard');
 
-function attemptLogin() {
-  const pwd = passwordInput.value;
-  if (pwd === '1234') {
-    loginBtn.innerHTML = '<span class="spinner" style="display:inline-block; width:20px; height:20px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></span> جاري الدخول...';
-    setTimeout(() => {
-      sessionStorage.setItem('adminLoggedIn', 'true');
-      loginModal.style.opacity = '0';
-      setTimeout(() => {
-        loginModal.style.display = 'none';
-        dashboard.style.display = 'grid';
-        initDashboard();
-      }, 500);
-    }, 1000);
-  } else {
-    loginError.style.display = 'block';
+function showLoginError(message = 'البريد الإلكتروني أو كلمة المرور غير صحيحة') {
+  loginError.textContent = message;
+  loginError.style.display = 'block';
+}
+
+function hideLoginError() {
+  loginError.style.display = 'none';
+}
+
+function showDashboard() {
+  loginModal.style.display = 'none';
+  loginModal.style.opacity = '0';
+  dashboard.style.display = 'grid';
+  initDashboard();
+}
+
+function showLogin() {
+  loginModal.style.display = 'flex';
+  loginModal.style.opacity = '1';
+  dashboard.style.display = 'none';
+}
+
+async function serverAuthLogin(email, password) {
+  try {
+    const response = await fetch('/api/admin-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (response.ok) {
+      return true;
+    }
+
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      showLoginError(data.message || 'كلمة المرور غير صحيحة.');
+    } else if (response.status === 403) {
+      showLoginError(data.message || 'غير مصرح بالدخول لهذا المستخدم.');
+    } else {
+      showLoginError(data.message || 'حدث خطأ من الخادم. حاول مرة أخرى.');
+    }
+    return false;
+  } catch (err) {
+    console.error('Server auth failed:', err);
+    showLoginError('حدث خطأ أثناء محاولة تسجيل الدخول. حاول لاحقاً.');
+    return false;
+  }
+}
+
+async function attemptLogin() {
+  hideLoginError();
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email || !password) {
+    showLoginError('الرجاء إدخال البريد الإلكتروني وكلمة المرور');
+    return;
+  }
+
+  if (window.auth && window.auth.signInWithEmailAndPassword) {
+    try {
+      await window.auth.signInWithEmailAndPassword(email, password);
+      showDashboard();
+      return;
+    } catch (error) {
+      console.warn('Firebase login failed, falling back to env auth:', error);
+      if (error.code !== 'auth/configuration-not-found' && error.code !== 'auth/operation-not-allowed' && error.code !== 'auth/internal-error') {
+        if (error.code === 'auth/user-not-found') {
+          showLoginError('المستخدم غير موجود. تأكد من البريد الإلكتروني.');
+        } else if (error.code === 'auth/wrong-password') {
+          showLoginError('كلمة المرور غير صحيحة.');
+        } else if (error.code === 'auth/invalid-email') {
+          showLoginError('البريد الإلكتروني غير صالح.');
+        } else {
+          showLoginError('حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.');
+        }
+        return;
+      }
+    }
+  }
+
+  const ok = await serverAuthLogin(email, password);
+  if (ok) {
+    showDashboard();
   }
 }
 
 loginBtn.addEventListener('click', attemptLogin);
+emailInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') attemptLogin();
+});
 passwordInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') attemptLogin();
 });
 
-// Check session
-if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-  loginModal.style.display = 'none';
-  dashboard.style.display = 'grid';
-  initDashboard();
-}
+// Check auth state
+window.addEventListener('DOMContentLoaded', () => {
+  if (!window.auth) {
+    console.error('Firebase Auth is not initialized.');
+    showLoginError('Firebase Auth غير متاحة. تحقق من الإعدادات.');
+    return;
+  }
+
+  window.auth.onAuthStateChanged(user => {
+    if (user) {
+      showDashboard();
+    } else {
+      showLogin();
+    }
+  });
+});
 
 // Add CSS keyframe for spinner dynamically
 const style = document.createElement('style');
@@ -90,8 +175,10 @@ function initDashboard() {
   });
 
   // Logout
-  document.getElementById('logout-btn').addEventListener('click', () => {
-    sessionStorage.removeItem('adminLoggedIn');
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    if (window.auth) {
+      await window.auth.signOut();
+    }
     location.reload();
   });
 
