@@ -14,19 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearch();
   initBento();
   initFlashTimer();
-  initCounterAnimation();
-  initNewArrivals();
-  initCategoryMosaic();
-  initCuratedSection('home', 'home-products-row');
-  initCuratedSection('fashion', 'fashion-products-row');
-  initFlashDeals();
-  initAllProducts();
-  initQuickView();
-  initScrollUtils();
-  initNewsletter();
-  initSeeAll();
-
-  // Consolidated initializations
   initCartDrawer();
   Cart.updateUI();
   initMobileBottomNav();
@@ -34,6 +21,35 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeroVideo();
   initThemeSwitcher();
   initDSHero();
+
+  const renderAllSections = () => {
+    initCounterAnimation();
+    initNewArrivals();
+    initCategoryMosaic();
+    initCuratedSection('home', 'home-products-row');
+    initCuratedSection('fashion', 'fashion-products-row');
+    initFlashDeals();
+    initAllProducts();
+    initQuickView();
+    initScrollUtils();
+    initNewsletter();
+    initSeeAll();
+  };
+
+  if (window.FarahDB && window.FarahDB.productsReady) {
+    window.FarahDB.productsReady.then(renderAllSections).catch(renderAllSections);
+  } else {
+    renderAllSections();
+  }
+
+  window.addEventListener('FarahDBProductsUpdated', () => {
+    initNewArrivals();
+    initCategoryMosaic();
+    initCuratedSection('home', 'home-products-row');
+    initCuratedSection('fashion', 'fashion-products-row');
+    initFlashDeals();
+    renderAllProducts();
+  });
 });
 
 /* ══════════════════════════════════════

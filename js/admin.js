@@ -19,7 +19,12 @@ function showDashboard() {
   loginModal.style.display = 'none';
   loginModal.style.opacity = '0';
   dashboard.style.display = 'grid';
-  initDashboard();
+  const init = () => initDashboard();
+  if (window.FarahDB && window.FarahDB.productsReady) {
+    window.FarahDB.productsReady.then(init).catch(init);
+  } else {
+    init();
+  }
 }
 
 function showLogin() {
@@ -105,25 +110,391 @@ passwordInput.addEventListener('keypress', (e) => {
 
 // Check auth state
 window.addEventListener('DOMContentLoaded', () => {
-  if (!window.auth) {
-    console.error('Firebase Auth is not initialized.');
-    showLoginError('Firebase Auth غير متاحة. تحقق من الإعدادات.');
-    return;
+  if (window.auth) {
+    window.auth.onAuthStateChanged(user => {
+      if (user) {
+        showDashboard();
+      } else {
+        showLogin();
+      }
+    });
+  } else {
+    // Allow login via server fallback even if Firebase is not configured.
+    showLogin();
   }
-
-  window.auth.onAuthStateChanged(user => {
-    if (user) {
-      showDashboard();
-    } else {
-      showLogin();
-    }
-  });
 });
 
 // Add CSS keyframe for spinner dynamically
 const style = document.createElement('style');
 style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
 document.head.appendChild(style);
+
+let currentProductEditId = null;
+
+function renderImageInputs(images = []) {
+  const container = document.getElementById('edit-product-images');
+  if (!container) return;
+  container.innerHTML = '';
+  images = images || [];
+  if (images.length === 0) {
+    addImageInput('');
+    return;
+  }
+  images.forEach((img, idx) => addImageInput(img, idx === 0));
+}
+
+function addImageInput(value = '', markAsPrimary = false) {
+  const container = document.getElementById('edit-product-images');
+  if (!container) return;
+  const idx = container.children.length;
+  const row = document.createElement('div');
+  row.style.display = 'flex';
+  row.style.gap = '8px';
+  row.style.alignItems = 'center';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'رابط صورة (https://...)';
+  input.className = 'form-control edit-image-url';
+  input.value = value || '';
+  input.style.flex = '1';
+
+  const upBtn = document.createElement('button');
+  upBtn.type = 'button';
+  upBtn.className = 'btn btn-icon';
+  upBtn.textContent = '↑';
+  upBtn.title = 'نقل للأعلى';
+  upBtn.addEventListener('click', () => {
+    const prev = row.previousElementSibling;
+    if (prev) container.insertBefore(row, prev);
+    updatePrimaryBadge();
+  });
+
+  const downBtn = document.createElement('button');
+  downBtn.type = 'button';
+  downBtn.className = 'btn btn-icon';
+  downBtn.textContent = '↓';
+  downBtn.title = 'نقل للأسفل';
+  downBtn.addEventListener('click', () => {
+    const next = row.nextElementSibling;
+    if (next) container.insertBefore(next, row);
+    updatePrimaryBadge();
+  });
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn btn-icon';
+  removeBtn.textContent = '×';
+  removeBtn.title = 'حذف الصورة';
+  removeBtn.style.color = 'var(--admin-danger)';
+  removeBtn.addEventListener('click', () => { row.remove(); updatePrimaryBadge(); });
+
+  const badge = document.createElement('span');
+  badge.className = 'image-primary-badge';
+  badge.style.background = 'var(--admin-gold)';
+  badge.style.color = '#111';
+  badge.style.padding = '2px 6px';
+  badge.style.borderRadius = '12px';
+  badge.style.fontSize = '0.75rem';
+  badge.style.display = markAsPrimary ? 'inline-block' : 'none';
+  badge.textContent = 'الصورة الرئيسية';
+
+  row.appendChild(input);
+  row.appendChild(upBtn);
+  row.appendChild(downBtn);
+  row.appendChild(removeBtn);
+  row.appendChild(badge);
+  container.appendChild(row);
+  updatePrimaryBadge();
+}
+
+function updatePrimaryBadge() {
+  const container = document.getElementById('edit-product-images');
+  if (!container) return;
+  Array.from(container.children).forEach((row, idx) => {
+    const badge = row.querySelector('.image-primary-badge');
+    if (badge) badge.style.display = idx === 0 ? 'inline-block' : 'none';
+  });
+}
+
+function getCategoryLabel(categoryId) {
+  const category = FarahDB.CATEGORIES.find(cat => cat.id === categoryId);
+  return category ? category.name : categoryId || 'غير محدد';
+}
+
+function formatOrderStatus(status) {
+  switch (status) {
+    case 'new': return 'جديد';
+    case 'processing': return 'قيد التجهيز';
+    case 'shipped': return 'تم الشحن';
+    case 'delivered': return 'مكتمل';
+    case 'cancelled': return 'ملغي';
+    default: return status;
+  }
+}
+
+function getStatusBadgeClass(status) {
+  switch (status) {
+    case 'new': return 'badge badge-warning';
+    case 'processing': return 'badge badge-warning';
+    case 'shipped': return 'badge badge-info';
+    case 'delivered': return 'badge badge-success';
+    case 'cancelled': return 'badge badge-danger';
+    default: return 'badge badge-secondary';
+  }
+}
+
+function renderDashboardStats() {
+  const orders = FarahDB.Storage.get('orders', []);
+  const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+  const newOrders = orders.filter(order => order.orderStatus === 'new').length;
+  const productsCount = FarahDB.PRODUCTS.length;
+  const customerCount = [...new Set(orders.map(order => order.customerPhone))].length;
+
+  const overviewStats = [
+    { selector: '.stat-value.counter[data-target="125400"]', value: totalSales, suffix: ' ج.م' },
+    { selector: '.stat-value.counter[data-target="84"]', value: newOrders, suffix: '' },
+    { selector: '.stat-value.counter[data-target="320"]', value: productsCount, suffix: '' },
+    { selector: '.stat-value.counter[data-target="1250"]', value: customerCount, suffix: '' },
+  ];
+
+  overviewStats.forEach(({ selector, value, suffix }) => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.setAttribute('data-target', value);
+      element.textContent = suffix ? `0${suffix}` : '0';
+    }
+  });
+}
+
+function renderProductsTable() {
+  const searchQuery = document.getElementById('products-search')?.value || '';
+  const categoryFilter = document.getElementById('products-category-filter')?.value || 'all';
+  let filteredProducts = FarahDB.PRODUCTS;
+
+  if (categoryFilter !== 'all') {
+    filteredProducts = filteredProducts.filter(product => product.category === categoryFilter);
+  }
+  if (searchQuery.trim()) {
+    const query = searchQuery.trim().toLowerCase();
+    filteredProducts = filteredProducts.filter(product =>
+      product.name.toLowerCase().includes(query) ||
+      product.nameEn?.toLowerCase().includes(query) ||
+      product.description?.toLowerCase().includes(query)
+    );
+  }
+
+  const tbody = document.getElementById('products-table-body');
+  tbody.innerHTML = filteredProducts.map(product => {
+    const badgeClass = product.stock > 0 ? 'badge badge-success' : 'badge badge-danger';
+    const badgeText = product.stock > 0 ? 'نشط' : 'غير متوفر';
+    let thumb = product.images?.[0] || 'https://via.placeholder.com/48x48?text=No';
+    // admin page sits in /pages/, product image paths in data are relative to root
+    if (thumb && !thumb.startsWith('http') && !thumb.startsWith('/')) {
+      thumb = '../' + thumb.replace(/^\.\//, '');
+    }
+    return `
+      <tr>
+        <td><img src="${thumb}" alt="${product.name}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;" onerror="this.src='https://via.placeholder.com/48x48?text=No'"/></td>
+        <td>${product.name}</td>
+        <td>${getCategoryLabel(product.category)}</td>
+        <td>${product.price.toLocaleString('ar-EG')} ج.م</td>
+        <td>${product.stock}</td>
+        <td><span class="${badgeClass}">${badgeText}</span></td>
+        <td>
+          <button class="btn-icon" data-product-id="${product.id}" data-action="edit">✏️</button>
+          <button class="btn-icon" data-product-id="${product.id}" data-action="delete" style="color: var(--admin-danger)">🗑️</button>
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد منتجات لعرضها</td></tr>';
+
+  tbody.querySelectorAll('button[data-product-id]').forEach(button => {
+    button.addEventListener('click', () => {
+      const productId = button.getAttribute('data-product-id');
+      const action = button.getAttribute('data-action');
+      if (action === 'edit') {
+        openProductEditor(productId);
+      } else if (action === 'delete') {
+        deleteProduct(productId);
+      }
+    });
+  });
+}
+
+function openProductEditor(productId = null) {
+  const modal = document.getElementById('product-editor-modal');
+  if (!modal) return;
+
+  const product = productId ? FarahDB.PRODUCTS.find(p => p.id === productId) : {
+    id: `code${String(Date.now()).slice(-8)}`,
+    name: '',
+    category: 'other',
+    price: 0,
+    stock: 0,
+    badge: '',
+  };
+
+  currentProductEditId = product.id;
+
+  document.getElementById('edit-product-name').value = product.name || '';
+  document.getElementById('edit-product-category').value = product.category || 'other';
+  document.getElementById('edit-product-price').value = product.price || 0;
+  document.getElementById('edit-product-stock').value = product.stock || 0;
+  document.getElementById('edit-product-badge').value = product.badge || '';
+  // images
+  renderImageInputs(Array.isArray(product.images) ? product.images : (product.images ? [product.images] : []));
+
+  modal.style.display = 'flex';
+}
+
+function closeProductEditor() {
+  const modal = document.getElementById('product-editor-modal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  currentProductEditId = null;
+}
+
+function saveProductEdit() {
+  const name = document.getElementById('edit-product-name')?.value.trim();
+  const category = document.getElementById('edit-product-category')?.value.trim() || 'other';
+  const price = Number(document.getElementById('edit-product-price')?.value || 0);
+  const stock = Number(document.getElementById('edit-product-stock')?.value || 0);
+  const badge = document.getElementById('edit-product-badge')?.value.trim();
+
+  // collect images in order
+  const imageInputs = Array.from(document.querySelectorAll('.edit-image-url'));
+  const images = imageInputs.map(i => (i.value || '').trim()).filter(Boolean);
+
+
+  if (!name) {
+    alert('يرجى إدخال اسم المنتج.');
+    return;
+  }
+
+  const existingIndex = FarahDB.PRODUCTS.findIndex(p => p.id === currentProductEditId);
+  if (existingIndex >= 0) {
+    FarahDB.PRODUCTS[existingIndex] = {
+      ...FarahDB.PRODUCTS[existingIndex],
+      name,
+      category,
+      price,
+      stock,
+      badge,
+      images,
+    };
+  } else {
+    FarahDB.PRODUCTS.unshift({
+      id: currentProductEditId,
+      sku: currentProductEditId,
+      name,
+      category,
+      description: '',
+      price,
+      priceWholesale: price,
+      priceOriginal: price,
+      discount: 0,
+      stock,
+      images,
+      variants: {},
+      rating: 0,
+      reviews: 0,
+      sold: 0,
+      badge,
+      badgeType: badge ? 'new' : '',
+      featured: false,
+      createdAt: new Date().toISOString().slice(0, 10),
+    });
+  }
+
+  closeProductEditor();
+  renderProductsTable();
+  renderDashboardStats();
+
+  // write the product only to Firestore; the local array remains for current UI state
+  try {
+    if (window.db && window.db.collection) {
+      const prod = FarahDB.PRODUCTS.find(p => p.id === currentProductEditId);
+      if (prod) {
+        window.db.collection('products').doc(prod.id).set(prod).catch(err => console.warn('Firestore write failed (client):', err));
+      }
+    }
+  } catch (e) {
+    console.warn('Firestore update skipped:', e);
+  }
+}
+
+function deleteProduct(productId) {
+  if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+  const index = FarahDB.PRODUCTS.findIndex(p => p.id === productId);
+  if (index >= 0) {
+    FarahDB.PRODUCTS.splice(index, 1);
+    renderProductsTable();
+    renderDashboardStats();
+  }
+
+  try {
+    if (window.db && window.db.collection) {
+      window.db.collection('products').doc(productId).delete().catch(err => console.warn('Firestore delete failed:', err));
+    }
+  } catch (e) {
+    console.warn('Firestore delete skipped:', e);
+  }
+}
+
+function changeOrderStatus(orderId) {
+  const orders = FarahDB.Storage.get('orders', []);
+  const order = orders.find(item => item.id === orderId);
+  if (!order) return;
+
+  const nextStatus = {
+    new: 'processing',
+    processing: 'shipped',
+    shipped: 'delivered',
+    delivered: 'delivered',
+    cancelled: 'cancelled',
+  }[order.orderStatus] || 'processing';
+
+  order.orderStatus = nextStatus;
+  order.updatedAt = new Date().toISOString();
+  FarahDB.Storage.set('orders', orders);
+  renderOrdersTable();
+  renderDashboardStats();
+}
+
+function renderOrdersTable() {
+  const orders = FarahDB.Storage.get('orders', []);
+  const statusFilter = document.getElementById('orders-status-filter')?.value || 'all';
+  const filteredOrders = statusFilter === 'all'
+    ? orders
+    : orders.filter(order => order.orderStatus === statusFilter);
+
+  const tbody = document.getElementById('orders-table-body');
+  tbody.innerHTML = filteredOrders.map(order => {
+    const badgeClass = getStatusBadgeClass(order.orderStatus);
+    const badgeText = formatOrderStatus(order.orderStatus);
+    const createdAt = new Date(order.createdAt || order.updatedAt || Date.now()).toLocaleDateString('ar-EG');
+    return `
+      <tr>
+        <td>${order.id || 'بدون رقم'}</td>
+        <td>${order.customerName || '-'}</td>
+        <td>${order.customerPhone || '-'}</td>
+        <td>${FarahDB.formatPrice(order.total || 0)}</td>
+        <td>${order.paymentMethod === 'paymob_card' ? 'بطاقة مصرفية' : order.paymentMethod === 'paymob_wallet' ? 'محفظة إلكترونية' : 'الدفع عند الاستلام'}</td>
+        <td><span class="${badgeClass}">${badgeText}</span></td>
+        <td>${createdAt}</td>
+        <td><button class="btn-icon" data-order-id="${order.id}">➡️</button></td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="8" style="text-align:center;">لا توجد طلبات محفوظة</td></tr>';
+
+  tbody.querySelectorAll('button[data-order-id]').forEach(button => {
+    button.addEventListener('click', () => {
+      const orderId = button.getAttribute('data-order-id');
+      changeOrderStatus(orderId);
+    });
+  });
+}
 
 function initDashboard() {
   // Tab Switching
@@ -182,6 +553,31 @@ function initDashboard() {
     location.reload();
   });
 
+  document.getElementById('products-search')?.addEventListener('input', renderProductsTable);
+  document.getElementById('products-category-filter')?.addEventListener('change', renderProductsTable);
+  document.getElementById('orders-status-filter')?.addEventListener('change', renderOrdersTable);
+  document.getElementById('btn-add-product')?.addEventListener('click', () => openProductEditor());
+  document.getElementById('close-product-editor')?.addEventListener('click', closeProductEditor);
+  document.getElementById('cancel-product-edit')?.addEventListener('click', closeProductEditor);
+  document.getElementById('save-product-edit')?.addEventListener('click', saveProductEdit);
+
+  window.addEventListener('FarahDBProductsUpdated', () => {
+    renderProductsTable();
+    renderDashboardStats();
+  });
+
+  const modal = document.getElementById('product-editor-modal');
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeProductEditor();
+  });
+
+  renderDashboardStats();
+  renderProductsTable();
+  renderOrdersTable();
+
+  const orders = FarahDB.Storage.get('orders', []);
+  const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+
   // Chart.js Initialization
   const ctx = document.getElementById('salesChart');
   if (ctx) {
@@ -191,7 +587,7 @@ function initDashboard() {
         labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو'],
         datasets: [{
           label: 'المبيعات (ج.م)',
-          data: [65000, 59000, 80000, 81000, 56000, 95000, 125400],
+          data: [totalSales * 0.6, totalSales * 0.7, totalSales * 0.85, totalSales * 0.95, totalSales * 0.8, totalSales * 1.1, totalSales],
           borderColor: '#D4A853',
           backgroundColor: 'rgba(212, 168, 83, 0.1)',
           borderWidth: 2,
@@ -232,25 +628,19 @@ function initDashboard() {
       if (count < target) {
         let val = Math.ceil(count + inc);
         if(counter.innerText.includes('ج.م')) {
-          counter.innerText = val.toLocaleString() + ' ج.م';
+          counter.innerText = val.toLocaleString('ar-EG') + ' ج.م';
         } else {
-          counter.innerText = val.toLocaleString();
+          counter.innerText = val.toLocaleString('ar-EG');
         }
         setTimeout(updateCount, 10);
       } else {
         if(counter.innerText.includes('ج.م')) {
-          counter.innerText = target.toLocaleString() + ' ج.م';
+          counter.innerText = target.toLocaleString('ar-EG') + ' ج.م';
         } else {
-          counter.innerText = target.toLocaleString();
+          counter.innerText = target.toLocaleString('ar-EG');
         }
       }
     };
     updateCount();
   });
-
-  // Mock Firebase load
-  console.log("Attempting to connect to Firebase...");
-  setTimeout(() => {
-    console.log("Firebase not configured. Falling back to mock data.");
-  }, 1000);
 }

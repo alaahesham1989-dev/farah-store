@@ -10,13 +10,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!id) { redirectHome(); return; }
 
-  const product = FarahDB.getProductById(id);
-  if (!product) { redirectHome(); return; }
+  const render = () => {
+    const product = FarahDB.getProductById(id);
+    if (!product) { redirectHome(); return; }
 
-  renderProduct(product);
-  renderRelated(product);
-  initProductActions(product);
-  initScrollBehavior();
+    renderProduct(product);
+    renderRelated(product);
+    initProductActions(product);
+    initScrollBehavior();
+  };
+
+  if (window.FarahDB && window.FarahDB.productsReady) {
+    window.FarahDB.productsReady.then(render).catch(render);
+  } else {
+    render();
+  }
 });
 
 // ─── Redirect ─────────────────────────────────────

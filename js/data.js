@@ -1180,19 +1180,91 @@ function getProductById(id) {
 const Storage = {
   get(key, fallback = null) {
     try {
-      const v = localStorage.getItem(`farah_${key}`);
-      return v !== null ? JSON.parse(v) : fallback;
+      const prefixed = localStorage.getItem(`farah_${key}`);
+      if (prefixed !== null) return JSON.parse(prefixed);
+      const raw = localStorage.getItem(key);
+      return raw !== null ? JSON.parse(raw) : fallback;
     } catch { return fallback; }
   },
   set(key, value) {
-    try { localStorage.setItem(`farah_${key}`, JSON.stringify(value)); } catch {}
+    try {
+      const serialized = JSON.stringify(value);
+      localStorage.setItem(`farah_${key}`, serialized);
+      if (key === 'orders') {
+        localStorage.setItem('orders', serialized);
+      }
+    } catch {}
   },
   remove(key) {
-    try { localStorage.removeItem(`farah_${key}`); } catch {}
+    try {
+      localStorage.removeItem(`farah_${key}`);
+      if (key === 'orders') {
+        localStorage.removeItem('orders');
+      }
+    } catch {}
   },
 };
 
-// ─── EXPORT (للاستخدام عبر الملفات الأخرى) ────────
+let productsReadyResolve;
+let productsReadyReject;
+const productsReady = new Promise((resolve, reject) => {
+  productsReadyResolve = resolve;
+  productsReadyReject = reject;
+});
+let firestoreProductsUnsubscribe = null;
+let firestoreProductsConnected = false;
+
+function dispatchProductsUpdated() {
+  window.dispatchEvent(new CustomEvent('FarahDBProductsUpdated', { detail: { products: PRODUCTS.slice() } }));
+}
+
+function applyFirestoreProducts(products) {
+  if (!Array.isArray(products)) return;
+  PRODUCTS.splice(0, PRODUCTS.length, ...products);
+  dispatchProductsUpdated();
+}
+
+function initProductsRealtime() {
+  if (!window.db || !window.db.collection) {
+    console.warn('Firebase Firestore is not available, using built-in product data');
+    dispatchProductsUpdated();
+    productsReadyResolve(PRODUCTS);
+    return;
+  }
+
+  try {
+    const productsRef = window.db.collection('products');
+    let firstSnapshot = true;
+
+    firestoreProductsUnsubscribe = productsRef.onSnapshot(snapshot => {
+      const docs = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        docs.push({ id: doc.id, ...data });
+      });
+      firestoreProductsConnected = true;
+      applyFirestoreProducts(docs);
+      if (firstSnapshot) {
+        firstSnapshot = false;
+        productsReadyResolve(PRODUCTS);
+      }
+    }, err => {
+      console.warn('Firestore products listener error:', err);
+      if (firstSnapshot) {
+        firstSnapshot = false;
+        dispatchProductsUpdated();
+        productsReadyResolve(PRODUCTS);
+      }
+    });
+  } catch (err) {
+    console.warn('Failed to initialize Firestore products listener:', err);
+    dispatchProductsUpdated();
+    productsReadyResolve(PRODUCTS);
+  }
+}
+
+initProductsRealtime();
+
 window.FarahDB = {
   version: DB_VERSION,
   PRODUCTS,
@@ -1206,5 +1278,13 @@ window.FarahDB = {
   enrichCategoriesWithCount,
   getProductById,
   Storage,
+  productsReady,
+  firestoreProductsConnected: () => firestoreProductsConnected,
+  unsubscribeProductsRealtime: () => {
+    if (typeof firestoreProductsUnsubscribe === 'function') {
+      firestoreProductsUnsubscribe();
+      firestoreProductsUnsubscribe = null;
+    }
+  },
 };
 window.MaysaraDB = window.FarahDB; // Legacy alias
