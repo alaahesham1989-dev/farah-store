@@ -26,8 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initCounterAnimation();
     initNewArrivals();
     initCategoryMosaic();
-    initCuratedSection('home', 'home-products-row');
-    initCuratedSection('fashion', 'fashion-products-row');
+    initCuratedSection('العناية بالبشرة', 'home-products-row');
+    initCuratedSection('العناية بالشعر', 'fashion-products-row');
+    initCuratedSection('العناية بالأسنان', 'dental-products-row');
     initFlashDeals();
     initAllProducts();
     initQuickView();
@@ -45,8 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('FarahDBProductsUpdated', () => {
     initNewArrivals();
     initCategoryMosaic();
-    initCuratedSection('home', 'home-products-row');
-    initCuratedSection('fashion', 'fashion-products-row');
+    initCuratedSection('العناية بالبشرة', 'home-products-row');
+    initCuratedSection('العناية بالشعر', 'fashion-products-row');
+    initCuratedSection('العناية بالأسنان', 'dental-products-row');
     initFlashDeals();
     renderAllProducts();
   });
@@ -374,14 +376,14 @@ function initCuratedSection(categoryId, containerId) {
 /* ══════════════════════════════════════
    FLASH DEALS
 ══════════════════════════════════════ */
-const FLASH_PRODUCTS = ['prod_005', 'prod_006', 'prod_003', 'prod_008'];
-const FLASH_STOCKS   = { prod_005: 72, prod_006: 45, prod_003: 88, prod_008: 30 };
+// Flash products are now taken dynamically from isFlash === true in data.js
+const FLASH_STOCKS = {};
 
 function initFlashDeals() {
   const grid = document.getElementById('flash-grid');
   if (!grid) return;
 
-  const products = FLASH_PRODUCTS.map(id => FarahDB.getProductById(id)).filter(Boolean);
+  const products = FarahDB.getProducts ? FarahDB.getProducts().filter(p => p.isFlash).slice(0, 6) : window.PRODUCTS ? window.PRODUCTS.filter(p => p.isFlash).slice(0, 6) : [];
   grid.innerHTML = products.map(p => {
     const stockPct = FLASH_STOCKS[p.id] || 60;
     return `

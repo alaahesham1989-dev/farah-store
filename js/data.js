@@ -1130,6 +1130,7 @@ window.FarahDB = {
   getProductsByCategory,
   enrichCategoriesWithCount,
   getProductById,
+  getProducts: () => PRODUCTS,
   Storage,
   productsReady,
   firestoreProductsConnected: () => firestoreProductsConnected,
