@@ -424,8 +424,8 @@ function initFlashDeals() {
    ALL PRODUCTS
 ══════════════════════════════════════ */
 let allFilter   = 'all';
-let allVisible  = 8;
-const PAGE_SIZE = 4;
+let allVisible  = 1000;
+const PAGE_SIZE = 1000;
 
 function initAllProducts() {
   const bar = document.getElementById('filter-bar');

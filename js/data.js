@@ -15,14 +15,15 @@ const DB_VERSION = '2.0.0'; // فرح استور
 
 // ─── CATEGORIES ───────────────────────────────────
 const CATEGORIES = [
-  { id: 'home',      name: 'المنزل والديكور',   icon: '🏠', count: 0 },
-  { id: 'beauty',    name: 'العناية الشخصية',   icon: '✨', count: 0 },
-  { id: 'kitchen',   name: 'المطبخ',             icon: '🍳', count: 0 },
-  { id: 'fashion',   name: 'الأزياء والإكسسوار', icon: '👗', count: 0 },
-  { id: 'sports',    name: 'الرياضة',            icon: '💪', count: 0 },
-  { id: 'tech',      name: 'الإلكترونيات',       icon: '📱', count: 0 },
-  { id: 'kids',      name: 'الأطفال',             icon: '🧸', count: 0 },
-  { id: 'other',     name: 'منوعات',              icon: '🎁', count: 0 },
+  { id: 'العناية بالجسم', name: 'العناية بالجسم', icon: '💆', count: 0 },
+  { id: 'العناية بالبشرة', name: 'العناية بالبشرة', icon: '✨', count: 0 },
+  { id: 'العناية بالأسنان', name: 'العناية بالأسنان', icon: '🦷', count: 0 },
+  { id: 'العناية الشخصية', name: 'العناية الشخصية', icon: '🚿', count: 0 },
+  { id: 'العناية بالشعر', name: 'العناية بالشعر', icon: '💇‍♀️', count: 0 },
+  { id: 'العناية الشخصية للرجال', name: 'العناية الشخصية للرجال', icon: '🧔', count: 0 },
+  { id: 'العناية الشخصية للنساء', name: 'العناية الشخصية للنساء', icon: '👩', count: 0 },
+  { id: 'إلكترونيات وإكسسوارات', name: 'إلكترونيات وإكسسوارات', icon: '📱', count: 0 },
+  { id: 'أدوات منزلية', name: 'أدوات منزلية', icon: '🏠', count: 0 }
 ];
 
 // ─── PRODUCTS ─────────────────────────────────────
@@ -1075,10 +1076,12 @@ function applyFirestoreProducts(products) {
 }
 
 function initProductsRealtime() {
+  // 1) RESOLVE IMMEDIATELY so the UI doesn't hang! We have the hardcoded PRODUCTS array ready.
+  productsReadyResolve(PRODUCTS);
+  
   if (!window.db || !window.db.collection) {
     console.warn('Firebase Firestore is not available, using built-in product data');
     dispatchProductsUpdated();
-    productsReadyResolve(PRODUCTS);
     return;
   }
 
