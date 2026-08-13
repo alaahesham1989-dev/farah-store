@@ -1,4 +1,32 @@
-// Auto-generated enriched product data
+/**
+ * فرح استور — Data Layer
+ * ================================================
+ * هيكل البيانات مصمم يستحمل التوسع من أول يوم:
+ *   products/  → المنتجات
+ *   orders/    → الطلبات
+ *   sellers/   → فاضية دلوقتي، جاهزة للأفلييت
+ * ================================================
+ */
+
+'use strict';
+
+// ─── SCHEMA VERSION ───────────────────────────────
+const DB_VERSION = '2.0.0'; // فرح استور
+
+// ─── CATEGORIES ───────────────────────────────────
+const CATEGORIES = [
+  { id: 'home',      name: 'المنزل والديكور',   icon: '🏠', count: 0 },
+  { id: 'beauty',    name: 'العناية الشخصية',   icon: '✨', count: 0 },
+  { id: 'kitchen',   name: 'المطبخ',             icon: '🍳', count: 0 },
+  { id: 'fashion',   name: 'الأزياء والإكسسوار', icon: '👗', count: 0 },
+  { id: 'sports',    name: 'الرياضة',            icon: '💪', count: 0 },
+  { id: 'tech',      name: 'الإلكترونيات',       icon: '📱', count: 0 },
+  { id: 'kids',      name: 'الأطفال',             icon: '🧸', count: 0 },
+  { id: 'other',     name: 'منوعات',              icon: '🎁', count: 0 },
+];
+
+// ─── PRODUCTS ─────────────────────────────────────
+// كل منتج فيه: سعر جملة (خاص)، سعر بيع (عام)، هامش ربح، فئة، صور
 const PRODUCTS = [
   {
     "id": "code0025",
@@ -883,3 +911,230 @@ const PRODUCTS = [
     "brand": "Farah Store"
   }
 ];
+
+// ─── ORDERS SCHEMA ────────────────────────────────
+// بيانات الطلبات — كل طلب منفصل عن المنتج
+const ordersSchema = {
+  id: 'string',           // ord_XXXXXXXXXXXX
+  customerId: 'string',   // optional (زوار بدون حساب)
+  customerName: 'string',
+  customerPhone: 'string',
+  customerAddress: 'object',  // { governorate, city, street, buildingNo, floor, apt }
+  items: 'array',         // [{ productId, sku, name, price, qty, variantSelected }]
+  subtotal: 'number',
+  shipping: 'number',
+  discount: 'number',
+  total: 'number',
+  paymentMethod: 'string', // 'cash_on_delivery' | 'paymob_card' | 'paymob_wallet'
+  paymentStatus: 'string', // 'pending' | 'paid' | 'failed'
+  orderStatus: 'string',   // 'new' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  trackingNumber: 'string',
+  notes: 'string',
+  createdAt: 'datetime',
+  updatedAt: 'datetime',
+};
+
+// ─── SELLERS SCHEMA (جاهز للأفلييت — Phase 4) ────
+// فاضية دلوقتي، لما يجي الوقت هنفعّلها
+const sellersSchema = {
+  id: 'string',             // sel_XXXXXXXXXXXX
+  name: 'string',
+  phone: 'string',
+  email: 'string',
+  nationalId: 'string',
+  bankAccount: 'object',    // { bankName, accountNumber, accountName }
+  commissionRate: 'number', // % من السعر الكامل
+  referralCode: 'string',   // كود خاص بكل مسوق
+  totalSales: 'number',
+  totalEarnings: 'number',
+  status: 'string',         // 'pending' | 'active' | 'suspended'
+  joinedAt: 'datetime',
+};
+
+// ─── HELPERS ──────────────────────────────────────
+/**
+ * حساب سعر الشحن
+ * دلوقتي: ثابت — ممكن يتطور لاحقاً بالمحافظة
+ */
+function calculateShipping(subtotal, governorate = 'cairo') {
+  const FREE_THRESHOLD = 500;
+  const BASE_RATE      = 65;   // القاهرة والجيزة
+  const PROVINCE_RATE  = 90;   // باقي المحافظات
+
+  if (subtotal >= FREE_THRESHOLD) return 0;
+  return ['cairo', 'giza'].includes(governorate.toLowerCase()) ? BASE_RATE : PROVINCE_RATE;
+}
+
+/**
+ * توليد ID للطلب
+ */
+function generateOrderId() {
+  const ts   = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `ORD-${ts}-${rand}`;
+}
+
+/**
+ * تنسيق السعر بالجنيه المصري
+ */
+function formatPrice(amount) {
+  return `${amount.toLocaleString('ar-EG')} ج.م`;
+}
+
+/**
+ * المنتجات المميزة (للصفحة الرئيسية)
+ */
+function getFeaturedProducts() {
+  return PRODUCTS.filter(p => p.featured && p.stock > 0);
+}
+
+/**
+ * بحث في المنتجات
+ */
+function searchProducts(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return PRODUCTS;
+  return PRODUCTS.filter(p =>
+    p.name.includes(q) ||
+    (p.nameEn && p.nameEn.toLowerCase().includes(q)) ||
+    (p.description && p.description.includes(q))
+  );
+}
+
+/**
+ * تصفية بالفئة
+ */
+function getProductsByCategory(categoryId) {
+  if (categoryId === 'all') return PRODUCTS;
+  return PRODUCTS.filter(p => p.category === categoryId);
+}
+
+/**
+ * حساب أعداد المنتجات لكل فئة
+ */
+function enrichCategoriesWithCount() {
+  return CATEGORIES.map(cat => ({
+    ...cat,
+    count: PRODUCTS.filter(p => p.category === cat.id).length,
+  }));
+}
+
+/**
+ * الحصول على منتج بالـ ID
+ */
+function getProductById(id) {
+  return PRODUCTS.find(p => p.id === id) || null;
+}
+
+// ─── LOCAL STORAGE HELPERS ────────────────────────
+const Storage = {
+  get(key, fallback = null) {
+    try {
+      const prefixed = localStorage.getItem(`farah_${key}`);
+      if (prefixed !== null) return JSON.parse(prefixed);
+      const raw = localStorage.getItem(key);
+      return raw !== null ? JSON.parse(raw) : fallback;
+    } catch { return fallback; }
+  },
+  set(key, value) {
+    try {
+      const serialized = JSON.stringify(value);
+      localStorage.setItem(`farah_${key}`, serialized);
+      if (key === 'orders') {
+        localStorage.setItem('orders', serialized);
+      }
+    } catch {}
+  },
+  remove(key) {
+    try {
+      localStorage.removeItem(`farah_${key}`);
+      if (key === 'orders') {
+        localStorage.removeItem('orders');
+      }
+    } catch {}
+  },
+};
+
+let productsReadyResolve;
+let productsReadyReject;
+const productsReady = new Promise((resolve, reject) => {
+  productsReadyResolve = resolve;
+  productsReadyReject = reject;
+});
+let firestoreProductsUnsubscribe = null;
+let firestoreProductsConnected = false;
+
+function dispatchProductsUpdated() {
+  window.dispatchEvent(new CustomEvent('FarahDBProductsUpdated', { detail: { products: PRODUCTS.slice() } }));
+}
+
+function applyFirestoreProducts(products) {
+  if (!Array.isArray(products)) return;
+  PRODUCTS.splice(0, PRODUCTS.length, ...products);
+  dispatchProductsUpdated();
+}
+
+function initProductsRealtime() {
+  if (!window.db || !window.db.collection) {
+    console.warn('Firebase Firestore is not available, using built-in product data');
+    dispatchProductsUpdated();
+    productsReadyResolve(PRODUCTS);
+    return;
+  }
+
+  try {
+    const productsRef = window.db.collection('products');
+    let firstSnapshot = true;
+
+    firestoreProductsUnsubscribe = productsRef.onSnapshot(snapshot => {
+      const docs = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        docs.push({ id: doc.id, ...data });
+      });
+      firestoreProductsConnected = true;
+      applyFirestoreProducts(docs);
+      if (firstSnapshot) {
+        firstSnapshot = false;
+        productsReadyResolve(PRODUCTS);
+      }
+    }, err => {
+      console.warn('Firestore products listener error:', err);
+      if (firstSnapshot) {
+        firstSnapshot = false;
+        dispatchProductsUpdated();
+        productsReadyResolve(PRODUCTS);
+      }
+    });
+  } catch (err) {
+    console.warn('Failed to initialize Firestore products listener:', err);
+    dispatchProductsUpdated();
+    productsReadyResolve(PRODUCTS);
+  }
+}
+
+initProductsRealtime();
+
+window.FarahDB = {
+  version: DB_VERSION,
+  PRODUCTS,
+  CATEGORIES,
+  calculateShipping,
+  generateOrderId,
+  formatPrice,
+  getFeaturedProducts,
+  searchProducts,
+  getProductsByCategory,
+  enrichCategoriesWithCount,
+  getProductById,
+  Storage,
+  productsReady,
+  firestoreProductsConnected: () => firestoreProductsConnected,
+  unsubscribeProductsRealtime: () => {
+    if (typeof firestoreProductsUnsubscribe === 'function') {
+      firestoreProductsUnsubscribe();
+      firestoreProductsUnsubscribe = null;
+    }
+  },
+};
+window.MaysaraDB = window.FarahDB; // Legacy alias
