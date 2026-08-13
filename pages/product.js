@@ -121,16 +121,16 @@ function renderProduct(product) {
   const priceOriginal = document.getElementById('info-original-price');
   const discountBadge = document.getElementById('info-discount-badge');
 
-  if (priceCurrent) priceCurrent.textContent = formatCurrency(product.price);
+  if (priceCurrent) priceCurrent.innerHTML = `${product.price.toLocaleString('ar-EG')} <span style="font-size:1.2rem">ج.م</span>`;
   
   if (product.priceOriginal && product.priceOriginal > product.price) {
     if (priceOriginal) {
-      priceOriginal.textContent = formatCurrency(product.priceOriginal);
+      priceOriginal.textContent = `${product.priceOriginal.toLocaleString('ar-EG')} ج.م`;
       priceOriginal.style.display = 'inline';
     }
     if (discountBadge) {
       const savedAmount = product.priceOriginal - product.price;
-      discountBadge.textContent = `وفر ${savedAmount} ج.م`;
+      discountBadge.textContent = `وفر ${savedAmount.toLocaleString('ar-EG')} ج.م`;
       discountBadge.style.display = 'inline-block';
     }
   } else {

@@ -181,6 +181,7 @@ h1, h2, h3, h4, h5, h6 {
    ═══════════════════════════════════════════════ */
 .topbar {
   background: var(--navy);
+  color: white;
   height: var(--top-h);
   overflow: hidden;
   position: fixed; top: 0; inset-inline: 0;

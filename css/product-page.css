@@ -1,6 +1,6 @@
 /* Product Page Specifics */
 .product-page {
-    padding: 3rem 0;
+    padding: calc(var(--nav-h) + var(--top-h) + 2rem) 0 3rem 0;
 }
 .product-layout {
     display: grid;
@@ -334,14 +334,14 @@
     box-shadow: 0 8px 25px rgba(11, 110, 79, 0.3);
 }
 .btn-buy-now {
-    background: transparent;
-    border: 2px solid var(--cta);
-    color: var(--text-dark);
+    background: var(--cta);
+    border: none;
+    color: var(--navy);
 }
 .btn-buy-now:hover {
-    background: var(--cta);
+    background: #e5a400; /* slightly darker yellow/gold */
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 180, 0, 0.3);
+    box-shadow: 0 8px 25px rgba(255, 180, 0, 0.4);
 }
 /* Meta */
 .product-meta {
