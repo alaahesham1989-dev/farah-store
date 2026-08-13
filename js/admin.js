@@ -924,3 +924,85 @@ async function confirmExcelImport() {
     btn.disabled = false;
   }
 }
+
+/* ══════════════════════════════════════
+   DAILY DEALS MANAGEMENT
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  const select = document.getElementById('daily-deal-product-select');
+  const tbody = document.getElementById('daily-deals-table-body');
+  const btnAdd = document.getElementById('btn-add-daily-deal');
+  const btnSave = document.getElementById('btn-save-daily-deals');
+  if (!select || !tbody) return;
+  
+  let currentDeals = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
+  
+  function renderSelect() {
+    if (!window.FarahDB || !FarahDB.PRODUCTS) return;
+    select.innerHTML = '<option value="">-- اختر منتج لإضافته لطابور العروض --</option>' +
+      FarahDB.PRODUCTS.map(p => `<option value="${p.id}">${p.name} - ${p.price} ج.م</option>`).join('');
+  }
+  
+  function renderTable() {
+    if (!window.FarahDB) return;
+    tbody.innerHTML = currentDeals.map((id, index) => {
+      const p = FarahDB.getProductById(id);
+      if (!p) return '';
+      const imgPath = (p.images && p.images[0]) ? (p.images[0].startsWith('http') ? p.images[0] : '../' + p.images[0].replace(/^\.\//, '')) : '';
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              ${imgPath ? `<img src="${imgPath}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" />` : ''}
+              <span>${p.name}</span>
+            </div>
+          </td>
+          <td>${p.price} ج.م</td>
+          <td>
+            <button class="btn btn-icon btn-remove-deal" data-index="${index}" style="color: var(--admin-danger);">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    
+    tbody.querySelectorAll('.btn-remove-deal').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.currentTarget.dataset.index);
+        currentDeals.splice(idx, 1);
+        renderTable();
+      });
+    });
+  }
+  
+  btnAdd.addEventListener('click', () => {
+    const val = select.value;
+    if (!val) return;
+    if (currentDeals.includes(val)) {
+      alert('هذا المنتج موجود بالفعل في القائمة!');
+      return;
+    }
+    currentDeals.push(val);
+    renderTable();
+  });
+  
+  btnSave.addEventListener('click', () => {
+    if (window.FarahDB && FarahDB.Storage) {
+      FarahDB.Storage.set('daily_deals_queue', currentDeals);
+      FarahDB.Storage.set('current_deal_index', 0);
+      FarahDB.Storage.set('current_deal_time', Date.now());
+      alert('تم حفظ قائمة العروض بنجاح!');
+    }
+  });
+  
+  const initInterval = setInterval(() => {
+    if (window.FarahDB && FarahDB.PRODUCTS && FarahDB.PRODUCTS.length > 0) {
+      clearInterval(initInterval);
+      if (currentDeals.length === 0 && FarahDB.Storage) {
+        currentDeals = FarahDB.Storage.get('daily_deals_queue', []);
+      }
+      renderSelect();
+      renderTable();
+    }
+  }, 500);
+});

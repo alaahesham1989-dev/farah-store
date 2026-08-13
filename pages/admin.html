@@ -61,6 +61,9 @@
           <a class="nav-item" data-tab="tab-discounts">
             <span class="icon">🏷️</span> <span>الخصومات والكوبونات</span>
           </a>
+          <a class="nav-item" data-tab="tab-daily-deals">
+            <span class="icon">🎁</span> <span>عروض اليوم</span>
+          </a>
         </div>
 
         <div class="nav-group">
@@ -389,6 +392,45 @@
                 <thead><tr><th>كود الكوبون</th><th>نوع الخصم</th><th>القيمة</th><th>الحد الأدنى</th><th>تاريخ الانتهاء</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
                 <tbody><tr><td>WINTER23</td><td>نسبة مئوية</td><td>20%</td><td>500 ج.م</td><td>2023-12-31</td><td><span class="badge badge-success">نشط</span></td><td><button class="btn-icon">🗑️</button></td></tr></tbody>
               </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-daily-deals" class="tab-content">
+          <div class="page-header">
+            <h2>عروض اليوم (Daily Deals)</h2>
+          </div>
+          <div class="glass-panel">
+            <p style="color: var(--admin-text-soft); margin-bottom: 20px;">
+              المنتجات المضافة هنا ستظهر في قسم "عرض اليوم" في الصفحة الرئيسية.
+              سيعرض النظام منتجاً واحداً كل 24 ساعة، ثم ينتقل للمنتج الذي يليه تلقائياً.
+            </p>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <select class="form-control" id="daily-deal-product-select" style="flex: 1;">
+                <option value="">-- اختر منتج لإضافته لطابور العروض --</option>
+                <!-- Filled by JS -->
+              </select>
+              <button class="btn btn-gold" id="btn-add-daily-deal">إضافة للقائمة</button>
+            </div>
+            
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الترتيب</th>
+                    <th>المنتج</th>
+                    <th>السعر</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-deals-table-body">
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+              <button class="btn btn-gold" id="btn-save-daily-deals">حفظ قائمة العروض</button>
             </div>
           </div>
         </div>

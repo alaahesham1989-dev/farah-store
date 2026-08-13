@@ -25,11 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderAllSections = () => {
     initCounterAnimation();
     initNewArrivals();
-    initCategoryMosaic();
-    initCuratedSection('العناية بالبشرة', 'skin-products-row');
-    initCuratedSection('العناية بالجسم', 'body-products-row');
-    initCuratedSection('العناية بالأسنان', 'dental-products-row');
-    initFlashDeals();
+    initDailyDeal();
     initAllProducts();
     initQuickView();
     initScrollUtils();
@@ -45,11 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('FarahDBProductsUpdated', () => {
     initNewArrivals();
-    initCategoryMosaic();
-    initCuratedSection('العناية بالبشرة', 'skin-products-row');
-    initCuratedSection('العناية بالجسم', 'body-products-row');
-    initCuratedSection('العناية بالأسنان', 'dental-products-row');
-    initFlashDeals();
+    initDailyDeal();
     renderAllProducts();
   });
 });
@@ -336,95 +328,121 @@ function initNewArrivals() {
 }
 
 /* ══════════════════════════════════════
-   CATEGORY MOSAIC
+   DAILY DEAL
 ══════════════════════════════════════ */
-function initCategoryMosaic() {
-  const grid = document.getElementById('cat-mosaic');
-  if (!grid) return;
-
-  const cats = FarahDB.enrichCategoriesWithCount();
-  grid.innerHTML = cats.map((cat, i) => `
-    <div class="cat-tile fade-up fade-up-${(i % 4) + 1}" data-cat="${cat.id}" role="button" tabindex="0" aria-label="${cat.name}">
-      <span class="cat-icon">${cat.icon}</span>
-      <div class="cat-name">${cat.name}</div>
-      <div class="cat-count">${cat.count} منتج</div>
-    </div>
-  `).join('');
-
-  // Reveal the section now it has content
-  grid.querySelectorAll('.cat-tile').forEach(tile => {
-    const go = () => {
-      filterAllProducts(tile.dataset.cat);
-      document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    tile.addEventListener('click', go);
-    tile.addEventListener('keydown', e => e.key === 'Enter' && go());
-  });
+function getDailyDeal() {
+  let dealsQueue = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
+  
+  // Fallback to a random flash product if queue is empty so the section doesn't disappear on first load
+  if (!dealsQueue || dealsQueue.length === 0) {
+    if (window.FarahDB && FarahDB.PRODUCTS) {
+      const firstFlash = FarahDB.PRODUCTS.find(p => p.isFlash);
+      if (firstFlash) {
+        dealsQueue = [firstFlash.id];
+      } else {
+        dealsQueue = [FarahDB.PRODUCTS[0].id];
+      }
+    } else {
+      return null;
+    }
+  }
+  
+  let currentDealIndex = window.FarahDB && FarahDB.Storage ? FarahDB.Storage.get('current_deal_index', 0) : 0;
+  let dealStartTime = window.FarahDB && FarahDB.Storage ? FarahDB.Storage.get('current_deal_time', 0) : 0;
+  
+  const now = Date.now();
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  
+  if (!dealStartTime || now - dealStartTime >= ONE_DAY) {
+    if (dealStartTime) {
+      currentDealIndex = (currentDealIndex + 1) % dealsQueue.length;
+    }
+    dealStartTime = now;
+    if (window.FarahDB && FarahDB.Storage) {
+      FarahDB.Storage.set('current_deal_index', currentDealIndex);
+      FarahDB.Storage.set('current_deal_time', dealStartTime);
+    }
+  }
+  
+  return {
+    productId: dealsQueue[currentDealIndex],
+    expiresAt: dealStartTime + ONE_DAY
+  };
 }
 
-/* ══════════════════════════════════════
-   CURATED SECTIONS
-══════════════════════════════════════ */
-function initCuratedSection(categoryId, containerId) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  const products = FarahDB.getProductsByCategory(categoryId).slice(0, 4);
-  if (!products.length) { el.closest('section')?.remove(); return; }
-  el.innerHTML = products.map(p => buildProdCard(p, 'grid')).join('');
-  attachCardEvents(el);
-}
+let dailyDealTimerInterval = null;
 
-/* ══════════════════════════════════════
-   FLASH DEALS
-══════════════════════════════════════ */
-// Flash products are now taken dynamically from isFlash === true in data.js
-const FLASH_STOCKS = {};
-
-function initFlashDeals() {
-  const grid = document.getElementById('flash-grid');
+function initDailyDeal() {
+  const grid = document.getElementById('daily-deal-wrapper');
   if (!grid) return;
-
-  const products = FarahDB.getProducts ? FarahDB.getProducts().filter(p => p.isFlash).slice(0, 6) : window.PRODUCTS ? window.PRODUCTS.filter(p => p.isFlash).slice(0, 6) : [];
-  if (!products.length) {
+  
+  const dealInfo = getDailyDeal();
+  if (!dealInfo) {
     grid.closest('section')?.remove();
     return;
   }
-  grid.innerHTML = products.map(p => {
-    const stockPct = FLASH_STOCKS[p.id] || 60;
-    const disc = p.priceOriginal && p.priceOriginal > p.price
-      ? Math.round((1 - p.price / p.priceOriginal) * 100)
-      : (p.discount || 0);
-    return `
-    <article class="flash-card" data-id="${p.id}">
-      <div class="flash-card-img">
-        <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.src='https://placehold.co/220x200/0e0b1e/ffffff?text=\u{1F4E6}'" />
-        ${disc ? `<span class="flash-discount-badge">${disc}% خصم</span>` : ''}
-      </div>
-      <div class="flash-card-body">
-        <div class="flash-card-name">${p.name}</div>
-        <div class="flash-card-prices">
-          <span class="flash-card-new">${p.price.toLocaleString('ar-EG')} ج.م</span>
-          ${p.priceOriginal ? `<span class="flash-card-old">${p.priceOriginal.toLocaleString('ar-EG')} ج.م</span>` : ''}
-        </div>
-        <div class="flash-progress"><div class="flash-progress-bar" style="width:${stockPct}%"></div></div>
-        <div class="flash-stock-text">تم بيع ${stockPct}% من الكمية</div>
-        <button class="btn btn-gold w-full add-cart-btn" data-id="${p.id}" style="margin-top:.75rem;font-size:.85rem;padding:10px">أضيفي للسلة</button>
-      </div>
-    </article>`;
-  }).join('');
+  
+  const p = window.FarahDB ? FarahDB.getProductById(dealInfo.productId) : null;
+  if (!p) {
+    grid.closest('section')?.remove();
+    return;
+  }
+  
+  const disc = p.priceOriginal && p.priceOriginal > p.price
+    ? Math.round((1 - p.price / p.priceOriginal) * 100)
+    : (p.discount || 0);
 
-  grid.querySelectorAll('.add-cart-btn[data-id]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      const p = FarahDB.getProductById(btn.dataset.id);
-      if (p) { Cart.add(p); animateAddBtn(btn); }
-    });
+  grid.innerHTML = `
+  <article class="flash-card" data-id="${p.id}" style="width: 100%; max-width: 400px; margin: 0 auto; transform: scale(1.05);">
+    <div class="flash-card-img" style="height: 280px;">
+      <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.src='https://placehold.co/220x200/0e0b1e/ffffff?text=\u{1F4E6}'" style="object-fit: contain;" />
+      ${disc ? `<span class="flash-discount-badge" style="font-size: 1.1rem; padding: 6px 12px;">${disc}% خصم</span>` : ''}
+    </div>
+    <div class="flash-card-body">
+      <div class="flash-card-name" style="font-size: 1.25rem;">${p.name}</div>
+      <div class="flash-card-prices" style="margin-top: 10px;">
+        <span class="flash-card-new" style="font-size: 1.5rem;">${p.price.toLocaleString('ar-EG')} ج.م</span>
+        ${p.priceOriginal ? `<span class="flash-card-old" style="font-size: 1rem;">${p.priceOriginal.toLocaleString('ar-EG')} ج.م</span>` : ''}
+      </div>
+      <button class="btn btn-gold w-full add-cart-btn" data-id="${p.id}" style="margin-top:1.5rem;font-size:1.1rem;padding:12px; border-radius: 8px;">أضف للسلة الآن</button>
+    </div>
+  </article>`;
+
+  if (dailyDealTimerInterval) clearInterval(dailyDealTimerInterval);
+  
+  const updateTimer = () => {
+    const now = Date.now();
+    const remaining = Math.max(0, dealInfo.expiresAt - now);
+    
+    if (remaining === 0) {
+      clearInterval(dailyDealTimerInterval);
+      initDailyDeal();
+      return;
+    }
+    
+    const h = Math.floor(remaining / (1000 * 60 * 60));
+    const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((remaining % (1000 * 60)) / 1000);
+    
+    const hEl = document.getElementById('d-h2');
+    const mEl = document.getElementById('d-m2');
+    const sEl = document.getElementById('d-s2');
+    
+    if (hEl) hEl.textContent = String(h).padStart(2, '0');
+    if (mEl) mEl.textContent = String(m).padStart(2, '0');
+    if (sEl) sEl.textContent = String(s).padStart(2, '0');
+  };
+  
+  updateTimer();
+  dailyDealTimerInterval = setInterval(updateTimer, 1000);
+
+  grid.querySelector('.add-cart-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    if (window.Cart) { Cart.add(p); animateAddBtn(e.target); }
   });
-  grid.querySelectorAll('.flash-card').forEach(card => {
-    card.addEventListener('click', e => {
-      if (e.target.closest('button')) return;
-      openQuickView(card.dataset.id);
-    });
+  grid.querySelector('.flash-card').addEventListener('click', e => {
+    if (e.target.closest('button')) return;
+    openQuickView(p.id);
   });
 }
 
