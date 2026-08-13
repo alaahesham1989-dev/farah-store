@@ -14,32 +14,34 @@
   <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
-  <div class="top-bar">
-    <span>🚚 شحن مجاني للطلبات فوق 500 جنيه — عرض محدود!</span>
-    <div class="social-icons">
-      <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-      <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span>🚚 شحن مجاني فوق 500 ج.م</span>
+      <span class="topbar-sep">✦</span>
+      <span>✅ دفع عند الاستلام متاح</span>
+      <span class="topbar-sep">✦</span>
+      <span data-i18n="trust_daily_offers">🎁 عروض يومية حصرية</span>
     </div>
   </div>
-  <div class="mesh-bg" aria-hidden="true" style="position:fixed;inset:0;z-index:-1">
-    <div class="mesh-orb orb1"></div>
-    <div class="mesh-orb orb2"></div>
-    <div class="mesh-orb orb3"></div>
-  </div>
 
-  <!-- ========== HEADER ========== -->
-  <header class="header scrolled" id="header" style="background:var(--white);">
-    <nav class="navbar">
-      <div class="container nav-inner">
-        <a href="../index.html" class="logo" aria-label="فرح استور">
-          <span class="logo-ar">فرح استور</span>
-          <span class="logo-en">FARAH</span>
-        </a>
-        <div style="display:flex;align-items:center;gap:12px;font-size:0.85rem;color:var(--text-muted)">
-          <span>🔒 دفع آمن ومشفر</span>
-        </div>
+  <!-- ========== NAVBAR ========== -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      
+      <div class="nav-actions">
+        <!-- Optional cart toggle for checkout if needed -->
       </div>
-    </nav>
+
+      <a href="../index.html" class="nav-logo" aria-label="متجر فرح مصر">
+        <span class="logo-ar" style="font-family: 'Tajawal', sans-serif; font-size: 2rem; font-weight: 800; color: var(--gold); letter-spacing: -1px;">متجر فرح مصر</span>
+        <span class="logo-en" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 2px;">FARAH EGYPT STORE</span>
+      </a>
+
+      <div class="nav-right" style="display:flex;align-items:center;gap:12px;font-size:0.85rem;color:var(--text-muted)">
+        <span>🔒 دفع آمن ومشفر</span>
+      </div>
+      
+    </div>
   </header>
 
   <!-- ========== PAGE HERO ========== -->

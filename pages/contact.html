@@ -18,31 +18,58 @@
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="header scrolled" id="header">
-    <nav class="navbar">
-      <div class="container nav-inner">
-        <a href="../index.html" class="logo">
-          <span class="logo-ar">فرح استور</span>
-          <span class="logo-en">FARAH</span>
-        </a>
-        <ul class="nav-links" id="nav-links">
-          <li><a href="../index.html">الرئيسية</a></li>
-          <li><a href="../index.html#featured">المنتجات</a></li>
-          <li><a href="contact.html" style="color:var(--gold-dark)">تواصل معنا</a></li>
-        </ul>
-        <div class="nav-actions">
-          <button class="btn-icon cart-btn" id="cart-toggle" aria-label="السلة">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            <span class="cart-badge" id="cart-count">0</span>
-          </button>
-          <button class="hamburger" id="hamburger" aria-label="القائمة">
-            <span></span><span></span><span></span>
-          </button>
-        </div>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span>🚚 شحن مجاني فوق 500 ج.م</span>
+      <span class="topbar-sep">✦</span>
+      <span>✅ دفع عند الاستلام متاح</span>
+      <span class="topbar-sep">✦</span>
+      <span data-i18n="trust_daily_offers">🎁 عروض يومية حصرية</span>
+    </div>
+  </div>
+
+  <!-- ========== NAVBAR ========== -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      
+      <div class="nav-actions">
+        <button class="nav-icon-btn nav-cart-btn" id="cart-toggle" aria-label="السلة">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="cart-badge" id="cart-count">0</span>
+        </button>
       </div>
-    </nav>
+
+      <a href="../index.html" class="nav-logo" aria-label="متجر فرح مصر">
+        <span class="logo-ar" style="font-family: 'Tajawal', sans-serif; font-size: 2rem; font-weight: 800; color: var(--gold); letter-spacing: -1px;">متجر فرح مصر</span>
+        <span class="logo-en" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 2px;">FARAH EGYPT STORE</span>
+      </a>
+
+      <div class="nav-right">
+        <button class="hamburger-btn" id="hamburger" aria-label="القائمة">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+      
+    </div>
   </header>
+
+  <!-- Mobile Nav Drawer -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <nav class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-header">
+      <span class="logo-ar" style="font-size:1.6rem;font-weight:900;color:var(--gold);">متجر فرح مصر</span>
+      <button id="mobile-nav-close" aria-label="إغلاق" style="background:transparent;border:none;cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="../index.html#hero">الرئيسية</a>
+      <a href="../index.html#new-arrivals">وصل حديثاً</a>
+      <a href="../index.html#sections">الأقسام</a>
+      <a href="../index.html#flash-deals">عروض حصرية</a>
+      <a href="contact.html" style="color:var(--gold-dark)">تواصل معنا</a>
+    </div>
+  </nav>
 
   <!-- PAGE HERO -->
   <div class="page-hero">

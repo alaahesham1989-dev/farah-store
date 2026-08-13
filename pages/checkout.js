@@ -134,10 +134,18 @@ function initPlaceOrder() {
     // Build order payload
     const order = Cart.prepareOrderPayload(customerData);
 
-    // ── Save order locally (until backend is ready) ──
+    // ── Save order to Firestore & Local (Fallback/History) ──
     const orders = FarahDB.Storage.get('orders', []);
     orders.unshift(order);
     FarahDB.Storage.set('orders', orders);
+
+    try {
+      if (window.db && window.db.collection) {
+        await window.db.collection('orders').doc(order.id).set(order);
+      }
+    } catch (e) {
+      console.warn('Firestore write failed:', e);
+    }
 
     // ── Loading state ──
     btn.disabled     = true;

@@ -33,25 +33,34 @@ function redirectHome() {
 }
 
 // ─── Render ───────────────────────────────────────
+function getImageUrl(src) {
+  if (!src) return '';
+  if (src.startsWith('http') || src.startsWith('../')) return src;
+  if (src.startsWith('/')) return `..${src}`;
+  return `../${src}`;
+}
+
 function renderProduct(product) {
   // Page title
   document.title = `${product.name} | فرح استور`;
-  document.querySelector('meta[name="description"]').content = product.description;
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.content = product.description;
 
   // Breadcrumb
-  document.getElementById('breadcrumb-name')?.textContent = product.name;
+  const breadcrumbName = document.getElementById('breadcrumb-name');
+  if (breadcrumbName) breadcrumbName.textContent = product.name;
 
   // Gallery
   const mainImg = document.getElementById('gallery-main-img');
   const thumbsEl = document.getElementById('gallery-thumbs');
-  if (mainImg) {
-    mainImg.src = product.images[0];
+  if (mainImg && product.images && product.images.length > 0) {
+    mainImg.src = getImageUrl(product.images[0]);
     mainImg.alt = product.name;
   }
-  if (thumbsEl && product.images.length > 1) {
+  if (thumbsEl && product.images && product.images.length > 1) {
     thumbsEl.innerHTML = product.images.map((src, i) => `
       <div class="gallery-thumb ${i === 0 ? 'active' : ''}" data-index="${i}">
-        <img src="${src}" alt="${product.name} - صورة ${i+1}" loading="lazy" />
+        <img src="${getImageUrl(src)}" alt="${product.name} - صورة ${i+1}" loading="lazy" />
       </div>
     `).join('');
 
@@ -72,7 +81,10 @@ function renderProduct(product) {
 
   // Name
   const infoName = document.getElementById('info-name');
-  if(infoName) infoName.textContent = product.name;
+  if (infoName) infoName.textContent = product.name;
+  
+  const infoNameEn = document.getElementById('info-name-en');
+  if (infoNameEn) infoNameEn.textContent = product.nameEn || '';
 
   // Rating
   const infoStars = document.getElementById('info-stars');
@@ -84,20 +96,46 @@ function renderProduct(product) {
 
   // Description
   const infoDesc = document.getElementById('info-desc');
-  if(infoDesc) infoDesc.textContent = product.description;
+  if (infoDesc) {
+    infoDesc.innerHTML = product.description;
+  }
+  
+  const btnShowMore = document.getElementById('btn-show-more');
+  const descOverlay = document.getElementById('desc-overlay');
+  if (btnShowMore && infoDesc) {
+    btnShowMore.addEventListener('click', () => {
+      if (infoDesc.style.maxHeight === '100px') {
+        infoDesc.style.maxHeight = '1000px';
+        if (descOverlay) descOverlay.style.display = 'none';
+        btnShowMore.textContent = 'عرض أقل';
+      } else {
+        infoDesc.style.maxHeight = '100px';
+        if (descOverlay) descOverlay.style.display = 'block';
+        btnShowMore.textContent = 'عرض المزيد';
+      }
+    });
+  }
 
   // Price
-  const infoPrice = document.getElementById('info-price');
-  if(infoPrice) infoPrice.innerHTML =
-    `${product.price.toLocaleString('ar-EG')} <span style="font-size:1rem">ج.م</span>`;
-  if (product.discount > 0 && product.priceOriginal) {
-    const badge = document.getElementById('info-discount-badge');
-    if(badge) {
-      badge.textContent    = `خصم ${product.discount}%`;
-      badge.style.display  = 'inline-block';
+  const priceCurrent = document.getElementById('info-price');
+  const priceOriginal = document.getElementById('info-original-price');
+  const discountBadge = document.getElementById('info-discount-badge');
+
+  if (priceCurrent) priceCurrent.textContent = formatCurrency(product.price);
+  
+  if (product.priceOriginal && product.priceOriginal > product.price) {
+    if (priceOriginal) {
+      priceOriginal.textContent = formatCurrency(product.priceOriginal);
+      priceOriginal.style.display = 'inline';
     }
-    const origEl = document.getElementById('info-original-price');
-    if(origEl) origEl.textContent   = `${product.priceOriginal.toLocaleString('ar-EG')} ج.م`;
+    if (discountBadge) {
+      const savedAmount = product.priceOriginal - product.price;
+      discountBadge.textContent = `وفر ${savedAmount} ج.م`;
+      discountBadge.style.display = 'inline-block';
+    }
+  } else {
+    if (priceOriginal) priceOriginal.style.display = 'none';
+    if (discountBadge) discountBadge.style.display = 'none';
   }
 
   // Variants
@@ -124,7 +162,19 @@ function renderProduct(product) {
 
   // SKU & Stock
   const metaSku = document.getElementById('meta-sku');
-  if(metaSku) metaSku.textContent = product.sku;
+  if (metaSku) metaSku.textContent = product.sku;
+  
+  const btnCopySku = document.getElementById('btn-copy-sku');
+  if (btnCopySku && product.sku) {
+    btnCopySku.addEventListener('click', () => {
+      navigator.clipboard.writeText(product.sku).then(() => {
+        const originalHtml = btnCopySku.innerHTML;
+        btnCopySku.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+        setTimeout(() => { btnCopySku.innerHTML = originalHtml; }, 2000);
+      });
+    });
+  }
+
   const stockEl = document.getElementById('meta-stock');
   if (product.stock > 10) {
     if(stockEl) stockEl.innerHTML = `<span style="color:var(--success)">✅ متاح (${product.stock} قطعة)</span>`;
@@ -275,3 +325,4 @@ function initScrollBehavior() {
   }, { passive: true });
   btn?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
+ 

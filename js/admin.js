@@ -245,7 +245,7 @@ function getStatusBadgeClass(status) {
 }
 
 function renderDashboardStats() {
-  const orders = FarahDB.Storage.get('orders', []);
+  const orders = window.AdminOrders || [];
   const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
   const newOrders = orders.filter(order => order.orderStatus === 'new').length;
   const productsCount = FarahDB.PRODUCTS.length;
@@ -475,7 +475,7 @@ function deleteProduct(productId) {
 }
 
 function changeOrderStatus(orderId) {
-  const orders = FarahDB.Storage.get('orders', []);
+  const orders = window.AdminOrders || [];
   const order = orders.find(item => item.id === orderId);
   if (!order) return;
 
@@ -487,15 +487,24 @@ function changeOrderStatus(orderId) {
     cancelled: 'cancelled',
   }[order.orderStatus] || 'processing';
 
-  order.orderStatus = nextStatus;
-  order.updatedAt = new Date().toISOString();
-  FarahDB.Storage.set('orders', orders);
-  renderOrdersTable();
-  renderDashboardStats();
+  // Update in Firestore
+  if (window.db && window.db.collection) {
+    window.db.collection('orders').doc(orderId).update({ 
+      orderStatus: nextStatus,
+      updatedAt: new Date().toISOString()
+    }).catch(err => {
+      console.error('Error updating order status in Firestore:', err);
+      alert('حدث خطأ أثناء تحديث حالة الطلب. تأكد من اتصالك بالإنترنت.');
+    });
+  } else {
+    alert('قاعدة البيانات غير متصلة.');
+  }
+  
+  // The UI will automatically update via the onSnapshot listener.
 }
 
 function renderOrdersTable() {
-  const orders = FarahDB.Storage.get('orders', []);
+  const orders = window.AdminOrders || [];
   const statusFilter = document.getElementById('orders-status-filter')?.value || 'all';
   const filteredOrders = statusFilter === 'all'
     ? orders
@@ -585,6 +594,28 @@ function initDashboard() {
     location.reload();
   });
 
+  // Listen to Orders from Firestore
+  window.AdminOrders = [];
+  if (window.db && window.db.collection) {
+    window.db.collection('orders').onSnapshot(snapshot => {
+      const orders = [];
+      snapshot.forEach(doc => {
+        orders.push({ id: doc.id, ...doc.data() });
+      });
+      // Sort orders by date descending
+      orders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      
+      window.AdminOrders = orders;
+      renderOrdersTable();
+      renderDashboardStats();
+      updateSalesChart();
+    }, err => {
+      console.error('Error fetching orders from Firestore:', err);
+    });
+  } else {
+    console.warn("Firestore not initialized for Orders listener.");
+  }
+
   document.getElementById('products-search')?.addEventListener('input', renderProductsTable);
   document.getElementById('products-category-filter')?.addEventListener('change', renderProductsTable);
   document.getElementById('orders-status-filter')?.addEventListener('change', renderOrdersTable);
@@ -613,23 +644,22 @@ function initDashboard() {
     if (e.target === modal) closeProductEditor();
   });
 
+  // Initial renders
   renderDashboardStats();
   renderProductsTable();
   renderOrdersTable();
 
-  const orders = FarahDB.Storage.get('orders', []);
-  const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-
   // Chart.js Initialization
+  window.salesChartInstance = null;
   const ctx = document.getElementById('salesChart');
   if (ctx) {
-    new Chart(ctx, {
+    window.salesChartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو'],
         datasets: [{
           label: 'المبيعات (ج.م)',
-          data: [totalSales * 0.6, totalSales * 0.7, totalSales * 0.85, totalSales * 0.95, totalSales * 0.8, totalSales * 1.1, totalSales],
+          data: [0, 0, 0, 0, 0, 0, 0], // Will be updated dynamically
           borderColor: '#D4A853',
           backgroundColor: 'rgba(212, 168, 83, 0.1)',
           borderWidth: 2,
@@ -659,14 +689,35 @@ function initDashboard() {
     });
   }
 
-  // Counter Animation
+  // Counter Animation Initializer
+  initCounters();
+}
+
+function updateSalesChart() {
+  if (!window.salesChartInstance) return;
+  const orders = window.AdminOrders || [];
+  const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+  
+  // Just a simple demo visualization update based on total sales
+  const data = [totalSales * 0.1, totalSales * 0.2, totalSales * 0.4, totalSales * 0.6, totalSales * 0.7, totalSales * 0.9, totalSales];
+  window.salesChartInstance.data.datasets[0].data = data;
+  window.salesChartInstance.update();
+}
+
+function initCounters() {
   const counters = document.querySelectorAll('.counter');
   counters.forEach(counter => {
-    const target = +counter.getAttribute('data-target');
+    // Only init if not already animated to avoid loops
+    if (counter.dataset.animated) return;
+    counter.dataset.animated = 'true';
+    
     const updateCount = () => {
-      const count = +counter.innerText.replace(/,/g, '').replace(' ج.م', '');
+      const target = +counter.getAttribute('data-target') || 0;
+      const currentText = counter.innerText.replace(/,/g, '').replace(' ج.م', '');
+      const count = +currentText || 0;
       const speed = 200;
       const inc = target / speed;
+      
       if (count < target) {
         let val = Math.ceil(count + inc);
         if(counter.innerText.includes('ج.م')) {
@@ -676,7 +727,7 @@ function initDashboard() {
         }
         setTimeout(updateCount, 10);
       } else {
-        if(counter.innerText.includes('ج.م')) {
+        if(counter.innerText.includes('ج.م') || counter.classList.contains('currency')) {
           counter.innerText = target.toLocaleString('ar-EG') + ' ج.م';
         } else {
           counter.innerText = target.toLocaleString('ar-EG');
@@ -686,6 +737,7 @@ function initDashboard() {
     updateCount();
   });
 }
+
 
 // ==========================================
 // Excel Import Features
