@@ -557,6 +557,16 @@ function initDashboard() {
   document.getElementById('products-category-filter')?.addEventListener('change', renderProductsTable);
   document.getElementById('orders-status-filter')?.addEventListener('change', renderOrdersTable);
   document.getElementById('btn-add-product')?.addEventListener('click', () => openProductEditor());
+  
+  // Excel Import Bindings
+  document.getElementById('btn-import-excel')?.addEventListener('click', () => {
+    document.getElementById('excel-file-input').click();
+  });
+  document.getElementById('excel-file-input')?.addEventListener('change', handleExcelUpload);
+  document.getElementById('close-excel-preview')?.addEventListener('click', closeExcelPreview);
+  document.getElementById('cancel-excel-import')?.addEventListener('click', closeExcelPreview);
+  document.getElementById('confirm-excel-import')?.addEventListener('click', confirmExcelImport);
+
   document.getElementById('close-product-editor')?.addEventListener('click', closeProductEditor);
   document.getElementById('cancel-product-edit')?.addEventListener('click', closeProductEditor);
   document.getElementById('save-product-edit')?.addEventListener('click', saveProductEdit);
@@ -643,4 +653,190 @@ function initDashboard() {
     };
     updateCount();
   });
+}
+
+// ==========================================
+// Excel Import Features
+// ==========================================
+
+let parsedExcelProducts = [];
+
+function closeExcelPreview() {
+  const modal = document.getElementById('excel-preview-modal');
+  if (modal) modal.style.display = 'none';
+  const fileInput = document.getElementById('excel-file-input');
+  if (fileInput) fileInput.value = '';
+  parsedExcelProducts = [];
+}
+
+function handleExcelUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = evt.target.result;
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet);
+
+      parsedExcelProducts = processExcelData(json);
+      showExcelPreview(parsedExcelProducts);
+    } catch (err) {
+      console.error('Error parsing Excel:', err);
+      alert('حدث خطأ أثناء قراءة ملف الإكسل. تأكد من أن الملف صالح.');
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function cleanNum(val, defaultVal = 0) {
+  if (val === undefined || val === null || val === '') return defaultVal;
+  const num = parseFloat(String(val).replace(/,/g, '').trim());
+  return isNaN(num) ? defaultVal : num;
+}
+
+function processExcelData(rows) {
+  const products = [];
+  
+  rows.forEach(row => {
+    let sku = String(row['كود المنتج (SKU)'] || row['كود المنتج'] || '').trim();
+    if (!sku || sku === 'nan' || sku === 'غير متوفر') return;
+
+    let pid = sku.toLowerCase();
+    let name = String(row['اسم المنتج بالمتجر'] || row['اسم المنتج التجاري'] || '').trim();
+    let nameEn = String(row['اسم المنتج التجاري'] || '').trim();
+    
+    let price = cleanNum(row['سعر البيع'] || row['السعر']);
+    let priceOriginal = cleanNum(row['السعر قبل الخصم']);
+    let priceWholesale = cleanNum(row['سعر الجملة']);
+    
+    let discount = 0;
+    if (priceOriginal > price && priceOriginal > 0) {
+      discount = Math.floor(((priceOriginal - price) / priceOriginal) * 100);
+    }
+    
+    let stock = cleanNum(row['الكمية المتاحة'] || row['المخزون'], 100);
+    let category = String(row['الفئة'] || '').trim();
+    if (!category || category === 'nan') category = 'beauty';
+    
+    let description = String(row['الوصف التفصيلي'] || '').trim();
+    if (description === 'nan' || !description) {
+      description = String(row['الوصف القصير'] || '').trim();
+      if (description === 'nan') description = '';
+    }
+    
+    let images = [];
+    let mainImg = String(row['رابط الصورة الرئيسية'] || '').trim();
+    if (mainImg && mainImg !== 'nan') {
+      // Clean file:/// from manual paths if any
+      if (mainImg.startsWith('file:///')) {
+        const parts = mainImg.split('/');
+        const filename = parts[parts.length - 1];
+        images.push('images/products/' + decodeURIComponent(filename));
+      } else {
+        images.push(mainImg);
+      }
+    }
+    
+    products.push({
+      id: pid,
+      sku: sku,
+      name: name && name !== 'nan' ? name : nameEn,
+      nameEn: nameEn !== 'nan' ? nameEn : '',
+      category: category,
+      description: description,
+      price: price,
+      priceWholesale: priceWholesale,
+      priceOriginal: priceOriginal,
+      discount: discount,
+      stock: stock,
+      images: images,
+      variants: {},
+      rating: 4.5,
+      reviews: 120,
+      sold: 300,
+      badge: "جديد",
+      badgeType: "new",
+      featured: true,
+      createdAt: new Date().toISOString().split('T')[0]
+    });
+  });
+  
+  return products;
+}
+
+function showExcelPreview(products) {
+  const tbody = document.getElementById('excel-preview-body');
+  const statsDiv = document.getElementById('excel-import-stats');
+  const modal = document.getElementById('excel-preview-modal');
+  
+  tbody.innerHTML = '';
+  let newCount = 0;
+  let updateCount = 0;
+
+  products.forEach(p => {
+    // Check if product exists in global PRODUCTS array
+    const exists = PRODUCTS.some(existing => existing.id === p.id || existing.sku === p.sku);
+    const status = exists ? 'تحديث' : 'جديد';
+    const statusColor = exists ? 'var(--admin-warning)' : 'var(--admin-success)';
+    
+    if (exists) updateCount++;
+    else newCount++;
+
+    const imgPreview = p.images.length > 0 
+      ? `<img src="../${p.images[0]}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;background:#fff;">` 
+      : '<span style="font-size:12px;color:#888;">بدون صورة</span>';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);color:${statusColor};font-weight:bold;">${status}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);">${imgPreview}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);font-family:monospace;">${p.sku}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);">${p.name}</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);">${p.price} ج.م</td>
+      <td style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);">${p.stock}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  statsDiv.textContent = `إجمالي: ${products.length} منتج (${newCount} جديد، ${updateCount} تحديث)`;
+  modal.style.display = 'flex';
+}
+
+async function confirmExcelImport() {
+  const btn = document.getElementById('confirm-excel-import');
+  const originalText = btn.textContent;
+  
+  if (!window.db) {
+    alert('قاعدة البيانات غير متصلة.');
+    return;
+  }
+
+  btn.textContent = 'جاري الرفع...';
+  btn.disabled = true;
+
+  try {
+    const batchSize = 10;
+    let completed = 0;
+    
+    // We upload sequentially or in small batches to avoid overwhelming
+    for (let i = 0; i < parsedExcelProducts.length; i++) {
+      const p = parsedExcelProducts[i];
+      await window.db.collection('products').doc(p.id).set(p, { merge: true });
+      completed++;
+      btn.textContent = `جاري الرفع (${completed}/${parsedExcelProducts.length})...`;
+    }
+
+    alert('تم استيراد/تحديث المنتجات بنجاح في قاعدة البيانات!');
+    closeExcelPreview();
+  } catch (err) {
+    console.error('Error importing to Firestore:', err);
+    alert('حدث خطأ أثناء رفع المنتجات. يرجى مراجعة الـ Console.');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
 }

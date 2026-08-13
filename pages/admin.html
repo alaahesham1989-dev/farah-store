@@ -262,7 +262,11 @@
         <div id="tab-products" class="tab-content">
           <div class="page-header">
             <h2>إدارة المنتجات</h2>
-            <button class="btn btn-gold" id="btn-add-product">+ إضافة منتج</button>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary" id="btn-import-excel" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);">📥 استيراد من إكسل</button>
+              <button class="btn btn-gold" id="btn-add-product">+ إضافة منتج</button>
+              <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+            </div>
           </div>
           <div class="filter-bar">
             <div class="search-bar">
@@ -456,6 +460,42 @@
     </div>
   </div>
 
+  <div id="excel-preview-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div class="glass-panel" style="max-width:900px;width:100%;max-height:85vh;position:relative;padding:25px;display:flex;flex-direction:column;">
+      <button id="close-excel-preview" style="position:absolute;top:16px;right:16px;border:none;background:transparent;font-size:1.4rem;color:#fff;cursor:pointer;">✕</button>
+      <h3 style="margin-bottom:8px;">مراجعة المنتجات المستوردة</h3>
+      <p style="margin-bottom:20px;color:var(--admin-text-soft);">يرجى مراجعة المنتجات التالية قبل تأكيد الرفع إلى قاعدة البيانات.</p>
+      
+      <div style="flex:1;overflow:auto;margin-bottom:20px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;">
+        <table style="width:100%;border-collapse:collapse;text-align:right;">
+          <thead style="background:rgba(255,255,255,0.05);position:sticky;top:0;z-index:1;">
+            <tr>
+              <th style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);">الحالة</th>
+              <th style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);">صورة</th>
+              <th style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);">SKU</th>
+              <th style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);">الاسم</th>
+              <th style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);">السعر</th>
+              <th style="padding:12px;border-bottom:1px solid rgba(255,255,255,0.1);">المخزون</th>
+            </tr>
+          </thead>
+          <tbody id="excel-preview-body">
+            <!-- Rows will be injected here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div id="excel-import-stats" style="color:var(--admin-gold);font-weight:bold;"></div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-secondary" id="cancel-excel-import">إلغاء</button>
+          <button class="btn btn-gold" id="confirm-excel-import">تأكيد الاستيراد</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
