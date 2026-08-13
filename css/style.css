@@ -860,6 +860,10 @@ select.form-control { appearance: none; cursor: pointer; background-image: url("
 .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s var(--ease); }
 .reveal.active { opacity: 1; transform: none; }
 
+/* Sections hidden until JS fills them with content */
+.section-pending { display: none !important; }
+
+
 /* ═══════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════ */

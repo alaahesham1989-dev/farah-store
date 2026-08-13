@@ -346,10 +346,13 @@ function initCategoryMosaic() {
   grid.innerHTML = cats.map((cat, i) => `
     <div class="cat-tile fade-up fade-up-${(i % 4) + 1}" data-cat="${cat.id}" role="button" tabindex="0" aria-label="${cat.name}">
       <span class="cat-icon">${cat.icon}</span>
-      <div class="cat-name" data-i18n="cat_${cat.id}">${typeof i18n !== 'undefined' ? i18n[currentLang]['cat_'+cat.id] : cat.name}</div>
-      <div class="cat-count">${cat.count} <span data-i18n="product_items">${typeof i18n !== 'undefined' ? i18n[currentLang]['product_items'] : 'منتج'}</span></div>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-count">${cat.count} منتج</div>
     </div>
   `).join('');
+
+  // Reveal the section now it has content
+  grid.closest('section')?.classList.remove('section-pending');
 
   grid.querySelectorAll('.cat-tile').forEach(tile => {
     const go = () => {
@@ -371,6 +374,8 @@ function initCuratedSection(categoryId, containerId) {
   if (!products.length) { el.closest('section')?.remove(); return; }
   el.innerHTML = products.map(p => buildProdCard(p, 'grid')).join('');
   attachCardEvents(el);
+  // Reveal section now it has products
+  el.closest('section')?.classList.remove('section-pending');
 }
 
 /* ══════════════════════════════════════
@@ -384,13 +389,20 @@ function initFlashDeals() {
   if (!grid) return;
 
   const products = FarahDB.getProducts ? FarahDB.getProducts().filter(p => p.isFlash).slice(0, 6) : window.PRODUCTS ? window.PRODUCTS.filter(p => p.isFlash).slice(0, 6) : [];
+  if (!products.length) {
+    grid.closest('section')?.remove();
+    return;
+  }
   grid.innerHTML = products.map(p => {
     const stockPct = FLASH_STOCKS[p.id] || 60;
+    const disc = p.priceOriginal && p.priceOriginal > p.price
+      ? Math.round((1 - p.price / p.priceOriginal) * 100)
+      : (p.discount || 0);
     return `
     <article class="flash-card" data-id="${p.id}">
       <div class="flash-card-img">
-        <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/220x200/0e0b1e/ffffff?text=📦'" />
-        ${p.discount ? `<span class="flash-discount-badge">${p.discount}% خصم</span>` : ''}
+        <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.src='https://placehold.co/220x200/0e0b1e/ffffff?text=\u{1F4E6}'" />
+        ${disc ? `<span class="flash-discount-badge">${disc}% خصم</span>` : ''}
       </div>
       <div class="flash-card-body">
         <div class="flash-card-name">${p.name}</div>
@@ -400,12 +412,13 @@ function initFlashDeals() {
         </div>
         <div class="flash-progress"><div class="flash-progress-bar" style="width:${stockPct}%"></div></div>
         <div class="flash-stock-text">تم بيع ${stockPct}% من الكمية</div>
-        <button class="btn btn-gold w-full add-cart-btn" data-id="${p.id}" style="margin-top:.75rem;font-size:.85rem;padding:10px">
-          أضيفي للسلة
-        </button>
+        <button class="btn btn-gold w-full add-cart-btn" data-id="${p.id}" style="margin-top:.75rem;font-size:.85rem;padding:10px">أضيفي للسلة</button>
       </div>
     </article>`;
   }).join('');
+
+  // Reveal the flash section
+  grid.closest('section')?.classList.remove('section-pending');
 
   grid.querySelectorAll('.add-cart-btn[data-id]').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -461,7 +474,7 @@ function initAllProducts() {
 
 function filterAllProducts(catId) {
   allFilter  = catId;
-  allVisible = 8;
+  allVisible = 1000;
   // Update chips
   document.querySelectorAll('.filter-chip').forEach(c => {
     c.classList.toggle('active', c.dataset.filter === catId);
@@ -487,6 +500,8 @@ function renderAllProducts() {
   if (btn) btn.style.display = all.length > allVisible ? 'inline-flex' : 'none';
   attachCardEvents(grid);
   observeCards(grid);
+  // Reveal the all-products section
+  grid.closest('section')?.classList.remove('section-pending');
 }
 
 /* ══════════════════════════════════════
