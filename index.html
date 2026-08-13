@@ -26,12 +26,6 @@
     <span>✅ دفع عند الاستلام متاح</span>
     <span class="topbar-sep">❖</span>
     <span data-i18n="trust_daily_offers">🎁 عروض يومية حصرية</span>
-    <span class="topbar-sep">❖</span>
-    <span>🚚 شحن مجاني فوق 600 ج.م</span>
-    <span class="topbar-sep">❖</span>
-    <span>✅ دفع عند الاستلام متاح</span>
-    <span class="topbar-sep">❖</span>
-    <span data-i18n="trust_daily_offers">🎁 عروض يومية حصرية</span>
   </div>
 </div>
 
@@ -123,7 +117,7 @@
       </div>
       <div class="trust-item">
         <span class="trust-icon">🔄</span>
-        <div><strong>إرجاع مرن</strong><span>خلال 14 يوم — اقرأ الشروط</span></div>
+        <div><strong>إرجاع مجاني</strong><span>خلال 14 يوم — اقرأ الشروط والأحكام</span></div>
       </div>
       <div class="trust-item">
         <span class="trust-icon">💚</span>
@@ -158,10 +152,10 @@
 <!-- ══════════════════════════════════════
      SECTION GRID — أقسام المتجر
 ══════════════════════════════════════ -->
-<section class="cat-section section-pending" id="sections">
-  <div class="wide-container reveal">
-    <div class="section-eyebrow" style="text-align:center" data-i18n="categories_badge">📦 أقسام المتجر</div>
-    <h2 class="section-heading" style="text-align:center;margin-bottom:2.5rem" data-i18n="categories_title">تسوق حسب اهتمامك</h2>
+<section class="cat-section" id="sections">
+  <div class="wide-container">
+    <div class="section-eyebrow" style="text-align:center">📦 أقسام المتجر</div>
+    <h2 class="section-heading" style="text-align:center;margin-bottom:2.5rem">تسوق حسب اهتمامك</h2>
     <div class="cat-mosaic" id="cat-mosaic">
       <!-- Filled by JS -->
     </div>
@@ -169,26 +163,42 @@
 </section>
 
 <!-- ══════════════════════════════════════
-     CURATED SECTION 1 — أفكار المنزل
+     CURATED — العناية بالبشرة
 ══════════════════════════════════════ -->
-<section class="curated-section section-pending" id="home-section">
-  <div class="wide-container reveal">
+<section class="curated-section" id="skin-section">
+  <div class="wide-container">
     <div class="curated-header">
       <div>
-        <div class="section-eyebrow">✨ عناية بشرة</div>
+        <div class="section-eyebrow">✨ عناية بالبشرة</div>
         <h2 class="section-heading">منتجات العناية بالبشرة</h2>
       </div>
       <a href="#all-products" class="see-all-link" data-filter="العناية بالبشرة">عرض الكل ←</a>
     </div>
-    <div class="products-row" id="home-products-row"><!-- JS --></div>
+    <div class="products-row" id="skin-products-row"><!-- JS --></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CURATED — العناية بالجسم
+══════════════════════════════════════ -->
+<section class="curated-section" id="body-section">
+  <div class="wide-container">
+    <div class="curated-header">
+      <div>
+        <div class="section-eyebrow">🧴 عناية بالجسم</div>
+        <h2 class="section-heading">منتجات العناية بالجسم</h2>
+      </div>
+      <a href="#all-products" class="see-all-link" data-filter="العناية بالجسم">عرض الكل ←</a>
+    </div>
+    <div class="products-row" id="body-products-row"><!-- JS --></div>
   </div>
 </section>
 
 <!-- ══════════════════════════════════════
      FLASH DEALS STRIP
 ══════════════════════════════════════ -->
-<section class="flash-section section-pending" id="flash-deals">
-  <div class="wide-container reveal">
+<section class="flash-section" id="flash-deals">
+  <div class="wide-container">
     <div class="flash-section-header">
       <div>
         <div class="section-eyebrow" style="color:var(--flash-accent)">⚡ عروض سريعة</div>
@@ -207,29 +217,16 @@
 </section>
 
 <!-- ══════════════════════════════════════
-     CURATED SECTION 2 — إكسسوارات
+     CURATED — العناية بالأسنان
 ══════════════════════════════════════ -->
-<section class="curated-section seasonal-section section-pending" id="seasonal-offers">
-  <div class="wide-container reveal">
-    <div class="curated-header">
-      <div>
-        <div class="section-eyebrow">💇‍♀️ عناية بالشعر</div>
-        <h2 class="section-heading">أجمل شعر بأحدث الأدوات</h2>
-      </div>
-      <a href="#all-products" class="see-all-link" data-filter="العناية بالشعر">عرض الكل ←</a>
-    </div>
-    <div class="products-row" id="fashion-products-row"><!-- JS --></div>
-  </div>
-</section>
-
-<section class="curated-section section-pending" id="dental-section">
-  <div class="wide-container reveal">
+<section class="curated-section" id="dental-section">
+  <div class="wide-container">
     <div class="curated-header">
       <div>
         <div class="section-eyebrow">🦷 عناية بالأسنان</div>
         <h2 class="section-heading">ابتسامة ناصعة البياض</h2>
       </div>
-      <a href="#all-products" class="see-all-link">عرض الكل ←</a>
+      <a href="#all-products" class="see-all-link" data-filter="العناية بالأسنان">عرض الكل ←</a>
     </div>
     <div class="products-row" id="dental-products-row"><!-- JS --></div>
   </div>
@@ -238,7 +235,7 @@
 <!-- ══════════════════════════════════════
      ALL PRODUCTS
 ══════════════════════════════════════ -->
-<section class="all-products-section section-pending" id="all-products">
+<section class="all-products-section" id="all-products">
   <div class="wide-container">
     <div class="section-eyebrow" style="text-align:center">🛍️ تشكيلة فرح استور</div>
     <h2 class="section-heading" style="text-align:center;margin-bottom:1.5rem">تصفح كل المنتجات</h2>
@@ -249,6 +246,7 @@
     <div class="products-masonry" id="all-products-grid"><!-- JS --></div>
   </div>
 </section>
+
 
 <!-- ══════════════════════════════════════
      NEWSLETTER

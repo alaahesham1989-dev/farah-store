@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initCounterAnimation();
     initNewArrivals();
     initCategoryMosaic();
-    initCuratedSection('العناية بالبشرة', 'home-products-row');
-    initCuratedSection('العناية بالشعر', 'fashion-products-row');
+    initCuratedSection('العناية بالبشرة', 'skin-products-row');
+    initCuratedSection('العناية بالجسم', 'body-products-row');
     initCuratedSection('العناية بالأسنان', 'dental-products-row');
     initFlashDeals();
     initAllProducts();
@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('FarahDBProductsUpdated', () => {
     initNewArrivals();
     initCategoryMosaic();
-    initCuratedSection('العناية بالبشرة', 'home-products-row');
-    initCuratedSection('العناية بالشعر', 'fashion-products-row');
+    initCuratedSection('العناية بالبشرة', 'skin-products-row');
+    initCuratedSection('العناية بالجسم', 'body-products-row');
     initCuratedSection('العناية بالأسنان', 'dental-products-row');
     initFlashDeals();
     renderAllProducts();
@@ -352,8 +352,6 @@ function initCategoryMosaic() {
   `).join('');
 
   // Reveal the section now it has content
-  grid.closest('section')?.classList.remove('section-pending');
-
   grid.querySelectorAll('.cat-tile').forEach(tile => {
     const go = () => {
       filterAllProducts(tile.dataset.cat);
@@ -374,8 +372,6 @@ function initCuratedSection(categoryId, containerId) {
   if (!products.length) { el.closest('section')?.remove(); return; }
   el.innerHTML = products.map(p => buildProdCard(p, 'grid')).join('');
   attachCardEvents(el);
-  // Reveal section now it has products
-  el.closest('section')?.classList.remove('section-pending');
 }
 
 /* ══════════════════════════════════════
@@ -416,9 +412,6 @@ function initFlashDeals() {
       </div>
     </article>`;
   }).join('');
-
-  // Reveal the flash section
-  grid.closest('section')?.classList.remove('section-pending');
 
   grid.querySelectorAll('.add-cart-btn[data-id]').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -500,8 +493,6 @@ function renderAllProducts() {
   if (btn) btn.style.display = all.length > allVisible ? 'inline-flex' : 'none';
   attachCardEvents(grid);
   observeCards(grid);
-  // Reveal the all-products section
-  grid.closest('section')?.classList.remove('section-pending');
 }
 
 /* ══════════════════════════════════════
@@ -810,17 +801,18 @@ function initMobileBottomNav() {
 
 function initAdvancedIntersectionObserver() {
   // 2. Advanced IntersectionObserver for Smooth Reveals
-  const revealElements = document.querySelectorAll('section, .bento-card, .prod-grid-card, .product-card');
+  // Target only content elements INSIDE sections, NOT the sections themselves
+  // This prevents hero/trust/topbar from getting opacity:0
+  const revealElements = document.querySelectorAll('.cat-section .wide-container, .curated-section .wide-container, .flash-section .wide-container, .all-products-section .wide-container, .strip-section .strip-header, .strip-section .h-scroll-track, .newsletter .newsletter-inner, .bento-card, .prod-grid-card, .product-card');
   const revealOptions = {
     threshold: 0.05,
-    rootMargin: '0px 0px -50px 0px'
+    rootMargin: '0px 0px -30px 0px'
   };
 
-  const revealObserver = new IntersectionObserver((entries, observer) => {
+  const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('active');
-        // observer.unobserve(entry.target); // keep observing for dynamic scrolling or unobserve for performance
       }
     });
   }, revealOptions);
