@@ -298,7 +298,9 @@ function renderProductsTable() {
         <td><img src="${thumb}" alt="${product.name}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;" onerror="this.src='https://via.placeholder.com/48x48?text=No'"/></td>
         <td>${product.name}</td>
         <td>${getCategoryLabel(product.category)}</td>
-        <td>${product.price.toLocaleString('ar-EG')} ج.م</td>
+        <td style="color:var(--admin-warning);">${(product.priceWholesale || 0).toLocaleString('ar-EG')} ج.م</td>
+        <td style="font-weight:bold;">${product.price.toLocaleString('ar-EG')} ج.م</td>
+        <td style="color:var(--admin-success); font-weight:bold;">${((product.price || 0) - (product.priceWholesale || 0)).toLocaleString('ar-EG')} ج.م</td>
         <td>${product.stock}</td>
         <td><span class="${badgeClass}">${badgeText}</span></td>
         <td>
@@ -339,7 +341,26 @@ function openProductEditor(productId = null) {
 
   document.getElementById('edit-product-name').value = product.name || '';
   document.getElementById('edit-product-category').value = product.category || 'other';
-  document.getElementById('edit-product-price').value = product.price || 0;
+  
+  const priceInput = document.getElementById('edit-product-price');
+  const wholesaleInput = document.getElementById('edit-product-price-wholesale');
+  const originalInput = document.getElementById('edit-product-price-original');
+  const profitInput = document.getElementById('edit-product-profit');
+  
+  priceInput.value = product.price || 0;
+  wholesaleInput.value = product.priceWholesale || product.price || 0;
+  originalInput.value = product.priceOriginal || product.price || 0;
+  
+  const updateProfit = () => {
+    const p = Number(priceInput.value || 0);
+    const w = Number(wholesaleInput.value || 0);
+    profitInput.value = (p - w) + ' ج.م';
+  };
+  
+  updateProfit();
+  priceInput.addEventListener('input', updateProfit);
+  wholesaleInput.addEventListener('input', updateProfit);
+
   document.getElementById('edit-product-stock').value = product.stock || 0;
   document.getElementById('edit-product-badge').value = product.badge || '';
   // images
@@ -359,8 +380,16 @@ function saveProductEdit() {
   const name = document.getElementById('edit-product-name')?.value.trim();
   const category = document.getElementById('edit-product-category')?.value.trim() || 'other';
   const price = Number(document.getElementById('edit-product-price')?.value || 0);
+  const priceWholesale = Number(document.getElementById('edit-product-price-wholesale')?.value || 0);
+  const priceOriginal = Number(document.getElementById('edit-product-price-original')?.value || 0);
   const stock = Number(document.getElementById('edit-product-stock')?.value || 0);
   const badge = document.getElementById('edit-product-badge')?.value.trim();
+
+  // calculate discount if applicable
+  let discount = 0;
+  if (priceOriginal > price && priceOriginal > 0) {
+    discount = Math.floor(((priceOriginal - price) / priceOriginal) * 100);
+  }
 
   // collect images in order
   const imageInputs = Array.from(document.querySelectorAll('.edit-image-url'));
@@ -379,6 +408,9 @@ function saveProductEdit() {
       name,
       category,
       price,
+      priceWholesale,
+      priceOriginal,
+      discount,
       stock,
       badge,
       images,
@@ -391,9 +423,9 @@ function saveProductEdit() {
       category,
       description: '',
       price,
-      priceWholesale: price,
-      priceOriginal: price,
-      discount: 0,
+      priceWholesale,
+      priceOriginal,
+      discount,
       stock,
       images,
       variants: {},

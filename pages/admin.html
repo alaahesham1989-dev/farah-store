@@ -292,7 +292,9 @@
                   <th>صورة</th>
                   <th>الاسم</th>
                   <th>الفئة</th>
-                  <th>السعر</th>
+                  <th>سعر الجملة</th>
+                  <th>سعر البيع</th>
+                  <th>المكسب</th>
                   <th>المخزون</th>
                   <th>الحالة</th>
                   <th>الإجراءات</th>
@@ -440,7 +442,10 @@
       <div style="display:grid;gap:16px;">
         <div class="form-group"><input type="text" id="edit-product-name" class="form-control" placeholder=" "><label class="floating-label">اسم المنتج</label></div>
         <div class="form-group"><input type="text" id="edit-product-category" class="form-control" placeholder=" "><label class="floating-label">الفئة</label></div>
-        <div class="form-group"><input type="number" id="edit-product-price" class="form-control" placeholder=" "><label class="floating-label">السعر</label></div>
+        <div class="form-group"><input type="number" id="edit-product-price-wholesale" class="form-control" placeholder=" "><label class="floating-label">سعر الجملة</label></div>
+        <div class="form-group"><input type="number" id="edit-product-price" class="form-control" placeholder=" "><label class="floating-label">سعر البيع</label></div>
+        <div class="form-group"><input type="number" id="edit-product-price-original" class="form-control" placeholder=" "><label class="floating-label">السعر الأصلي (قبل الخصم)</label></div>
+        <div class="form-group"><input type="text" id="edit-product-profit" class="form-control" placeholder=" " readonly style="background: rgba(255,255,255,0.05); color: var(--admin-success); font-weight: bold;"><label class="floating-label">المكسب (تلقائي)</label></div>
         <div class="form-group"><input type="number" id="edit-product-stock" class="form-control" placeholder=" "><label class="floating-label">المخزون</label></div>
         <div class="form-group"><input type="text" id="edit-product-badge" class="form-control" placeholder=" "><label class="floating-label">حالة العرض</label></div>
 
