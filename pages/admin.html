@@ -402,14 +402,18 @@
           </div>
           <div class="glass-panel">
             <p style="color: var(--admin-text-soft); margin-bottom: 20px;">
-              المنتجات المضافة هنا ستظهر في قسم "عرض اليوم" في الصفحة الرئيسية.
-              سيعرض النظام منتجاً واحداً كل 24 ساعة، ثم ينتقل للمنتج الذي يليه تلقائياً.
+              أضف المنتجات إلى طابور العروض. سيقوم النظام تلقائياً بعرض المنتج الذي يقع وقتنا الحالي بين تاريخ بدايته ونهايته.
             </p>
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-              <select class="form-control" id="daily-deal-product-select" style="flex: 1;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <select class="form-control" id="daily-deal-product-select">
                 <option value="">-- اختر منتج لإضافته لطابور العروض --</option>
                 <!-- Filled by JS -->
               </select>
+              <input type="number" class="form-control" id="daily-deal-price" placeholder="سعر العرض (ج.م)">
+              <input type="datetime-local" class="form-control" id="daily-deal-start" title="وقت البداية">
+              <input type="datetime-local" class="form-control" id="daily-deal-end" title="وقت النهاية">
+            </div>
+            <div style="margin-bottom: 20px;">
               <button class="btn btn-gold" id="btn-add-daily-deal">إضافة للقائمة</button>
             </div>
             
@@ -419,7 +423,10 @@
                   <tr>
                     <th>الترتيب</th>
                     <th>المنتج</th>
-                    <th>السعر</th>
+                    <th>السعر (جملة/أصلي)</th>
+                    <th>سعر العرض</th>
+                    <th>البداية</th>
+                    <th>النهاية</th>
                     <th>الإجراءات</th>
                   </tr>
                 </thead>

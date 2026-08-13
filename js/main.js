@@ -333,41 +333,37 @@ function initNewArrivals() {
 function getDailyDeal() {
   let dealsQueue = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
   
-  // Fallback to a random flash product if queue is empty so the section doesn't disappear on first load
-  if (!dealsQueue || dealsQueue.length === 0) {
-    if (window.FarahDB && FarahDB.PRODUCTS) {
-      const firstFlash = FarahDB.PRODUCTS.find(p => p.isFlash);
-      if (firstFlash) {
-        dealsQueue = [firstFlash.id];
-      } else {
-        dealsQueue = [FarahDB.PRODUCTS[0].id];
-      }
-    } else {
-      return null;
-    }
-  }
-  
-  let currentDealIndex = window.FarahDB && FarahDB.Storage ? FarahDB.Storage.get('current_deal_index', 0) : 0;
-  let dealStartTime = window.FarahDB && FarahDB.Storage ? FarahDB.Storage.get('current_deal_time', 0) : 0;
-  
   const now = Date.now();
-  const ONE_DAY = 24 * 60 * 60 * 1000;
   
-  if (!dealStartTime || now - dealStartTime >= ONE_DAY) {
-    if (dealStartTime) {
-      currentDealIndex = (currentDealIndex + 1) % dealsQueue.length;
-    }
-    dealStartTime = now;
-    if (window.FarahDB && FarahDB.Storage) {
-      FarahDB.Storage.set('current_deal_index', currentDealIndex);
-      FarahDB.Storage.set('current_deal_time', dealStartTime);
+  // Clean up migration from strings (if any)
+  if (dealsQueue.length > 0 && typeof dealsQueue[0] === 'string') {
+    dealsQueue = [];
+  }
+  
+  // Find currently active deal
+  const activeDeal = dealsQueue.find(d => now >= d.startTime && now < d.endTime);
+  if (activeDeal) {
+    return {
+      productId: activeDeal.productId,
+      offerPrice: activeDeal.offerPrice,
+      expiresAt: activeDeal.endTime
+    };
+  }
+  
+  // Fallback if no active deal found but we have fallback products
+  // We'll just show the first flash product as a 24-hour deal starting now
+  if (window.FarahDB && FarahDB.PRODUCTS) {
+    const firstFlash = FarahDB.PRODUCTS.find(p => p.isFlash);
+    if (firstFlash) {
+      return {
+        productId: firstFlash.id,
+        offerPrice: firstFlash.price,
+        expiresAt: now + (24 * 60 * 60 * 1000)
+      };
     }
   }
   
-  return {
-    productId: dealsQueue[currentDealIndex],
-    expiresAt: dealStartTime + ONE_DAY
-  };
+  return null;
 }
 
 let dailyDealTimerInterval = null;
@@ -388,9 +384,12 @@ function initDailyDeal() {
     return;
   }
   
-  const disc = p.priceOriginal && p.priceOriginal > p.price
-    ? Math.round((1 - p.price / p.priceOriginal) * 100)
-    : (p.discount || 0);
+  const offerPrice = dealInfo.offerPrice;
+  const priceOriginal = p.priceOriginal || p.price;
+  
+  const disc = priceOriginal > offerPrice
+    ? Math.round((1 - offerPrice / priceOriginal) * 100)
+    : 0;
 
   grid.innerHTML = `
   <article class="flash-card" data-id="${p.id}" style="width: 100%; max-width: 400px; margin: 0 auto; transform: scale(1.05);">
@@ -401,8 +400,8 @@ function initDailyDeal() {
     <div class="flash-card-body">
       <div class="flash-card-name" style="font-size: 1.25rem;">${p.name}</div>
       <div class="flash-card-prices" style="margin-top: 10px;">
-        <span class="flash-card-new" style="font-size: 1.5rem;">${p.price.toLocaleString('ar-EG')} ج.م</span>
-        ${p.priceOriginal ? `<span class="flash-card-old" style="font-size: 1rem;">${p.priceOriginal.toLocaleString('ar-EG')} ج.م</span>` : ''}
+        <span class="flash-card-new" style="font-size: 1.5rem;">${offerPrice.toLocaleString('ar-EG')} ج.م</span>
+        ${priceOriginal > offerPrice ? `<span class="flash-card-old" style="font-size: 1rem;">${priceOriginal.toLocaleString('ar-EG')} ج.م</span>` : ''}
       </div>
       <button class="btn btn-gold w-full add-cart-btn" data-id="${p.id}" style="margin-top:1.5rem;font-size:1.1rem;padding:12px; border-radius: 8px;">أضف للسلة الآن</button>
     </div>
@@ -438,7 +437,13 @@ function initDailyDeal() {
 
   grid.querySelector('.add-cart-btn').addEventListener('click', e => {
     e.stopPropagation();
-    if (window.Cart) { Cart.add(p); animateAddBtn(e.target); }
+    if (window.Cart) { 
+      // override price for cart? We might need to ensure cart takes the offerPrice
+      // for now, we just pass the product. Ideally, we should clone it and set its price.
+      const clone = { ...p, price: offerPrice, isOffer: true };
+      Cart.add(clone); 
+      animateAddBtn(e.target); 
+    }
   });
   grid.querySelector('.flash-card').addEventListener('click', e => {
     if (e.target.closest('button')) return;

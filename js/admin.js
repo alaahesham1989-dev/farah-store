@@ -936,6 +936,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!select || !tbody) return;
   
   let currentDeals = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
+  // Migrate old data if necessary (if elements are strings instead of objects)
+  if (currentDeals.length > 0 && typeof currentDeals[0] === 'string') {
+    currentDeals = [];
+  }
+  
+  const priceInput = document.getElementById('daily-deal-price');
+  const startInput = document.getElementById('daily-deal-start');
+  const endInput = document.getElementById('daily-deal-end');
   
   function renderSelect() {
     if (!window.FarahDB || !FarahDB.PRODUCTS) return;
@@ -945,10 +953,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function renderTable() {
     if (!window.FarahDB) return;
-    tbody.innerHTML = currentDeals.map((id, index) => {
-      const p = FarahDB.getProductById(id);
+    tbody.innerHTML = currentDeals.map((deal, index) => {
+      const p = FarahDB.getProductById(deal.productId);
       if (!p) return '';
       const imgPath = (p.images && p.images[0]) ? (p.images[0].startsWith('http') ? p.images[0] : '../' + p.images[0].replace(/^\.\//, '')) : '';
+      const formatTime = (ts) => new Date(ts).toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
       return `
         <tr>
           <td>${index + 1}</td>
@@ -958,7 +967,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <span>${p.name}</span>
             </div>
           </td>
-          <td>${p.price} ج.م</td>
+          <td>${p.priceWholesale || 'N/A'} / ${p.priceOriginal || p.price}</td>
+          <td><strong style="color:var(--admin-gold)">${deal.offerPrice} ج.م</strong></td>
+          <td style="font-size:0.85rem">${formatTime(deal.startTime)}</td>
+          <td style="font-size:0.85rem">${formatTime(deal.endTime)}</td>
           <td>
             <button class="btn btn-icon btn-remove-deal" data-index="${index}" style="color: var(--admin-danger);">🗑️</button>
           </td>
@@ -977,21 +989,51 @@ document.addEventListener('DOMContentLoaded', () => {
   
   btnAdd.addEventListener('click', () => {
     const val = select.value;
-    if (!val) return;
-    if (currentDeals.includes(val)) {
-      alert('هذا المنتج موجود بالفعل في القائمة!');
+    const offerPrice = parseFloat(priceInput.value);
+    const startVal = startInput.value;
+    const endVal = endInput.value;
+    
+    if (!val || isNaN(offerPrice) || !startVal || !endVal) {
+      alert('يرجى اختيار المنتج وتحديد سعر العرض ووقت البداية والنهاية!');
       return;
     }
-    currentDeals.push(val);
+    
+    if (currentDeals.find(d => d.productId === val)) {
+      alert('هذا المنتج موجود بالفعل في قائمة العروض!');
+      return;
+    }
+    
+    const startTime = new Date(startVal).getTime();
+    const endTime = new Date(endVal).getTime();
+    
+    if (endTime <= startTime) {
+      alert('وقت النهاية يجب أن يكون بعد وقت البداية!');
+      return;
+    }
+    
+    currentDeals.push({
+      productId: val,
+      offerPrice: offerPrice,
+      startTime: startTime,
+      endTime: endTime
+    });
+    
+    // Sort deals by start time
+    currentDeals.sort((a, b) => a.startTime - b.startTime);
+    
     renderTable();
+    
+    // Reset inputs
+    select.value = '';
+    priceInput.value = '';
+    startInput.value = '';
+    endInput.value = '';
   });
   
   btnSave.addEventListener('click', () => {
     if (window.FarahDB && FarahDB.Storage) {
       FarahDB.Storage.set('daily_deals_queue', currentDeals);
-      FarahDB.Storage.set('current_deal_index', 0);
-      FarahDB.Storage.set('current_deal_time', Date.now());
-      alert('تم حفظ قائمة العروض بنجاح!');
+      alert('تم حفظ قائمة العروض وتوقيتاتها بنجاح!');
     }
   });
   
@@ -999,7 +1041,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.FarahDB && FarahDB.PRODUCTS && FarahDB.PRODUCTS.length > 0) {
       clearInterval(initInterval);
       if (currentDeals.length === 0 && FarahDB.Storage) {
-        currentDeals = FarahDB.Storage.get('daily_deals_queue', []);
+        const loaded = FarahDB.Storage.get('daily_deals_queue', []);
+        if (loaded.length > 0 && typeof loaded[0] !== 'string') {
+          currentDeals = loaded;
+        }
       }
       renderSelect();
       renderTable();
