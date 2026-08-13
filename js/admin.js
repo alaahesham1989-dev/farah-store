@@ -936,14 +936,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!select || !tbody) return;
   
   let currentDeals = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
-  // Migrate old data if necessary (if elements are strings instead of objects)
-  if (currentDeals.length > 0 && typeof currentDeals[0] === 'string') {
-    currentDeals = [];
-  }
   
   const priceInput = document.getElementById('daily-deal-price');
-  const startInput = document.getElementById('daily-deal-start');
-  const endInput = document.getElementById('daily-deal-end');
   
   function renderSelect() {
     if (!window.FarahDB || !FarahDB.PRODUCTS) return;
@@ -957,7 +951,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const p = FarahDB.getProductById(deal.productId);
       if (!p) return '';
       const imgPath = (p.images && p.images[0]) ? (p.images[0].startsWith('http') ? p.images[0] : '../' + p.images[0].replace(/^\.\//, '')) : '';
-      const formatTime = (ts) => new Date(ts).toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      
+      const priceOriginal = p.priceOriginal || p.price;
+      const disc = priceOriginal > deal.offerPrice ? Math.round((1 - deal.offerPrice / priceOriginal) * 100) : 0;
+      
       return `
         <tr>
           <td>${index + 1}</td>
@@ -967,10 +964,9 @@ document.addEventListener('DOMContentLoaded', () => {
               <span>${p.name}</span>
             </div>
           </td>
-          <td>${p.priceWholesale || 'N/A'} / ${p.priceOriginal || p.price}</td>
+          <td>${p.priceWholesale || 'N/A'} / ${priceOriginal}</td>
           <td><strong style="color:var(--admin-gold)">${deal.offerPrice} ج.م</strong></td>
-          <td style="font-size:0.85rem">${formatTime(deal.startTime)}</td>
-          <td style="font-size:0.85rem">${formatTime(deal.endTime)}</td>
+          <td><span style="background:var(--admin-gold); color:#000; padding:2px 8px; border-radius:4px; font-weight:bold;">${disc}% خصم</span></td>
           <td>
             <button class="btn btn-icon btn-remove-deal" data-index="${index}" style="color: var(--admin-danger);">🗑️</button>
           </td>
@@ -990,11 +986,9 @@ document.addEventListener('DOMContentLoaded', () => {
   btnAdd.addEventListener('click', () => {
     const val = select.value;
     const offerPrice = parseFloat(priceInput.value);
-    const startVal = startInput.value;
-    const endVal = endInput.value;
     
-    if (!val || isNaN(offerPrice) || !startVal || !endVal) {
-      alert('يرجى اختيار المنتج وتحديد سعر العرض ووقت البداية والنهاية!');
+    if (!val || isNaN(offerPrice)) {
+      alert('يرجى اختيار المنتج وتحديد سعر العرض!');
       return;
     }
     
@@ -1003,37 +997,26 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    const startTime = new Date(startVal).getTime();
-    const endTime = new Date(endVal).getTime();
-    
-    if (endTime <= startTime) {
-      alert('وقت النهاية يجب أن يكون بعد وقت البداية!');
-      return;
-    }
-    
     currentDeals.push({
       productId: val,
-      offerPrice: offerPrice,
-      startTime: startTime,
-      endTime: endTime
+      offerPrice: offerPrice
     });
-    
-    // Sort deals by start time
-    currentDeals.sort((a, b) => a.startTime - b.startTime);
     
     renderTable();
     
     // Reset inputs
     select.value = '';
     priceInput.value = '';
-    startInput.value = '';
-    endInput.value = '';
   });
   
   btnSave.addEventListener('click', () => {
     if (window.FarahDB && FarahDB.Storage) {
       FarahDB.Storage.set('daily_deals_queue', currentDeals);
-      alert('تم حفظ قائمة العروض وتوقيتاتها بنجاح!');
+      // Reset the tracking so the queue starts fresh today if wanted, or just keep it
+      // but let's reset to index 0 today for predictable behavior on save
+      FarahDB.Storage.set('current_deal_index', 0);
+      FarahDB.Storage.set('last_deal_date', new Date().toDateString());
+      alert('تم حفظ قائمة العروض بنجاح!');
     }
   });
   

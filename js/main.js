@@ -333,37 +333,58 @@ function initNewArrivals() {
 function getDailyDeal() {
   let dealsQueue = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
   
-  const now = Date.now();
-  
-  // Clean up migration from strings (if any)
+  // Clean up migration from old schemas
   if (dealsQueue.length > 0 && typeof dealsQueue[0] === 'string') {
     dealsQueue = [];
   }
   
-  // Find currently active deal
-  const activeDeal = dealsQueue.find(d => now >= d.startTime && now < d.endTime);
-  if (activeDeal) {
-    return {
-      productId: activeDeal.productId,
-      offerPrice: activeDeal.offerPrice,
-      expiresAt: activeDeal.endTime
-    };
-  }
+  const now = new Date();
   
-  // Fallback if no active deal found but we have fallback products
-  // We'll just show the first flash product as a 24-hour deal starting now
-  if (window.FarahDB && FarahDB.PRODUCTS) {
-    const firstFlash = FarahDB.PRODUCTS.find(p => p.isFlash);
-    if (firstFlash) {
-      return {
-        productId: firstFlash.id,
-        offerPrice: firstFlash.price,
-        expiresAt: now + (24 * 60 * 60 * 1000)
-      };
+  // Fallback if empty
+  if (!dealsQueue || dealsQueue.length === 0) {
+    if (window.FarahDB && FarahDB.PRODUCTS) {
+      const firstFlash = FarahDB.PRODUCTS.find(p => p.isFlash);
+      if (firstFlash) {
+        dealsQueue = [{ productId: firstFlash.id, offerPrice: firstFlash.price }];
+      } else if (FarahDB.PRODUCTS.length > 0) {
+        dealsQueue = [{ productId: FarahDB.PRODUCTS[0].id, offerPrice: FarahDB.PRODUCTS[0].price }];
+      } else {
+        return null;
+      }
+    } else {
+      return null;
     }
   }
   
-  return null;
+  let currentIndex = window.FarahDB && FarahDB.Storage ? FarahDB.Storage.get('current_deal_index', 0) : 0;
+  let lastDealDate = window.FarahDB && FarahDB.Storage ? FarahDB.Storage.get('last_deal_date', now.toDateString()) : now.toDateString();
+  
+  const todayStr = now.toDateString();
+  if (todayStr !== lastDealDate) {
+    // It's a new day! Move to the next deal
+    currentIndex = (currentIndex + 1) % dealsQueue.length;
+    lastDealDate = todayStr;
+    if (window.FarahDB && FarahDB.Storage) {
+      FarahDB.Storage.set('current_deal_index', currentIndex);
+      FarahDB.Storage.set('last_deal_date', lastDealDate);
+    }
+  }
+  
+  // The deal always ends at midnight today (23:59:59.999)
+  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime();
+  
+  // Ensure index is within bounds if queue was modified
+  if (currentIndex >= dealsQueue.length) {
+    currentIndex = 0;
+  }
+  
+  const activeDeal = dealsQueue[currentIndex];
+  
+  return {
+    productId: activeDeal.productId,
+    offerPrice: activeDeal.offerPrice,
+    expiresAt: endOfDay
+  };
 }
 
 let dailyDealTimerInterval = null;
