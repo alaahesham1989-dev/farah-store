@@ -412,20 +412,27 @@
               </select>
               <input type="number" class="form-control" id="daily-deal-price" placeholder="سعر العرض (ج.م)">
             </div>
+            
+            <div id="daily-deal-product-info" style="display: none; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; border: 1px solid var(--admin-gold);">
+              <!-- Filled by JS on select -->
+            </div>
+            
             <div style="margin-bottom: 20px;">
-              <button class="btn btn-gold" id="btn-add-daily-deal">إضافة للقائمة</button>
+              <button class="btn btn-gold" id="btn-add-daily-deal">حفظ في قائمة العروض</button>
             </div>
             
             <div class="table-container">
               <table>
                 <thead>
                   <tr>
-                    <th>الترتيب</th>
+                    <th>كود المنتج</th>
                     <th>المنتج</th>
-                    <th>السعر (جملة/أصلي)</th>
+                    <th>سعر الجملة</th>
+                    <th>سعر البيع</th>
+                    <th>السعر قبل الخصم</th>
                     <th>سعر العرض</th>
-                    <th>الخصم</th>
-                    <th>الإجراءات</th>
+                    <th>نسبة الخصم</th>
+                    <th>إجراءات</th>
                   </tr>
                 </thead>
                 <tbody id="daily-deals-table-body">

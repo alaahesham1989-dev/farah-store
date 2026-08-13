@@ -937,13 +937,43 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let currentDeals = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
   
+  const select = document.getElementById('daily-deal-product-select');
   const priceInput = document.getElementById('daily-deal-price');
+  const infoBox = document.getElementById('daily-deal-product-info');
+  const tbody = document.getElementById('daily-deals-table-body');
+  const btnAdd = document.getElementById('btn-add-daily-deal');
+  const btnSave = document.getElementById('btn-save-daily-deals');
+  
+  if (!select || !tbody) return;
   
   function renderSelect() {
     if (!window.FarahDB || !FarahDB.PRODUCTS) return;
     select.innerHTML = '<option value="">-- اختر منتج لإضافته لطابور العروض --</option>' +
-      FarahDB.PRODUCTS.map(p => `<option value="${p.id}">${p.name} - ${p.price} ج.م</option>`).join('');
+      FarahDB.PRODUCTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   }
+  
+  select.addEventListener('change', () => {
+    const val = select.value;
+    if (!val) {
+      infoBox.style.display = 'none';
+      priceInput.value = '';
+      return;
+    }
+    const p = FarahDB.getProductById(val);
+    if (p) {
+      infoBox.style.display = 'block';
+      infoBox.innerHTML = `
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+          <div><strong>كود المنتج:</strong> <span style="font-family: monospace; color: var(--admin-gold);">${p.id}</span></div>
+          <div><strong>سعر الجملة:</strong> ${p.priceWholesale ? p.priceWholesale + ' ج.م' : '<span style="color:#888;">غير محدد</span>'}</div>
+          <div><strong>سعر البيع:</strong> ${p.price} ج.م</div>
+          <div><strong>السعر قبل الخصم:</strong> ${p.priceOriginal ? p.priceOriginal + ' ج.م' : '<span style="color:#888;">غير محدد</span>'}</div>
+        </div>
+      `;
+      // Pre-fill with a suggested discount or just leave empty
+      // priceInput.value = p.price;
+    }
+  });
   
   function renderTable() {
     if (!window.FarahDB) return;
@@ -957,18 +987,20 @@ document.addEventListener('DOMContentLoaded', () => {
       
       return `
         <tr>
-          <td>${index + 1}</td>
+          <td style="font-family: monospace; font-size: 0.85rem; color: var(--admin-gold);">${p.id}</td>
           <td>
             <div style="display:flex; align-items:center; gap:10px;">
               ${imgPath ? `<img src="${imgPath}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;" />` : ''}
               <span>${p.name}</span>
             </div>
           </td>
-          <td>${p.priceWholesale || 'N/A'} / ${priceOriginal}</td>
+          <td>${p.priceWholesale ? p.priceWholesale + ' ج.م' : 'N/A'}</td>
+          <td>${p.price} ج.م</td>
+          <td style="text-decoration: line-through; color: #888;">${p.priceOriginal ? p.priceOriginal + ' ج.م' : 'N/A'}</td>
           <td><strong style="color:var(--admin-gold)">${deal.offerPrice} ج.م</strong></td>
-          <td><span style="background:var(--admin-gold); color:#000; padding:2px 8px; border-radius:4px; font-weight:bold;">${disc}% خصم</span></td>
+          <td><span style="background:var(--admin-gold); color:#000; padding:2px 8px; border-radius:4px; font-weight:bold;">${disc}%</span></td>
           <td>
-            <button class="btn btn-icon btn-remove-deal" data-index="${index}" style="color: var(--admin-danger);">🗑️</button>
+            <button class="btn btn-icon btn-remove-deal" data-index="${index}" style="color: var(--admin-danger);" title="حذف">🗑️</button>
           </td>
         </tr>
       `;
@@ -1007,6 +1039,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset inputs
     select.value = '';
     priceInput.value = '';
+    infoBox.style.display = 'none';
+    
+    // Auto save the list to storage on add
+    if (window.FarahDB && FarahDB.Storage) {
+      FarahDB.Storage.set('daily_deals_queue', currentDeals);
+    }
   });
   
   btnSave.addEventListener('click', () => {
@@ -1016,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // but let's reset to index 0 today for predictable behavior on save
       FarahDB.Storage.set('current_deal_index', 0);
       FarahDB.Storage.set('last_deal_date', new Date().toDateString());
-      alert('تم حفظ قائمة العروض بنجاح!');
+      alert('تم حفظ قائمة العروض وإعادة تعيين ترتيبها للبدء من أول منتج اليوم بنجاح!');
     }
   });
   
