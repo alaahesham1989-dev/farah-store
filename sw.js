@@ -3,7 +3,7 @@
 // Caches the store for offline use
 // ═══════════════════════════════════════════════
 
-const CACHE_NAME  = 'farah-store-v1';
+const CACHE_NAME  = 'farah-store-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
