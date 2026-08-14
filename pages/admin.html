@@ -64,6 +64,9 @@
           <a class="nav-item" data-tab="tab-daily-deals">
             <span class="icon">🎁</span> <span>عروض اليوم</span>
           </a>
+          <a class="nav-item" data-tab="tab-shipping-settings">
+            <span class="icon">🚚</span> <span>إعدادات الشحن</span>
+          </a>
         </div>
 
         <div class="nav-group">
@@ -260,8 +263,50 @@
             </div>
           </div>
         </div>
+        
+        <!-- ================= SHIPPING SETTINGS ================= -->
+        <div id="tab-shipping-settings" class="tab-pane">
+          <div class="header-actions" style="margin-bottom: 20px;">
+            <h2>إعدادات الشحن والمناطق (Shipping Settings)</h2>
+          </div>
+          <div class="glass-panel" style="max-width: 700px;">
+            <p style="color: var(--admin-text-soft); margin-bottom: 20px;">
+              قم بتعديل أسعار الشحن لكل منطقة، وحدد المبلغ الذي يحصل بعده العميل على شحن مجاني.
+            </p>
+            <div style="display: grid; gap: 20px; grid-template-columns: 1fr;">
+              
+              <div class="form-group">
+                <input type="number" id="shipping-free-threshold" class="form-control" placeholder=" ">
+                <label class="floating-label">حد الشحن المجاني (ج.م) - مثال: 600</label>
+              </div>
 
-        <!-- Tab: Products -->
+              <div class="form-group" style="margin-top: 10px;">
+                <label style="color: var(--admin-gold); display: block; margin-bottom: 8px;">المنطقة 1 (أساسي)</label>
+                <p style="font-size: 0.85rem; color: #888; margin-bottom: 8px;">القاهرة، الجيزة، الإسكندرية، القليوبية، الدقهلية، الغربية، البحيرة، المنوفية، الشرقية، كفر الشيخ، دمياط، بورسعيد، السويس، الإسماعيلية</p>
+                <input type="number" id="shipping-zone1" class="form-control" placeholder="مثال: 85">
+              </div>
+
+              <div class="form-group">
+                <label style="color: var(--admin-gold); display: block; margin-bottom: 8px;">المنطقة 2 (صعيد مصر)</label>
+                <p style="font-size: 0.85rem; color: #888; margin-bottom: 8px;">الفيوم، بني سويف، المنيا، أسيوط، سوهاج، قنا، الأقصر، أسوان، البحر الأحمر</p>
+                <input type="number" id="shipping-zone2" class="form-control" placeholder="مثال: 95">
+              </div>
+
+              <div class="form-group">
+                <label style="color: var(--admin-gold); display: block; margin-bottom: 8px;">المنطقة 3 (المحافظات الحدودية)</label>
+                <p style="font-size: 0.85rem; color: #888; margin-bottom: 8px;">مطروح، الوادي الجديد، جنوب سيناء</p>
+                <input type="number" id="shipping-zone3" class="form-control" placeholder="مثال: 110">
+              </div>
+
+            </div>
+            
+            <div style="margin-top: 30px;">
+              <button class="btn btn-gold" id="btn-save-shipping-settings">حفظ إعدادات الشحن</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= SETTINGS / USERS ================= -->
         <div id="tab-products" class="tab-content">
           <div class="page-header">
             <h2>إدارة المنتجات</h2>

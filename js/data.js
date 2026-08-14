@@ -920,7 +920,7 @@ const ordersSchema = {
   customerId: 'string',   // optional (زوار بدون حساب)
   customerName: 'string',
   customerPhone: 'string',
-  customerAddress: 'object',  // { governorate, city, street, buildingNo, floor, apt }
+  address: 'object',      // { governorate, city, street, details }
   items: 'array',         // [{ productId, sku, name, price, qty, variantSelected }]
   subtotal: 'number',
   shipping: 'number',
@@ -928,11 +928,11 @@ const ordersSchema = {
   total: 'number',
   paymentMethod: 'string', // 'cash_on_delivery' | 'paymob_card' | 'paymob_wallet'
   paymentStatus: 'string', // 'pending' | 'paid' | 'failed'
-  orderStatus: 'string',   // 'new' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  status: 'string',        // 'new' | 'processing' | 'shipped' | 'delivered' | 'returned' | 'cancelled'
   trackingNumber: 'string',
   notes: 'string',
-  createdAt: 'datetime',
-  updatedAt: 'datetime',
+  createdAt: 'number',     // Timestamp
+  updatedAt: 'number',     // Timestamp
 };
 
 // ─── SELLERS SCHEMA (جاهز للأفلييت — Phase 4) ────
@@ -957,13 +957,38 @@ const sellersSchema = {
  * حساب سعر الشحن
  * دلوقتي: ثابت — ممكن يتطور لاحقاً بالمحافظة
  */
-function calculateShipping(subtotal, governorate = 'cairo') {
-  const FREE_THRESHOLD = 500;
-  const BASE_RATE      = 65;   // القاهرة والجيزة
-  const PROVINCE_RATE  = 90;   // باقي المحافظات
-
-  if (subtotal >= FREE_THRESHOLD) return 0;
-  return ['cairo', 'giza'].includes(governorate.toLowerCase()) ? BASE_RATE : PROVINCE_RATE;
+function calculateShipping(subtotal, governorate = '') {
+  // Default fallback settings
+  let settings = {
+    freeShippingThreshold: 600,
+    rates: {
+      zone1: 85,
+      zone2: 95,
+      zone3: 110
+    }
+  };
+  
+  // Read dynamic settings from Storage (Firestore cache)
+  if (window.FarahDB && FarahDB.Storage) {
+    const saved = FarahDB.Storage.get('shipping_settings');
+    if (saved) settings = saved;
+  }
+  
+  // If subtotal is over threshold, shipping is free!
+  if (subtotal >= settings.freeShippingThreshold) return 0;
+  
+  const gov = governorate.trim().toLowerCase();
+  
+  const zone1 = ['القاهرة', 'الجيزة', 'الإسكندرية', 'القليوبية', 'الدقهلية', 'الغربية', 'البحيرة', 'المنوفية', 'الشرقية', 'كفر الشيخ', 'دمياط', 'بورسعيد', 'السويس', 'الإسماعيلية', 'cairo', 'giza', 'alexandria'];
+  const zone2 = ['الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'البحر الأحمر'];
+  const zone3 = ['مطروح', 'الوادي الجديد', 'جنوب سيناء'];
+  
+  if (zone1.includes(gov)) return settings.rates.zone1;
+  if (zone2.includes(gov)) return settings.rates.zone2;
+  if (zone3.includes(gov)) return settings.rates.zone3;
+  
+  // Default to zone 1 if unknown
+  return settings.rates.zone1;
 }
 
 /**

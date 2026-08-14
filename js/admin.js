@@ -1065,4 +1065,63 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTable();
     }
   }, 500);
+
+  // ════════════════════════════════════════════════
+  //  SHIPPING SETTINGS MANAGEMENT
+  // ════════════════════════════════════════════════
+  const shippingForm = {
+    threshold: document.getElementById('shipping-free-threshold'),
+    zone1: document.getElementById('shipping-zone1'),
+    zone2: document.getElementById('shipping-zone2'),
+    zone3: document.getElementById('shipping-zone3'),
+    btnSave: document.getElementById('btn-save-shipping-settings')
+  };
+
+  if (shippingForm.btnSave) {
+    // Load existing settings
+    function loadShippingSettings() {
+      if (window.FarahDB && FarahDB.Storage) {
+        const saved = FarahDB.Storage.get('shipping_settings');
+        if (saved) {
+          if (shippingForm.threshold) shippingForm.threshold.value = saved.freeShippingThreshold || 600;
+          if (shippingForm.zone1 && saved.rates) shippingForm.zone1.value = saved.rates.zone1 || 85;
+          if (shippingForm.zone2 && saved.rates) shippingForm.zone2.value = saved.rates.zone2 || 95;
+          if (shippingForm.zone3 && saved.rates) shippingForm.zone3.value = saved.rates.zone3 || 110;
+        } else {
+          // Defaults
+          if (shippingForm.threshold) shippingForm.threshold.value = 600;
+          if (shippingForm.zone1) shippingForm.zone1.value = 85;
+          if (shippingForm.zone2) shippingForm.zone2.value = 95;
+          if (shippingForm.zone3) shippingForm.zone3.value = 110;
+        }
+      }
+    }
+
+    // Save settings
+    shippingForm.btnSave.addEventListener('click', () => {
+      const settings = {
+        freeShippingThreshold: parseFloat(shippingForm.threshold.value) || 600,
+        rates: {
+          zone1: parseFloat(shippingForm.zone1.value) || 85,
+          zone2: parseFloat(shippingForm.zone2.value) || 95,
+          zone3: parseFloat(shippingForm.zone3.value) || 110
+        },
+        updatedAt: Date.now()
+      };
+      
+      if (window.FarahDB && FarahDB.Storage) {
+        FarahDB.Storage.set('shipping_settings', settings);
+        alert('تم حفظ إعدادات الشحن بنجاح!');
+      }
+    });
+
+    // Try to load after DB initializes
+    const shippingInit = setInterval(() => {
+      if (window.FarahDB && FarahDB.Storage) {
+        clearInterval(shippingInit);
+        loadShippingSettings();
+      }
+    }, 500);
+  }
+
 });
