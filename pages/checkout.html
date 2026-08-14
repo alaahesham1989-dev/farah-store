@@ -150,23 +150,33 @@
                 </div>
               </label>
 
-              <label class="payment-method-card" for="pay-card">
-                <input type="radio" id="pay-card" name="payment" value="paymob_card" />
-                <span class="payment-icon">💳</span>
+              <label class="payment-method-card" for="pay-vodafone">
+                <input type="radio" id="pay-vodafone" name="payment" value="vodafone_cash" />
+                <span class="payment-icon" style="color: #e74c3c;">🔴</span>
                 <div>
-                  <div class="payment-method-name">بطاقة فيزا / ماستركارد (Paymob)</div>
-                  <div class="payment-method-desc">دفع أونلاين آمن — سيتم تحويلك لصفحة الدفع</div>
+                  <div class="payment-method-name">فودافون كاش</div>
+                  <div class="payment-method-desc">تحويل فودافون كاش قبل الشحن</div>
                 </div>
               </label>
 
-              <label class="payment-method-card" for="pay-wallet">
-                <input type="radio" id="pay-wallet" name="payment" value="paymob_wallet" />
-                <span class="payment-icon">📱</span>
+              <label class="payment-method-card" for="pay-instapay">
+                <input type="radio" id="pay-instapay" name="payment" value="instapay" />
+                <span class="payment-icon" style="color: #2ecc71;">⚡</span>
                 <div>
-                  <div class="payment-method-name">محفظة إلكترونية</div>
-                  <div class="payment-method-desc">فودافون كاش / اتصالات كاش / أورنج كاش</div>
+                  <div class="payment-method-name">انستاباي (InstaPay)</div>
+                  <div class="payment-method-desc">تحويل بنكي فوري عبر تطبيق انستاباي</div>
                 </div>
               </label>
+            </div>
+
+            <!-- Coupon Code Section (Moved directly below payment methods) -->
+            <div class="coupon-box" style="margin-top: 1.5rem; padding: 1.25rem; border: 1px dashed var(--glass-border); border-radius: var(--r-md); background: rgba(255,255,255,0.02);">
+              <label style="display:block; font-size:0.9rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">🎁 هل لديك كود خصم / كوبون؟</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="coupon-code" class="form-control" placeholder="أدخل كود الخصم هنا" style="flex:1; margin:0;" />
+                <button type="button" id="apply-coupon-btn" class="btn btn-outline" style="white-space:nowrap; padding: 0 20px; font-weight: 700; height: 48px; border-radius: 8px;">تطبيق</button>
+              </div>
+              <div id="coupon-msg" style="display:none; font-size:0.85rem; margin-top:8px; font-weight:600;"></div>
             </div>
 
             <!-- Store Policy / Return Policy -->
@@ -187,9 +197,9 @@
               </div>
             </div>
 
-            <!-- Paymob note -->
-            <div id="paymob-note" style="display:none;margin-top:1rem;padding:12px 16px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:var(--radius);font-size:0.85rem;color:var(--text-secondary)">
-              ⚡ بعد تأكيد الطلب، ستُحوَّل لبوابة Paymob الآمنة لإتمام الدفع.
+            <!-- Payment instructions note -->
+            <div id="payment-instructions-note" style="display:none; margin-top:1rem; padding:15px; border-radius:8px; font-size:0.88rem; line-height: 1.6;">
+              <!-- Filled dynamically by JS -->
             </div>
 
             <button type="button" class="btn btn-primary btn-full pulse-glow" id="btn-place-order" style="margin-top:1.5rem;font-size:1.15rem;padding:18px;font-weight:bold;">
@@ -205,12 +215,7 @@
         <div class="order-summary-card" id="order-summary">
           <h3>ملخص طلبك</h3>
           
-          <!-- Coupon Code Section -->
-          <div style="margin-bottom: 1rem; display: flex; gap: 8px;">
-            <input type="text" id="coupon-code" class="form-control" placeholder="كود الخصم" style="flex:1" />
-            <button type="button" id="apply-coupon-btn" class="btn btn-outline" style="white-space:nowrap">تطبيق</button>
-          </div>
-          <div id="coupon-msg" style="display:none; font-size:0.85rem; margin-bottom:1rem; font-weight:600;"></div>
+
 
           <div class="summary-items-list" id="summary-items"></div>
           <div class="summary-item"><span>المجموع الجزئي</span><span id="sum-subtotal">—</span></div>
@@ -237,7 +242,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.501-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.852.002-2.63-1.023-5.101-2.885-6.963C16.588 1.928 14.12 .902 11.5 .902c-5.448 0-9.882 4.417-9.886 9.852-.001 1.714.455 3.39 1.32 4.887L1.935 21.87l6.452-1.692zM17.185 14.2c-.284-.143-1.682-.83-1.947-.926-.263-.097-.456-.144-.647.144-.19.287-.736.926-.903 1.117-.166.19-.333.214-.617.071-.285-.143-1.202-.443-2.29-1.411-.847-.756-1.42-1.689-1.587-1.975-.166-.285-.018-.44.125-.581.127-.129.284-.333.426-.5.143-.166.19-.285.285-.476.095-.19.047-.357-.024-.5-.071-.143-.647-1.56-.886-2.133-.233-.56-.47-.482-.647-.492-.166-.008-.356-.01-.546-.01-.19 0-.5.071-.76.357-.263.287-1.004.982-1.004 2.397s1.03 2.748 1.173 2.938c.143.19 2.028 3.1 4.914 4.346.686.296 1.224.474 1.643.607.69.219 1.319.188 1.815.114.553-.083 1.68-.686 1.917-1.35.238-.667.238-1.238.166-1.35-.07-.113-.26-.214-.545-.357z"/></svg>
           <span>تأكيد الطلب عبر الواتساب (سريع) 💬</span>
         </a>
-        <a href="../index.html" class="btn btn-outline btn-full" style="height: 50px; border-radius: var(--r-full); font-weight: 800; display: flex; align-items: center; justify-content: center; text-decoration: none;">متابعة التسوق</a>
+        <a href="../index.html#new-arrivals" class="btn btn-outline btn-full" style="height: 50px; border-radius: var(--r-full); font-weight: 800; display: flex; align-items: center; justify-content: center; text-decoration: none;">شاهد أيضاً</a>
       </div>
     </div>
   </div>

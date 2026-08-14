@@ -707,7 +707,8 @@ select.form-control { appearance: none; cursor: pointer; background-image: url("
   padding: 6px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--r-sm); font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.7);
 }
-.footer-bottom { border-top: 1px solid rgba(255,255,255,0.05); padding: 1.5rem 0; }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.05); padding: 1.5rem 0; color: rgba(255,255,255,0.4); }
+.footer-bottom p { color: inherit; margin: 0; }
 .footer-bottom-inner { display: flex; justify-content: space-between; font-size: 0.9rem; color: rgba(255,255,255,0.4); }
 .footer-bottom-inner a { color: rgba(255,255,255,0.4); margin-right: 1.5rem; }
 .footer-bottom-inner a:hover { color: var(--gold); }

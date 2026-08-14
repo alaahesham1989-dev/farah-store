@@ -56,7 +56,7 @@ function renderOrderSummary(governorate = 'cairo') {
 // ─── Payment Method Toggle ────────────────────────
 function initPaymentToggle() {
   const cards    = document.querySelectorAll('.payment-method-card');
-  const paymobNote = document.getElementById('paymob-note');
+  const noteEl   = document.getElementById('payment-instructions-note');
 
   cards.forEach(card => {
     card.addEventListener('click', () => {
@@ -65,9 +65,26 @@ function initPaymentToggle() {
       const radio = card.querySelector('input[type="radio"]');
       if (radio) radio.checked = true;
 
-      // Show Paymob note
-      const isPaymob = radio?.value === 'paymob_card' || radio?.value === 'paymob_wallet';
-      if (paymobNote) paymobNote.style.display = isPaymob ? 'block' : 'none';
+      // Show payment notes depending on selected method
+      const val = radio?.value;
+      if (noteEl) {
+        if (val === 'vodafone_cash') {
+          noteEl.style.display = 'block';
+          noteEl.style.background = 'rgba(231,76,60,0.08)';
+          noteEl.style.border = '1px solid rgba(231,76,60,0.2)';
+          noteEl.style.color = '#c0392b';
+          noteEl.innerHTML = `💸 يرجى تحويل إجمالي الفاتورة إلى رقم محفظة فودافون كاش: <strong style="font-size:1.05rem;">01000000000</strong> (رقم المتجر)، وإرفاق لقطة شاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
+        } else if (val === 'instapay') {
+          noteEl.style.display = 'block';
+          noteEl.style.background = 'rgba(46,204,113,0.08)';
+          noteEl.style.border = '1px solid rgba(46,204,113,0.2)';
+          noteEl.style.color = '#27ae60';
+          noteEl.innerHTML = `⚡ يرجى تحويل إجمالي الفاتورة عبر تطبيق InstaPay إلى العنوان التالي: <strong style="font-size:1.05rem;">farah@instapay</strong>، وإرفاق لقطة الشاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
+        } else {
+          // Cash on delivery
+          noteEl.style.display = 'none';
+        }
+      }
     });
   });
 
@@ -175,13 +192,7 @@ function initPlaceOrder() {
       showToast('⚠️ حدث خطأ أثناء إرسال الطلب، لكن تم حفظه في جهازك.', 'error');
     }
 
-    if (paymentMethod === 'paymob_card' || paymentMethod === 'paymob_wallet') {
-      // TODO: هنا هيتم استدعاء Paymob API بعد ربط الـ API key
-      // في الوقت الحالي بنعرض رسالة تأكيد
-      showSuccessModal(order);
-    } else {
-      showSuccessModal(order);
-    }
+    showSuccessModal(order);
 
     Cart.clear();
   });
@@ -189,6 +200,15 @@ function initPlaceOrder() {
 
 // TODO: استبدل هذا الرقم برقم الواتساب الخاص بالمتجر لتلقي الطلبات
 const STORE_WHATSAPP_NUMBER = '201000000000'; 
+
+function getPaymentMethodArabicName(method) {
+  const mapping = {
+    'cash_on_delivery': 'الدفع عند الاستلام 💵',
+    'vodafone_cash': 'فودافون كاش 🔴',
+    'instapay': 'انستاباي ⚡'
+  };
+  return mapping[method] || method;
+}
 
 function getGovArabicName(gov) {
   const mapping = {
@@ -261,6 +281,9 @@ function showSuccessModal(order) {
         </div>
       </div>
       <div style="margin-top:12px; font-size:0.85rem; color:var(--text-soft); border-top: 1px dashed #eee; padding-top: 8px;">
+        💳 طريقة الدفع: <span style="font-weight:700; color:var(--navy);">${getPaymentMethodArabicName(order.paymentMethod)}</span>
+      </div>
+      <div style="margin-top:4px; font-size:0.85rem; color:var(--text-soft);">
         📍 العنوان: ${order.customer.address.city}، ${order.customer.address.street} (${getGovArabicName(order.customer.address.governorate)})
       </div>
     `;
@@ -276,8 +299,9 @@ function showSuccessModal(order) {
     });
 
     const govText = getGovArabicName(order.customer.address.governorate);
+    const payMethodText = getPaymentMethodArabicName(order.paymentMethod);
 
-    const message = `السلام عليكم يا فرح استور،\nأود تأكيد طلبي بمتجركم 🛍️\n\n📌 تفاصيل الطلب رقم: ${order.id}\n----------------------------------\n${productsText}----------------------------------\n🔹 المجموع الفرعي: ${order.subtotal} ج.م\n🚚 الشحن: ${order.shipping === 0 ? 'مجاني' : order.shipping + ' ج.م'}\n💰 الإجمالي الكلي: ${order.total} ج.م\n\n📌 عنوان التوصيل:\n👤 الاسم: ${order.customer.name}\n📱 الهاتف: ${order.customer.phone}\n📍 المحافظة: ${govText}\n🏙️ المدينة/المركز: ${order.customer.address.city}\n🏠 العنوان بالتفصيل: ${order.customer.address.street}\n${order.customer.notes ? '📝 ملاحظات: ' + order.customer.notes : ''}\n\nيرجى تأكيد الطلب للشحن في أسرع وقت. شكراً لكم!`;
+    const message = `السلام عليكم يا فرح استور،\nأود تأكيد طلبي بمتجركم 🛍️\n\n📌 تفاصيل الطلب رقم: ${order.id}\n----------------------------------\n${productsText}----------------------------------\n🔹 المجموع الفرعي: ${order.subtotal} ج.م\n🚚 الشحن: ${order.shipping === 0 ? 'مجاني' : order.shipping + ' ج.م'}\n💳 طريقة الدفع: ${payMethodText}\n💰 الإجمالي الكلي: ${order.total} ج.م\n\n📌 عنوان التوصيل:\n👤 الاسم: ${order.customer.name}\n📱 الهاتف: ${order.customer.phone}\n📍 المحافظة: ${govText}\n🏙️ المدينة/المركز: ${order.customer.address.city}\n🏠 العنوان بالتفصيل: ${order.customer.address.street}\n${order.customer.notes ? '📝 ملاحظات: ' + order.customer.notes : ''}\n\nيرجى تأكيد الطلب للشحن في أسرع وقت. شكراً لكم!`;
     
     btnWhatsApp.href = `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     
