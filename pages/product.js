@@ -319,16 +319,16 @@ function initProductActions(product) {
     return { [active.dataset.variantKey]: active.dataset.variantVal };
   }
 
-  btnAdd?.addEventListener('click', () => {
+  const handleAdd = () => {
     Cart.add(product, qty, getSelectedVariant());
-    // Animate button
-    btnAdd.textContent = '✅ أُضيف للسلة!';
+    btnAdd.textContent = '⬅️ متابعة التسوق';
     btnAdd.style.background = 'var(--success)';
-    setTimeout(() => {
-      btnAdd.textContent = '🛒 أضف للسلة';
-      btnAdd.style.background = '';
-    }, 2000);
-  });
+    btnAdd.removeEventListener('click', handleAdd);
+    btnAdd.addEventListener('click', () => {
+      window.location.href = '../index.html#sections';
+    });
+  };
+  btnAdd?.addEventListener('click', handleAdd);
 
   btnBuy?.addEventListener('click', () => {
     Cart.add(product, qty, getSelectedVariant());

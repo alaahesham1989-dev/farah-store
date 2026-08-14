@@ -682,13 +682,19 @@ function openQuickView(productId) {
   });
 
   // Add to cart
-  document.getElementById('qv-add-cart')?.addEventListener('click', () => {
+  const addBtn = document.getElementById('qv-add-cart');
+  const handleQVAdd = () => {
     const variant = {};
     body.querySelectorAll('.qv-variant-btn.active').forEach(b => { variant[b.dataset.key] = b.dataset.val; });
     Cart.add(product, qty, variant);
-    const addBtn = document.getElementById('qv-add-cart');
-    if (addBtn) { addBtn.textContent = '✅ أُضيف للسلة!'; setTimeout(() => { addBtn.textContent = 'أضيفي للسلة 🛒'; }, 2000); }
-  });
+    if (addBtn) {
+      addBtn.textContent = '⬅️ متابعة التسوق';
+      addBtn.style.background = 'var(--success)';
+      addBtn.removeEventListener('click', handleQVAdd);
+      addBtn.addEventListener('click', closeQV);
+    }
+  };
+  addBtn?.addEventListener('click', handleQVAdd);
 
   // Open
   drawer?.classList.add('open');
