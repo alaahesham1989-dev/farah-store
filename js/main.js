@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Cart.updateUI();
   renderCartDrawerNew(); // Fix: Render cart items on page load
   initMobileBottomNav();
+  initCategoriesDrawer();
   initAdvancedIntersectionObserver();
   initHeroVideo();
   initThemeSwitcher();
@@ -606,7 +607,7 @@ function openQuickView(productId) {
       <span class="qv-rating-count">(${product.reviews} تقييم)</span>
       <span style="color:var(--text-soft);font-size:.8rem"> · ${product.sold.toLocaleString('ar-EG')} مبيع</span>
     </div>
-    <p class="qv-desc">${product.description}</p>
+    <p class="qv-desc">${typeof product.description === 'object' && product.description !== null ? (product.description.overview || '') : (product.description || '')}</p>
     <div class="qv-price-block">
       <span class="qv-price-now">${product.price.toLocaleString('ar-EG')} ج.م</span>
       ${product.priceOriginal ? `
@@ -730,9 +731,16 @@ function initCartDrawer() {
 }
 
 // ─── CRO CART VARS ─────────────────────────────
-const FREE_SHIPPING_THRESHOLD = 600;
-const UPSELL_NEAR_THRESHOLD = 450;
-const UPSELL_PRODUCT_SKU = "code0004";
+function getFreeShippingThreshold() {
+  let threshold = 600;
+  if (window.FarahDB && FarahDB.Storage) {
+    const saved = FarahDB.Storage.get('shipping_settings');
+    if (saved && saved.freeShippingThreshold) {
+      threshold = Number(saved.freeShippingThreshold);
+    }
+  }
+  return threshold;
+}
 let cartRenderTimer = null;
 
 // Override Cart renderCartDrawer to use new markup
@@ -803,6 +811,7 @@ function renderCartDrawerNew() {
   if (grandEl)  grandEl.textContent  = FarahDB.formatPrice(total);
 
   // 1. Progress Bar Logic
+  const threshold = getFreeShippingThreshold();
   const progressContainer = document.getElementById('cart-shipping-progress');
   const msgEl = document.getElementById('shipping-msg');
   const barFill = document.getElementById('shipping-bar-fill');
@@ -814,37 +823,38 @@ function renderCartDrawerNew() {
     } else {
       progressContainer.style.display = 'block';
       let progress = 0;
-      if (subtotal < FREE_SHIPPING_THRESHOLD) {
-        const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
+      if (subtotal < threshold) {
+        const remaining = threshold - subtotal;
         msgEl.innerHTML = `باقي لك <span style="color:var(--admin-gold);font-weight:bold;">${remaining} ج.م</span> فقط وتحصل على الشحن المجاني! 🚚`;
-        progress = (subtotal / FREE_SHIPPING_THRESHOLD) * 100;
-        barFill.style.background = 'var(--admin-gold)';
+        progress = (subtotal / threshold) * 100;
+        barFill.style.background = '#FFB400'; // Gold Color
       } else {
         msgEl.innerHTML = `تهانينا! لقد حصلت على شحن مجاني تماماً على طلبك 🚚🎉`;
         progress = 100;
-        barFill.style.background = 'var(--admin-primary)';
+        barFill.style.background = '#0B6E4F'; // Teal Color
       }
       barFill.style.width = `${progress}%`;
-      barContainer.setAttribute('aria-valuenow', Math.min(subtotal, FREE_SHIPPING_THRESHOLD));
+      barContainer.setAttribute('aria-valuenow', Math.min(subtotal, threshold));
     }
   }
 
-  // 2. Upsell Logic
+  // 2. Dynamic Upsell Logic (Cheapest available product in stock not already in cart)
   const upsellContainer = document.getElementById('cart-upsell-card');
   if (upsellContainer) {
-    const isUpsellInCart = items.some(i => i.sku === UPSELL_PRODUCT_SKU);
-    const upsellProduct = FarahDB.PRODUCTS.find(p => p.sku === UPSELL_PRODUCT_SKU);
+    const cartProductIds = items.map(i => i.productId);
+    const upsellProduct = FarahDB.PRODUCTS
+      .filter(p => p.stock > 0 && !cartProductIds.includes(p.id))
+      .sort((a, b) => a.price - b.price)[0];
+    const isUpsellInCart = upsellProduct ? cartProductIds.includes(upsellProduct.id) : false;
     
-    if (!Cart.isEmpty() && subtotal >= UPSELL_NEAR_THRESHOLD && subtotal < FREE_SHIPPING_THRESHOLD && !isUpsellInCart && upsellProduct && upsellProduct.stock > 0) {
-      
+    if (!Cart.isEmpty() && subtotal < threshold && upsellProduct && !isUpsellInCart) {
       const imgSrc = (upsellProduct.images && upsellProduct.images.length > 0) ? upsellProduct.images[0] : 'https://via.placeholder.com/80?text=📦';
-      
       upsellContainer.innerHTML = `
         <div style="display: flex; gap: 10px; align-items: center;">
           <img src="${imgSrc}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" alt="${upsellProduct.name}">
           <div style="flex: 1;">
             <div style="font-size: 0.85rem; font-weight: 600; color: var(--admin-primary);">${upsellProduct.name}</div>
-            <div style="font-size: 0.8rem; color: var(--text-soft);">واحصل على شحن مجاني فوراً!</div>
+            <div style="font-size: 0.8rem; color: var(--text-soft);">عرض توفيري مميز 🎁</div>
             <div style="font-size: 0.9rem; font-weight: bold;">${upsellProduct.price} ج.م</div>
           </div>
           <button id="btn-upsell-add" class="btn btn-gold btn-upsell-pulse" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 4px;">➕ أضف للسلة ووفر الشحن</button>
@@ -859,7 +869,6 @@ function renderCartDrawerNew() {
           Cart.add(upsellProduct);
         });
       }
-      
     } else {
       upsellContainer.classList.add('hidden-fade');
       const onTransitionEnd = () => {
@@ -966,6 +975,54 @@ function initMobileBottomNav() {
       document.getElementById('cart-drawer')?.classList.add('open');
       document.getElementById('cart-overlay')?.classList.add('open');
     });
+  }
+}
+
+function initCategoriesDrawer() {
+  const overlay = document.getElementById('cats-overlay');
+  const drawer  = document.getElementById('cats-drawer');
+  const closeBtn = document.getElementById('cats-close');
+  const container = document.getElementById('cats-list-container');
+
+  const open  = () => { drawer?.classList.add('open'); overlay?.classList.add('open'); document.body.style.overflow = 'hidden'; };
+  const close = () => { drawer?.classList.remove('open'); overlay?.classList.remove('open'); document.body.style.overflow = ''; };
+
+  // Bind triggers
+  document.getElementById('cats-toggle-bottom')?.addEventListener('click', e => { e.preventDefault(); open(); });
+  document.getElementById('cats-toggle-mobile')?.addEventListener('click', e => { e.preventDefault(); open(); });
+  overlay?.addEventListener('click', close);
+  closeBtn?.addEventListener('click', close);
+
+  // Check URL hash to open if navigated from another page
+  if (window.location.hash === '#sections') {
+    setTimeout(open, 300);
+  }
+
+  // Render categories dynamically
+  if (container && window.FarahDB) {
+    const renderCats = () => {
+      const cats = FarahDB.enrichCategoriesWithCount();
+      container.innerHTML = cats.map(cat => `
+        <div class="cat-item-link" data-filter="${cat.id}">
+          <span class="cat-item-icon">${cat.icon}</span>
+          <span class="cat-item-name">${cat.name}</span>
+          <span class="cat-item-count">${cat.count} منتج</span>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.cat-item-link').forEach(link => {
+        link.addEventListener('click', () => {
+          const filter = link.dataset.filter;
+          filterAllProducts(filter);
+          document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' });
+          close();
+        });
+      });
+    };
+
+    // Render initially and on data updates
+    renderCats();
+    window.addEventListener('FarahDBProductsUpdated', renderCats);
   }
 }
 

@@ -363,6 +363,13 @@ function openProductEditor(productId = null) {
 
   document.getElementById('edit-product-stock').value = product.stock || 0;
   document.getElementById('edit-product-badge').value = product.badge || '';
+
+  const desc = product.description || {};
+  document.getElementById('edit-product-desc-overview').value = typeof desc === 'object' ? (desc.overview || '') : desc;
+  document.getElementById('edit-product-desc-indications').value = typeof desc === 'object' ? (desc.indications || '') : '';
+  document.getElementById('edit-product-desc-how-to-use').value = typeof desc === 'object' ? (desc.howToUse || '') : '';
+  document.getElementById('edit-product-desc-problems-solved').value = typeof desc === 'object' ? (desc.problemsSolved || '') : '';
+
   // images
   renderImageInputs(Array.isArray(product.images) ? product.images : (product.images ? [product.images] : []));
 
@@ -385,6 +392,13 @@ function saveProductEdit() {
   const stock = Number(document.getElementById('edit-product-stock')?.value || 0);
   const badge = document.getElementById('edit-product-badge')?.value.trim();
 
+  const description = {
+    overview: document.getElementById('edit-product-desc-overview')?.value.trim() || '',
+    indications: document.getElementById('edit-product-desc-indications')?.value.trim() || '',
+    howToUse: document.getElementById('edit-product-desc-how-to-use')?.value.trim() || '',
+    problemsSolved: document.getElementById('edit-product-desc-problems-solved')?.value.trim() || ''
+  };
+
   // calculate discount if applicable
   let discount = 0;
   if (priceOriginal > price && priceOriginal > 0) {
@@ -395,12 +409,13 @@ function saveProductEdit() {
   const imageInputs = Array.from(document.querySelectorAll('.edit-image-url'));
   const images = imageInputs.map(i => (i.value || '').trim()).filter(Boolean);
 
-
   if (!name) {
     alert('يرجى إدخال اسم المنتج.');
     return;
   }
 
+  // Get the product reference to save to Firestore BEFORE closing the editor
+  let prodToSave = null;
   const existingIndex = FarahDB.PRODUCTS.findIndex(p => p.id === currentProductEditId);
   if (existingIndex >= 0) {
     FarahDB.PRODUCTS[existingIndex] = {
@@ -413,15 +428,17 @@ function saveProductEdit() {
       discount,
       stock,
       badge,
+      description,
       images,
     };
+    prodToSave = FarahDB.PRODUCTS[existingIndex];
   } else {
-    FarahDB.PRODUCTS.unshift({
+    prodToSave = {
       id: currentProductEditId,
       sku: currentProductEditId,
       name,
       category,
-      description: '',
+      description,
       price,
       priceWholesale,
       priceOriginal,
@@ -436,7 +453,8 @@ function saveProductEdit() {
       badgeType: badge ? 'new' : '',
       featured: false,
       createdAt: new Date().toISOString().slice(0, 10),
-    });
+    };
+    FarahDB.PRODUCTS.unshift(prodToSave);
   }
 
   closeProductEditor();
@@ -445,11 +463,10 @@ function saveProductEdit() {
 
   // write the product only to Firestore; the local array remains for current UI state
   try {
-    if (window.db && window.db.collection) {
-      const prod = FarahDB.PRODUCTS.find(p => p.id === currentProductEditId);
-      if (prod) {
-        window.db.collection('products').doc(prod.id).set(prod).catch(err => console.warn('Firestore write failed (client):', err));
-      }
+    if (window.db && window.db.collection && prodToSave) {
+      window.db.collection('products').doc(prodToSave.id).set(prodToSave)
+        .then(() => console.log('Successfully saved to Firestore:', prodToSave.id))
+        .catch(err => console.warn('Firestore write failed (client):', err));
     }
   } catch (e) {
     console.warn('Firestore update skipped:', e);

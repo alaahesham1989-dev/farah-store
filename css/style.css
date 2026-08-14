@@ -718,15 +718,29 @@ select.form-control { appearance: none; cursor: pointer; background-image: url("
 .drawer-overlay { position: fixed; inset: 0; background: rgba(26,26,46,0.6); z-index: 1200; opacity: 0; pointer-events: none; transition: opacity var(--t-base); backdrop-filter: blur(8px); }
 .drawer-overlay.open { opacity: 1; pointer-events: all; }
 
-.cart-drawer, .qv-drawer {
+.cart-drawer, .qv-drawer, .cats-drawer {
   position: fixed; top: 0; width: min(450px, 100vw); height: 100%; background: var(--glass-bg);
   backdrop-filter: blur(30px); border-left: 1px solid var(--glass-border);
   z-index: 1201; display: flex; flex-direction: column; box-shadow: var(--shadow-lg);
   transition: transform var(--t-slow) var(--ease);
 }
 .cart-drawer { left: 0; transform: translateX(-100%); } /* RTL */
-.qv-drawer { left: 0; transform: translateX(-100%); }
-.cart-drawer.open, .qv-drawer.open { transform: translateX(0); }
+.qv-drawer, .cats-drawer { left: 0; transform: translateX(-100%); }
+.cart-drawer.open, .qv-drawer.open, .cats-drawer.open { transform: translateX(0); }
+
+.cats-body { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.cat-item-link {
+  display: flex; align-items: center; gap: 1rem; padding: 1.2rem;
+  border-radius: var(--r-md); background: var(--white); border: 2px solid var(--cream-2);
+  transition: all var(--t-base); font-weight: 700; color: var(--navy); cursor: pointer;
+  text-decoration: none; font-family: var(--font); font-size: 1rem;
+}
+.cat-item-link:hover {
+  border-color: var(--gold); background: rgba(212,168,83,0.04); transform: translateY(-2px);
+  color: var(--gold-dark);
+}
+.cat-item-icon { font-size: 1.5rem; }
+.cat-item-count { margin-right: auto; font-size: 0.8rem; background: var(--cream-2); padding: 4px 8px; border-radius: var(--r-full); color: var(--text-mid); }
 
 .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; border-bottom: 1px solid rgba(212,168,83,0.15); }
 .drawer-header h2 { font-size: 1.3rem; }

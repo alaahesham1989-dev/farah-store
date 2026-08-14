@@ -45,7 +45,11 @@ function renderProduct(product) {
   // Page title
   document.title = `${product.name} | فرح استور`;
   const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) metaDesc.content = product.description;
+  if (metaDesc) {
+    metaDesc.content = typeof product.description === 'object' && product.description !== null
+      ? (product.description.overview || '')
+      : (product.description || '');
+  }
 
   // Breadcrumb
   const breadcrumbName = document.getElementById('breadcrumb-name');
@@ -97,24 +101,73 @@ function renderProduct(product) {
 
   // Description
   const infoDesc = document.getElementById('info-desc');
-  if (infoDesc) {
-    infoDesc.innerHTML = product.description;
-  }
-  
   const btnShowMore = document.getElementById('btn-show-more');
   const descOverlay = document.getElementById('desc-overlay');
-  if (btnShowMore && infoDesc) {
-    btnShowMore.addEventListener('click', () => {
-      if (infoDesc.style.maxHeight === '100px') {
-        infoDesc.style.maxHeight = '1000px';
+  
+  if (infoDesc) {
+    const isObjectDesc = typeof product.description === 'object' && product.description !== null;
+    
+    if (isObjectDesc) {
+      // Structured description object (Phase 3)
+      const container = infoDesc.closest('.desc-container-outer');
+      if (container) {
+        // Hide show more button and overlay since tabs are self-contained
+        if (btnShowMore) btnShowMore.style.display = 'none';
         if (descOverlay) descOverlay.style.display = 'none';
-        btnShowMore.textContent = 'عرض أقل';
-      } else {
-        infoDesc.style.maxHeight = '100px';
-        if (descOverlay) descOverlay.style.display = 'block';
-        btnShowMore.textContent = 'عرض المزيد';
+        
+        // Remove style constraints on infoDesc
+        infoDesc.style.maxHeight = 'none';
+        infoDesc.style.overflow = 'visible';
+        
+        const desc = product.description;
+        container.innerHTML = `
+          <div class="desc-tabs" style="display:flex; gap:8px; border-bottom:2px solid var(--cream-2); margin-bottom:1rem; overflow-x:auto; padding-bottom:8px;">
+            <button class="desc-tab-btn active" data-tab="overview" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid var(--primary-color); cursor:pointer; color:var(--primary-color); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">🔎 نظرة عامة</button>
+            <button class="desc-tab-btn" data-tab="indications" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid transparent; cursor:pointer; color:var(--text-soft); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">💡 دواعي الاستعمال</button>
+            <button class="desc-tab-btn" data-tab="howToUse" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid transparent; cursor:pointer; color:var(--text-soft); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">🛠️ طريقة الاستخدام</button>
+            <button class="desc-tab-btn" data-tab="problemsSolved" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid transparent; cursor:pointer; color:var(--text-soft); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">✅ المشاكل المحلولة</button>
+          </div>
+          <div class="desc-tab-content" id="desc-tab-content" style="font-family:'Cairo',sans-serif; line-height:1.7; font-size:0.95rem; color:var(--text-dark); min-height:100px;">
+            ${desc.overview || 'لا توجد تفاصيل.'}
+          </div>
+        `;
+        
+        const tabBtns = container.querySelectorAll('.desc-tab-btn');
+        const contentEl = container.querySelector('#desc-tab-content');
+        
+        tabBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            tabBtns.forEach(b => {
+              b.classList.remove('active');
+              b.style.color = 'var(--text-soft)';
+              b.style.borderColor = 'transparent';
+            });
+            btn.classList.add('active');
+            btn.style.color = 'var(--primary-color)';
+            btn.style.borderColor = 'var(--primary-color)';
+            
+            const tabName = btn.dataset.tab;
+            contentEl.innerHTML = desc[tabName] || '<span style="color:var(--text-soft)">لا توجد تفاصيل متوفرة.</span>';
+          });
+        });
       }
-    });
+    } else {
+      // Legacy string description
+      infoDesc.innerHTML = product.description || '';
+      if (btnShowMore) {
+        btnShowMore.addEventListener('click', () => {
+          if (infoDesc.style.maxHeight === '100px') {
+            infoDesc.style.maxHeight = '1000px';
+            if (descOverlay) descOverlay.style.display = 'none';
+            btnShowMore.textContent = 'عرض أقل';
+          } else {
+            infoDesc.style.maxHeight = '100px';
+            if (descOverlay) descOverlay.style.display = 'block';
+            btnShowMore.textContent = 'عرض المزيد';
+          }
+        });
+      }
+    }
   }
 
   // Price
@@ -266,20 +319,31 @@ function initNotifyMe(product) {
       return;
     }
     
-    // Save to FarahDB.Storage
+    const notificationData = {
+      sku: product.sku || '',
+      customerName: name,
+      phone: phone,
+      status: 'pending',
+      createdAt: new Date()
+    };
+
+    // Save to Firestore if available
+    if (window.db) {
+      window.db.collection('stock_notifications').add(notificationData)
+        .then(() => console.log('Successfully saved notification to Firestore'))
+        .catch(err => console.error('Failed to save notification to Firestore:', err));
+    }
+
+    // Save to FarahDB.Storage as fallback/cache
     let notifications = [];
     if (window.FarahDB && FarahDB.Storage) {
       notifications = FarahDB.Storage.get('stock_notifications', []);
     }
-    
     notifications.push({
       productId: product.id,
-      sku: product.sku || '',
-      name: name,
-      phone: phone,
+      ...notificationData,
       createdAt: Date.now()
     });
-    
     if (window.FarahDB && FarahDB.Storage) {
       FarahDB.Storage.set('stock_notifications', notifications);
     }
