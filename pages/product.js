@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     render();
   }
+
+  // Automatically update product UI when products update from Firestore
+  window.addEventListener('FarahDBProductsUpdated', render);
 });
 
 // ─── Redirect ─────────────────────────────────────
@@ -109,7 +112,7 @@ function renderProduct(product) {
     
     if (isObjectDesc) {
       // Structured description object (Phase 3)
-      const container = infoDesc.closest('.desc-container-outer');
+      const container = infoDesc.closest('.product-desc-box');
       if (container) {
         // Hide show more button and overlay since tabs are self-contained
         if (btnShowMore) btnShowMore.style.display = 'none';
@@ -230,16 +233,22 @@ function renderProduct(product) {
   }
 
   const stockEl = document.getElementById('meta-stock');
+  const addToCartBlock = document.getElementById('add-to-cart-block');
+  const buyNowWrap = document.getElementById('buy-now-wrap');
+  const notifyMeBlock = document.getElementById('notify-me-block');
+
   if (product.stock > 10) {
     if(stockEl) stockEl.innerHTML = `<span style="color:var(--success)">✅ متاح (${product.stock} قطعة)</span>`;
+    if(addToCartBlock) addToCartBlock.style.display = 'flex';
+    if(buyNowWrap) buyNowWrap.style.display = 'flex';
+    if(notifyMeBlock) notifyMeBlock.style.display = 'none';
   } else if (product.stock > 0) {
     if(stockEl) stockEl.innerHTML = `<span style="color:var(--warning)">⚠️ آخر ${product.stock} قطع</span>`;
+    if(addToCartBlock) addToCartBlock.style.display = 'flex';
+    if(buyNowWrap) buyNowWrap.style.display = 'flex';
+    if(notifyMeBlock) notifyMeBlock.style.display = 'none';
   } else {
     if(stockEl) stockEl.innerHTML = `<span style="color:var(--danger)">❌ نفذت الكمية</span>`;
-    const addToCartBlock = document.getElementById('add-to-cart-block');
-    const buyNowWrap = document.getElementById('buy-now-wrap');
-    const notifyMeBlock = document.getElementById('notify-me-block');
-    
     if(addToCartBlock) addToCartBlock.style.display = 'none';
     if(buyNowWrap) buyNowWrap.style.display = 'none';
     if(notifyMeBlock) notifyMeBlock.style.display = 'block';
@@ -304,13 +313,19 @@ function renderRelated(product) {
 // ─── Notify Me Logic ──────────────────────────────
 function initNotifyMe(product) {
   const btnNotifySubmit = document.getElementById('btn-notify-submit');
+  if (btnNotifySubmit) {
+    const clone = btnNotifySubmit.cloneNode(true);
+    btnNotifySubmit.parentNode.replaceChild(clone, btnNotifySubmit);
+  }
+
+  const newBtnNotifySubmit = document.getElementById('btn-notify-submit');
   const notifyName = document.getElementById('notify-name');
   const notifyPhone = document.getElementById('notify-phone');
   const notifyBlock = document.getElementById('notify-me-block');
   
-  if (!btnNotifySubmit) return;
+  if (!newBtnNotifySubmit) return;
   
-  btnNotifySubmit.addEventListener('click', () => {
+  newBtnNotifySubmit.addEventListener('click', () => {
     const name = notifyName.value.trim();
     const phone = notifyPhone.value.trim();
     
@@ -360,7 +375,7 @@ function initNotifyMe(product) {
 
 // ─── Product Actions ──────────────────────────────
 function initProductActions(product) {
-  const qtyNum      = document.getElementById('qty-num');
+  // Re-bind elements to clear previous listeners by replacing them with clones!
   const qtyDecrease = document.getElementById('qty-decrease');
   const qtyIncrease = document.getElementById('qty-increase');
   const btnAdd      = document.getElementById('btn-add-cart');
@@ -368,14 +383,48 @@ function initProductActions(product) {
   const btnWhatsApp = document.getElementById('btn-share-whatsapp');
   const btnCopyLink = document.getElementById('btn-copy-link');
 
+  if (qtyDecrease) {
+    const clone = qtyDecrease.cloneNode(true);
+    qtyDecrease.parentNode.replaceChild(clone, qtyDecrease);
+  }
+  if (qtyIncrease) {
+    const clone = qtyIncrease.cloneNode(true);
+    qtyIncrease.parentNode.replaceChild(clone, qtyIncrease);
+  }
+  if (btnAdd) {
+    const clone = btnAdd.cloneNode(true);
+    btnAdd.parentNode.replaceChild(clone, btnAdd);
+  }
+  if (btnBuy) {
+    const clone = btnBuy.cloneNode(true);
+    btnBuy.parentNode.replaceChild(clone, btnBuy);
+  }
+  if (btnWhatsApp) {
+    const clone = btnWhatsApp.cloneNode(true);
+    btnWhatsApp.parentNode.replaceChild(clone, btnWhatsApp);
+  }
+  if (btnCopyLink) {
+    const clone = btnCopyLink.cloneNode(true);
+    btnCopyLink.parentNode.replaceChild(clone, btnCopyLink);
+  }
+
+  // Query fresh cloned elements
+  const qtyNum         = document.getElementById('qty-num');
+  const newQtyDecrease = document.getElementById('qty-decrease');
+  const newQtyIncrease = document.getElementById('qty-increase');
+  const newBtnAdd      = document.getElementById('btn-add-cart');
+  const newBtnBuy      = document.getElementById('btn-buy-now');
+  const newBtnWhatsApp = document.getElementById('btn-share-whatsapp');
+  const newBtnCopyLink = document.getElementById('btn-copy-link');
+
   let qty = 1;
 
   function updateQtyDisplay() {
     if (qtyNum) qtyNum.value = qty;
   }
 
-  qtyDecrease?.addEventListener('click', () => { qty = Math.max(1, qty - 1); updateQtyDisplay(); });
-  qtyIncrease?.addEventListener('click', () => { qty = Math.min(product.stock, qty + 1); updateQtyDisplay(); });
+  newQtyDecrease?.addEventListener('click', () => { qty = Math.max(1, qty - 1); updateQtyDisplay(); });
+  newQtyIncrease?.addEventListener('click', () => { qty = Math.min(product.stock, qty + 1); updateQtyDisplay(); });
 
   function getSelectedVariant() {
     const active = document.querySelector('.variant-btn.active');
@@ -385,16 +434,19 @@ function initProductActions(product) {
 
   const handleAdd = () => {
     Cart.add(product, qty, getSelectedVariant());
-    btnAdd.textContent = '⬅️ متابعة التسوق';
-    btnAdd.style.background = 'var(--success)';
-    btnAdd.removeEventListener('click', handleAdd);
-    btnAdd.addEventListener('click', () => {
-      window.location.href = '../index.html#sections';
-    });
+    if (newBtnAdd) {
+      newBtnAdd.textContent = '⬅️ متابعة التسوق';
+      newBtnAdd.style.background = 'var(--success)';
+      newBtnAdd.style.borderColor = 'var(--success)';
+      newBtnAdd.removeEventListener('click', handleAdd);
+      newBtnAdd.addEventListener('click', () => {
+        window.location.href = '../index.html#all-products';
+      });
+    }
   };
-  btnAdd?.addEventListener('click', handleAdd);
+  newBtnAdd?.addEventListener('click', handleAdd);
 
-  btnBuy?.addEventListener('click', () => {
+  newBtnBuy?.addEventListener('click', () => {
     Cart.add(product, qty, getSelectedVariant());
     window.location.href = 'checkout.html';
   });
@@ -406,14 +458,14 @@ function initProductActions(product) {
   }
 
   // Share WhatsApp
-  btnWhatsApp?.addEventListener('click', () => {
+  newBtnWhatsApp?.addEventListener('click', () => {
     const url = encodeURIComponent(window.location.href);
     const msg = encodeURIComponent(`🛍️ شوف المنتج ده على فرح استور:\n${product.name}\nبـ ${product.price} ج.م\n${window.location.href}`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   });
 
   // Copy link
-  btnCopyLink?.addEventListener('click', async () => {
+  newBtnCopyLink?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       showToast('✅ تم نسخ الرابط', 'success', 2000);

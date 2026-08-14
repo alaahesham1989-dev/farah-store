@@ -82,7 +82,7 @@ function initPaymentToggle() {
 function validate() {
   const fields = [
     { id: 'field-name',   label: 'الاسم الكامل' },
-    { id: 'field-phone',  label: 'رقم الهاتف',   pattern: /^01[0-9]{9}$/ },
+    { id: 'field-phone',  label: 'رقم الهاتف',   pattern: /^\+?[0-9]{9,15}$/ },
     { id: 'field-gov',    label: 'المحافظة' },
     { id: 'field-city',   label: 'المدينة' },
     { id: 'field-street', label: 'العنوان' },
@@ -101,7 +101,7 @@ function validate() {
     if (field.pattern && !field.pattern.test(val)) {
       el.style.borderColor = 'var(--danger)';
       el.focus();
-      showToast(`⚠️ رقم الهاتف غير صحيح — يجب أن يبدأ بـ 01 ويتكون من 11 رقم`, 'warning', 4000);
+      showToast(`⚠️ رقم الهاتف غير صحيح — يرجى إدخال رقم هاتف واتساب صحيح`, 'warning', 4000);
       return false;
     }
     el.style.borderColor = '';
@@ -178,22 +178,117 @@ function initPlaceOrder() {
     if (paymentMethod === 'paymob_card' || paymentMethod === 'paymob_wallet') {
       // TODO: هنا هيتم استدعاء Paymob API بعد ربط الـ API key
       // في الوقت الحالي بنعرض رسالة تأكيد
-      showSuccessModal(order.id);
+      showSuccessModal(order);
     } else {
-      showSuccessModal(order.id);
+      showSuccessModal(order);
     }
 
     Cart.clear();
   });
 }
 
+// TODO: استبدل هذا الرقم برقم الواتساب الخاص بالمتجر لتلقي الطلبات
+const STORE_WHATSAPP_NUMBER = '201000000000'; 
+
+function getGovArabicName(gov) {
+  const mapping = {
+    'cairo': 'القاهرة',
+    'giza': 'الجيزة',
+    'alexandria': 'الإسكندرية',
+    'qalubia': 'القليوبية',
+    'gharbia': 'الغربية',
+    'monufia': 'المنوفية',
+    'dakahlia': 'الدقهلية',
+    'sharqia': 'الشرقية',
+    'beheira': 'البحيرة',
+    'damietta': 'دمياط',
+    'port-said': 'بورسعيد',
+    'ismailia': 'الإسماعيلية',
+    'suez': 'السويس',
+    'fayoum': 'الفيوم',
+    'beni-suef': 'بني سويف',
+    'minya': 'المنيا',
+    'assiut': 'أسيوط',
+    'sohag': 'سوهاج',
+    'qena': 'قنا',
+    'luxor': 'الأقصر',
+    'aswan': 'أسوان',
+    'red-sea': 'البحر الأحمر',
+    'new-valley': 'الوادي الجديد',
+    'matrouh': 'مطروح',
+    'north-sinai': 'شمال سيناء',
+    'south-sinai': 'جنوب سيناء'
+  };
+  return mapping[gov] || gov;
+}
+
 // ─── Success Modal ────────────────────────────────
-function showSuccessModal(orderId) {
+function showSuccessModal(order) {
   const modal   = document.getElementById('success-modal');
   const idDisplay = document.getElementById('order-id-display');
+  const detailsDisplay = document.getElementById('order-details-display');
+  const btnWhatsApp = document.getElementById('btn-success-whatsapp');
   if (!modal) return;
 
-  if (idDisplay) idDisplay.textContent = `رقم الطلب: ${orderId}`;
+  if (idDisplay) idDisplay.textContent = `رقم الطلب: ${order.id}`;
+
+  if (detailsDisplay) {
+    let itemsHTML = '';
+    order.items.forEach(item => {
+      const variantText = item.variant && Object.values(item.variant).length 
+        ? ` (${Object.values(item.variant).join(' / ')})` : '';
+      itemsHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; gap: 10px;">
+        <span style="color: var(--text-mid); text-align:right;">🔹 ${item.name}${variantText} (عدد ${item.qty})</span>
+        <span style="font-weight:700; text-align:left;">${FarahDB.formatPrice(item.price * item.qty)}</span>
+      </div>`;
+    });
+
+    detailsDisplay.innerHTML = `
+      <div style="font-weight:800; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px; color: var(--navy);">تفاصيل الفاتورة:</div>
+      ${itemsHTML}
+      <div style="border-top:1px solid #eee; margin-top:10px; padding-top:8px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color: var(--text-mid);">المجموع الفرعي:</span>
+          <span>${FarahDB.formatPrice(order.subtotal)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color: var(--text-mid);">تكلفة الشحن:</span>
+          <span>${order.shipping === 0 ? '🎉 مجاني' : FarahDB.formatPrice(order.shipping)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.05rem; margin-top:6px; color:var(--primary-color);">
+          <span>الإجمالي الكلي:</span>
+          <span>${FarahDB.formatPrice(order.total)}</span>
+        </div>
+      </div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-soft); border-top: 1px dashed #eee; padding-top: 8px;">
+        📍 العنوان: ${order.customer.address.city}، ${order.customer.address.street} (${getGovArabicName(order.customer.address.governorate)})
+      </div>
+    `;
+  }
+
+  // Set up WhatsApp Confirmation Link
+  if (btnWhatsApp) {
+    let productsText = '';
+    order.items.forEach((item, idx) => {
+      const variantText = item.variant && Object.values(item.variant).length 
+        ? ` (${Object.values(item.variant).join(' / ')})` : '';
+      productsText += `${idx + 1}- ${item.name}${variantText} [عدد: ${item.qty}] (${item.price} ج.م)\n`;
+    });
+
+    const govText = getGovArabicName(order.customer.address.governorate);
+
+    const message = `السلام عليكم يا فرح استور،\nأود تأكيد طلبي بمتجركم 🛍️\n\n📌 تفاصيل الطلب رقم: ${order.id}\n----------------------------------\n${productsText}----------------------------------\n🔹 المجموع الفرعي: ${order.subtotal} ج.م\n🚚 الشحن: ${order.shipping === 0 ? 'مجاني' : order.shipping + ' ج.م'}\n💰 الإجمالي الكلي: ${order.total} ج.م\n\n📌 عنوان التوصيل:\n👤 الاسم: ${order.customer.name}\n📱 الهاتف: ${order.customer.phone}\n📍 المحافظة: ${govText}\n🏙️ المدينة/المركز: ${order.customer.address.city}\n🏠 العنوان بالتفصيل: ${order.customer.address.street}\n${order.customer.notes ? '📝 ملاحظات: ' + order.customer.notes : ''}\n\nيرجى تأكيد الطلب للشحن في أسرع وقت. شكراً لكم!`;
+    
+    btnWhatsApp.href = `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    
+    // Auto-open WhatsApp on submission
+    try {
+      window.open(btnWhatsApp.href, '_blank');
+    } catch(e) {
+      console.warn("Auto-open WhatsApp blocked by popup blocker:", e);
+    }
+  }
+
   modal.style.display = 'flex';
 
   // Close on backdrop click

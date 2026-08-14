@@ -78,8 +78,11 @@
                   <input type="text" id="field-name" class="form-control" placeholder="الاسم الكامل" required autocomplete="name" />
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="field-phone">📱 رقم الهاتف *</label>
-                  <input type="tel" id="field-phone" class="form-control" placeholder="01XXXXXXXXX" required autocomplete="tel" pattern="^01[0-9]{9}$" />
+                  <label class="form-label" for="field-phone" style="display: flex; align-items: center; gap: 6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.501-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.852.002-2.63-1.023-5.101-2.885-6.963C16.588 1.928 14.12 .902 11.5 .902c-5.448 0-9.882 4.417-9.886 9.852-.001 1.714.455 3.39 1.32 4.887L1.935 21.87l6.452-1.692zM17.185 14.2c-.284-.143-1.682-.83-1.947-.926-.263-.097-.456-.144-.647.144-.19.287-.736.926-.903 1.117-.166.19-.333.214-.617.071-.285-.143-1.202-.443-2.29-1.411-.847-.756-1.42-1.689-1.587-1.975-.166-.285-.018-.44.125-.581.127-.129.284-.333.426-.5.143-.166.19-.285.285-.476.095-.19.047-.357-.024-.5-.071-.143-.647-1.56-.886-2.133-.233-.56-.47-.482-.647-.492-.166-.008-.356-.01-.546-.01-.19 0-.5.071-.76.357-.263.287-1.004.982-1.004 2.397s1.03 2.748 1.173 2.938c.143.19 2.028 3.1 4.914 4.346.686.296 1.224.474 1.643.607.69.219 1.319.188 1.815.114.553-.083 1.68-.686 1.917-1.35.238-.667.238-1.238.166-1.35-.07-.113-.26-.214-.545-.357z"/></svg>
+                    <span>رقم الهاتف (الواتساب) *</span>
+                  </label>
+                  <input type="tel" id="field-phone" class="form-control" value="+20" required autocomplete="tel" placeholder="+2010XXXXXXXX" />
                 </div>
               </div>
               <div class="form-row">
@@ -219,13 +222,23 @@
   </section>
 
   <!-- ========== SUCCESS MODAL ========== -->
-  <div id="success-modal" style="display:none; padding: 2rem 1rem;">
-    <div style="background:var(--white); max-width:600px; margin:0 auto; text-align:center;">
-      <div style="border: 2px dashed #7A9B76; padding: 1.5rem; margin-bottom: 2rem; color: #5B7A58; font-size: 1.5rem; font-weight: 700;">شكراً لك. تم استلام طلبك.</div>
+  <div id="success-modal" style="display:none; padding: 2rem 1rem; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+    <div class="glass-panel" style="background:var(--white); max-width:550px; width:100%; margin:0 auto; text-align:center; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 45px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;">
+      <div style="border: 2px dashed #7A9B76; padding: 1.25rem; margin-bottom: 1.5rem; color: #5B7A58; font-size: 1.4rem; font-weight: 700; border-radius: 8px;">شكراً لك. تم استلام طلبك.</div>
       
-      <div id="order-id-display" style="background:var(--bg-subtle);border-radius:var(--radius);padding:12px;margin:1.25rem 0;font-weight:800;color:var(--navy);font-size:0.95rem;letter-spacing:0.05em;border:1px solid var(--border)"></div>
+      <div id="order-id-display" style="background:#f0f7f0; border-radius:8px; padding:12px; margin:1rem 0; font-weight:800; color:var(--primary); font-size:0.95rem; border:1px solid #d4ebd4;"></div>
       
-      <a href="../index.html" class="btn btn-primary btn-full">متابعة التسوق</a>
+      <div id="order-details-display" style="background:#fafafa; border-radius:8px; padding:16px; text-align:right; margin:1rem 0; border:1px solid #eee; font-size: 0.9rem; line-height: 1.6; color: var(--text-dark);">
+        <!-- Filled dynamically -->
+      </div>
+      
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:1.5rem;">
+        <a id="btn-success-whatsapp" href="#" target="_blank" class="btn btn-gold" style="background:#25D366; border-color:#25D366; color:#fff; display:flex; align-items:center; justify-content:center; gap:8px; height: 50px; border-radius: var(--r-full); font-weight: 800; text-decoration: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.501-5.734-1.453L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.852.002-2.63-1.023-5.101-2.885-6.963C16.588 1.928 14.12 .902 11.5 .902c-5.448 0-9.882 4.417-9.886 9.852-.001 1.714.455 3.39 1.32 4.887L1.935 21.87l6.452-1.692zM17.185 14.2c-.284-.143-1.682-.83-1.947-.926-.263-.097-.456-.144-.647.144-.19.287-.736.926-.903 1.117-.166.19-.333.214-.617.071-.285-.143-1.202-.443-2.29-1.411-.847-.756-1.42-1.689-1.587-1.975-.166-.285-.018-.44.125-.581.127-.129.284-.333.426-.5.143-.166.19-.285.285-.476.095-.19.047-.357-.024-.5-.071-.143-.647-1.56-.886-2.133-.233-.56-.47-.482-.647-.492-.166-.008-.356-.01-.546-.01-.19 0-.5.071-.76.357-.263.287-1.004.982-1.004 2.397s1.03 2.748 1.173 2.938c.143.19 2.028 3.1 4.914 4.346.686.296 1.224.474 1.643.607.69.219 1.319.188 1.815.114.553-.083 1.68-.686 1.917-1.35.238-.667.238-1.238.166-1.35-.07-.113-.26-.214-.545-.357z"/></svg>
+          <span>تأكيد الطلب عبر الواتساب (سريع) 💬</span>
+        </a>
+        <a href="../index.html" class="btn btn-outline btn-full" style="height: 50px; border-radius: var(--r-full); font-weight: 800; display: flex; align-items: center; justify-content: center; text-decoration: none;">متابعة التسوق</a>
+      </div>
     </div>
   </div>
 
