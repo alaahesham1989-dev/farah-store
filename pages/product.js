@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderProduct(product);
     renderRelated(product);
     initProductActions(product);
+    initNotifyMe(product);
     initScrollBehavior();
   };
 
@@ -182,10 +183,13 @@ function renderProduct(product) {
     if(stockEl) stockEl.innerHTML = `<span style="color:var(--warning)">⚠️ آخر ${product.stock} قطع</span>`;
   } else {
     if(stockEl) stockEl.innerHTML = `<span style="color:var(--danger)">❌ نفذت الكمية</span>`;
-    const btnAdd = document.getElementById('btn-add-cart');
-    if(btnAdd) btnAdd.disabled = true;
-    const btnBuy = document.getElementById('btn-buy-now');
-    if(btnBuy) btnBuy.disabled  = true;
+    const addToCartBlock = document.getElementById('add-to-cart-block');
+    const buyNowWrap = document.getElementById('buy-now-wrap');
+    const notifyMeBlock = document.getElementById('notify-me-block');
+    
+    if(addToCartBlock) addToCartBlock.style.display = 'none';
+    if(buyNowWrap) buyNowWrap.style.display = 'none';
+    if(notifyMeBlock) notifyMeBlock.style.display = 'block';
   }
 }
 
@@ -241,6 +245,52 @@ function renderRelated(product) {
     el.addEventListener('click', () => {
       window.location.href = `product.html?id=${el.dataset.id}`;
     });
+  });
+}
+
+// ─── Notify Me Logic ──────────────────────────────
+function initNotifyMe(product) {
+  const btnNotifySubmit = document.getElementById('btn-notify-submit');
+  const notifyName = document.getElementById('notify-name');
+  const notifyPhone = document.getElementById('notify-phone');
+  const notifyBlock = document.getElementById('notify-me-block');
+  
+  if (!btnNotifySubmit) return;
+  
+  btnNotifySubmit.addEventListener('click', () => {
+    const name = notifyName.value.trim();
+    const phone = notifyPhone.value.trim();
+    
+    if (!name || !phone) {
+      alert('يرجى إدخال الاسم ورقم الهاتف للتواصل معك عند التوفر.');
+      return;
+    }
+    
+    // Save to FarahDB.Storage
+    let notifications = [];
+    if (window.FarahDB && FarahDB.Storage) {
+      notifications = FarahDB.Storage.get('stock_notifications', []);
+    }
+    
+    notifications.push({
+      productId: product.id,
+      sku: product.sku || '',
+      name: name,
+      phone: phone,
+      createdAt: Date.now()
+    });
+    
+    if (window.FarahDB && FarahDB.Storage) {
+      FarahDB.Storage.set('stock_notifications', notifications);
+    }
+    
+    notifyBlock.innerHTML = `
+      <div style="text-align: center; color: var(--success); padding: 10px;">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">✅</div>
+        <h4>تم تسجيل طلبك بنجاح!</h4>
+        <p style="font-size:0.9rem;">سنقوم بإبلاغك فور توفر المنتج مرة أخرى.</p>
+      </div>
+    `;
   });
 }
 

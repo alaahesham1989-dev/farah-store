@@ -149,7 +149,7 @@
           </div>
 
           <!-- Add to Cart -->
-          <div class="add-to-cart-block">
+          <div id="add-to-cart-block" class="add-to-cart-block">
             <div class="qty-control">
               <button id="qty-decrease" aria-label="تقليل">−</button>
               <input type="number" id="qty-num" class="qty-num" value="1" min="1" max="99" readonly />
@@ -159,10 +159,24 @@
               🛒 أضف للسلة
             </button>
           </div>
-          <div class="buy-now-wrap">
+          <div id="buy-now-wrap" class="buy-now-wrap">
             <button class="btn btn-outline" id="btn-buy-now">
               اشتري الآن
             </button>
+          </div>
+
+          <!-- Notify Me Form (Hidden by default) -->
+          <div id="notify-me-block" style="display:none; background: rgba(11, 110, 79, 0.05); border: 1px dashed var(--primary-color); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h4 style="color: var(--primary-color); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              عذراً، نفذت الكمية 😔
+            </h4>
+            <p style="font-size: 0.9rem; color: var(--text-soft); margin-bottom: 15px;">اترك بياناتك وسنقوم بإبلاغك فور توفر المنتج مرة أخرى!</p>
+            <div style="display: grid; gap: 10px; margin-bottom: 15px;">
+              <input type="text" id="notify-name" class="form-control" placeholder="الاسم الكريم" style="border: 1px solid rgba(0,0,0,0.1); background: #fff;">
+              <input type="text" id="notify-phone" class="form-control" placeholder="رقم الهاتف (أو الإيميل)" style="border: 1px solid rgba(0,0,0,0.1); background: #fff;">
+            </div>
+            <button class="btn btn-secondary" id="btn-notify-submit" style="width: 100%;">أعلمني عند التوفر 🔔</button>
           </div>
 
           <!-- Meta -->

@@ -220,6 +220,13 @@ function buildProdCard(product, type = 'card') {
   const hasDisc   = product.priceOriginal && product.discount > 0;
   const stars     = renderStars(product.rating);
   const catName   = getCatName(product.category);
+  const isOutOfStock = product.stock <= 0;
+  
+  const cartBtnHtml = isOutOfStock
+    ? `<button class="prod-add-btn notify-btn" data-id="${product.id}" aria-label="أعلمني عند التوفر" style="width: auto; padding: 0 12px; font-size: 0.8rem; border-radius: 4px; background: #666; color: #fff; font-family: var(--font);">أعلمني 🔔</button>`
+    : `<button class="prod-add-btn add-cart-btn" data-id="${product.id}" aria-label="أضف للسلة">
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+       </button>`;
 
   if (type === 'h-scroll') {
     return `
@@ -241,9 +248,7 @@ function buildProdCard(product, type = 'card') {
             <span class="prod-price-now">${product.price.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>
             ${hasDisc ? `<span class="prod-price-was">${product.priceOriginal.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>` : ''}
           </div>
-          <button class="prod-add-btn add-cart-btn" data-id="${product.id}" aria-label="أضف للسلة">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
+          ${cartBtnHtml}
         </div>
       </div>
     </article>`;
@@ -269,9 +274,7 @@ function buildProdCard(product, type = 'card') {
           <span class="prod-price-now">${product.price.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>
           ${hasDisc ? `<span class="prod-price-was">${product.priceOriginal.toLocaleString(typeof currentLang !== 'undefined' && currentLang === 'en' ? 'en-US' : 'ar-EG')} <span data-i18n="product_price_currency">${typeof i18n !== 'undefined' ? i18n[currentLang].product_price_currency : 'ج.م'}</span></span>` : ''}
         </div>
-        <button class="prod-add-btn add-cart-btn" data-id="${product.id}" aria-label="أضف للسلة">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
+        ${cartBtnHtml}
       </div>
     </div>
   </article>`;
@@ -283,6 +286,12 @@ function attachCardEvents(container) {
       e.stopPropagation();
       const p = FarahDB.getProductById(btn.dataset.id);
       if (p) { Cart.add(p); animateAddBtn(btn); }
+    });
+  });
+  container.querySelectorAll('.notify-btn[data-id]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      window.location.href = `pages/product.html?id=${btn.dataset.id}`;
     });
   });
   container.querySelectorAll('.quick-view-btn[data-id]').forEach(btn => {
@@ -605,14 +614,26 @@ function openQuickView(productId) {
       ` : ''}
     </div>
     ${variantsHTML}
-    <div class="qv-actions">
-      <div class="qv-qty">
-        <button class="qv-qty-btn" id="qv-decrease">−</button>
-        <input type="number" class="qv-qty-num" id="qv-qty" value="1" min="1" max="${product.stock}" readonly />
-        <button class="qv-qty-btn" id="qv-increase">+</button>
+    ${product.stock <= 0 ? `
+      <div id="qv-notify-wrap" style="background: rgba(11, 110, 79, 0.05); padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed var(--danger);">
+        <h4 style="color: var(--danger); font-size: 1rem; margin-bottom: 8px;">❌ نفذت الكمية</h4>
+        <p style="font-size: 0.85rem; color: var(--text-soft); margin-bottom: 10px;">اترك بياناتك وسنبلغك فور توفره</p>
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <input type="text" id="qv-notify-name" class="form-control" placeholder="الاسم" style="flex:1; padding: 6px; font-size: 0.85rem;">
+          <input type="text" id="qv-notify-phone" class="form-control" placeholder="الهاتف" style="flex:1; padding: 6px; font-size: 0.85rem;">
+        </div>
+        <button class="btn btn-secondary w-full" id="qv-notify-btn" style="padding: 8px;">أعلمني عند التوفر 🔔</button>
       </div>
-      <button class="btn btn-gold qv-add-btn" id="qv-add-cart">أضيفي للسلة 🛒</button>
-    </div>
+    ` : `
+      <div class="qv-actions">
+        <div class="qv-qty">
+          <button class="qv-qty-btn" id="qv-decrease">−</button>
+          <input type="number" class="qv-qty-num" id="qv-qty" value="1" min="1" max="${product.stock}" readonly />
+          <button class="qv-qty-btn" id="qv-increase">+</button>
+        </div>
+        <button class="btn btn-gold qv-add-btn" id="qv-add-cart">أضيفي للسلة 🛒</button>
+      </div>
+    `}
     <a href="pages/product.html?id=${product.id}" class="btn btn-outline-dark w-full qv-view-btn" style="margin-top:10px">عرض الصفحة الكاملة</a>
   `;
 
@@ -631,7 +652,27 @@ function openQuickView(productId) {
   document.getElementById('qv-decrease')?.addEventListener('click', () => { qty = Math.max(1, qty-1); document.getElementById('qv-qty').value = qty; });
   document.getElementById('qv-increase')?.addEventListener('click', () => { qty = Math.min(product.stock, qty+1); document.getElementById('qv-qty').value = qty; });
 
-  // Variants
+  // Notify Me
+  document.getElementById('qv-notify-btn')?.addEventListener('click', () => {
+    const name = document.getElementById('qv-notify-name').value.trim();
+    const phone = document.getElementById('qv-notify-phone').value.trim();
+    if(!name || !phone) {
+      alert('يرجى إدخال الاسم ورقم الهاتف.');
+      return;
+    }
+    let notifications = FarahDB.Storage ? FarahDB.Storage.get('stock_notifications', []) : [];
+    notifications.push({ productId: product.id, name, phone, createdAt: Date.now() });
+    if(FarahDB.Storage) FarahDB.Storage.set('stock_notifications', notifications);
+    
+    document.getElementById('qv-notify-wrap').innerHTML = `
+      <div style="text-align: center; color: var(--success); padding: 10px;">
+        <div style="font-size: 2rem; margin-bottom: 5px;">✅</div>
+        <h4 style="font-size:0.95rem;">تم تسجيل طلبك بنجاح!</h4>
+      </div>
+    `;
+  });
+
+  // Variant click
   body.querySelectorAll('.qv-variant-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       body.querySelectorAll(`.qv-variant-btn[data-key="${btn.dataset.key}"]`).forEach(b => b.classList.remove('active'));
