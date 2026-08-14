@@ -283,6 +283,18 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
+
+  <!-- Free Shipping Progress -->
+  <div id="cart-shipping-progress" class="shipping-progress-container" style="display:none; padding: 15px; background: #fff; border-bottom: 1px solid #eee;">
+    <div id="shipping-msg" style="font-size: 0.9rem; font-weight: 500; margin-bottom: 8px; text-align: center;"></div>
+    <div class="progress-track" style="background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden; width: 100%;" role="progressbar" aria-valuemin="0" aria-valuemax="600" aria-valuenow="0" id="shipping-progress-bar">
+      <div id="shipping-bar-fill" class="progress-fill" style="background: var(--admin-gold); height: 100%; width: 0%; transition: width 0.4s ease, background 0.4s ease;"></div>
+    </div>
+  </div>
+
+  <!-- Upsell Card (One-Click) -->
+  <div id="cart-upsell-card" class="upsell-card-container hidden-fade" style="display:none;"></div>
+
   <div class="cart-body" id="cart-items">
     <div class="cart-empty-state" id="cart-empty">
       <div style="font-size:3.5rem">🛒</div>

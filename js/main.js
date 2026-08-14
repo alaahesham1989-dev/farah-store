@@ -722,6 +722,12 @@ function initCartDrawer() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer?.classList.contains('open')) close(); });
 }
 
+// ─── CRO CART VARS ─────────────────────────────
+const FREE_SHIPPING_THRESHOLD = 600;
+const UPSELL_NEAR_THRESHOLD = 450;
+const UPSELL_PRODUCT_SKU = "code0004";
+let cartRenderTimer = null;
+
 // Override Cart renderCartDrawer to use new markup
 function renderCartDrawerNew() {
   const itemsEl   = document.getElementById('cart-items');
@@ -788,6 +794,76 @@ function renderCartDrawerNew() {
   if (totalEl)  totalEl.textContent  = FarahDB.formatPrice(subtotal);
   if (shipEl)   shipEl.textContent   = shipping === 0 ? '🎉 مجاني' : FarahDB.formatPrice(shipping);
   if (grandEl)  grandEl.textContent  = FarahDB.formatPrice(total);
+
+  // 1. Progress Bar Logic
+  const progressContainer = document.getElementById('cart-shipping-progress');
+  const msgEl = document.getElementById('shipping-msg');
+  const barFill = document.getElementById('shipping-bar-fill');
+  const barContainer = document.getElementById('shipping-progress-bar');
+  
+  if (progressContainer && msgEl && barFill && barContainer) {
+    if (Cart.isEmpty()) {
+      progressContainer.style.display = 'none';
+    } else {
+      progressContainer.style.display = 'block';
+      let progress = 0;
+      if (subtotal < FREE_SHIPPING_THRESHOLD) {
+        const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
+        msgEl.innerHTML = `باقي لك <span style="color:var(--admin-gold);font-weight:bold;">${remaining} ج.م</span> فقط وتحصل على الشحن المجاني! 🚚`;
+        progress = (subtotal / FREE_SHIPPING_THRESHOLD) * 100;
+        barFill.style.background = 'var(--admin-gold)';
+      } else {
+        msgEl.innerHTML = `تهانينا! لقد حصلت على شحن مجاني تماماً على طلبك 🚚🎉`;
+        progress = 100;
+        barFill.style.background = 'var(--admin-primary)';
+      }
+      barFill.style.width = `${progress}%`;
+      barContainer.setAttribute('aria-valuenow', Math.min(subtotal, FREE_SHIPPING_THRESHOLD));
+    }
+  }
+
+  // 2. Upsell Logic
+  const upsellContainer = document.getElementById('cart-upsell-card');
+  if (upsellContainer) {
+    const isUpsellInCart = items.some(i => i.sku === UPSELL_PRODUCT_SKU);
+    const upsellProduct = FarahDB.PRODUCTS.find(p => p.sku === UPSELL_PRODUCT_SKU);
+    
+    if (!Cart.isEmpty() && subtotal >= UPSELL_NEAR_THRESHOLD && subtotal < FREE_SHIPPING_THRESHOLD && !isUpsellInCart && upsellProduct && upsellProduct.stock > 0) {
+      
+      const imgSrc = (upsellProduct.images && upsellProduct.images.length > 0) ? upsellProduct.images[0] : 'https://via.placeholder.com/80?text=📦';
+      
+      upsellContainer.innerHTML = `
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <img src="${imgSrc}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" alt="${upsellProduct.name}">
+          <div style="flex: 1;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--admin-primary);">${upsellProduct.name}</div>
+            <div style="font-size: 0.8rem; color: var(--text-soft);">واحصل على شحن مجاني فوراً!</div>
+            <div style="font-size: 0.9rem; font-weight: bold;">${upsellProduct.price} ج.م</div>
+          </div>
+          <button id="btn-upsell-add" class="btn btn-gold btn-upsell-pulse" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 4px;">➕ أضف للسلة ووفر الشحن</button>
+        </div>
+      `;
+      upsellContainer.style.display = 'block';
+      setTimeout(() => upsellContainer.classList.remove('hidden-fade'), 10);
+      
+      const btnAddUpsell = document.getElementById('btn-upsell-add');
+      if (btnAddUpsell) {
+        btnAddUpsell.addEventListener('click', () => {
+          Cart.add(upsellProduct);
+        });
+      }
+      
+    } else {
+      upsellContainer.classList.add('hidden-fade');
+      const onTransitionEnd = () => {
+        if (upsellContainer.classList.contains('hidden-fade')) {
+          upsellContainer.style.display = 'none';
+        }
+        upsellContainer.removeEventListener('transitionend', onTransitionEnd);
+      };
+      upsellContainer.addEventListener('transitionend', onTransitionEnd);
+    }
+  }
 }
 
 // Patch Cart.updateUI
@@ -799,7 +875,9 @@ document.addEventListener('cart:updated', () => {
     badge.textContent = count;
     if (count > 0) { badge.removeAttribute('data-hidden'); } else { badge.setAttribute('data-hidden',''); }
   }
-  renderCartDrawerNew();
+  
+  if (cartRenderTimer) clearTimeout(cartRenderTimer);
+  cartRenderTimer = setTimeout(() => renderCartDrawerNew(), 100);
 });
 
 // Cart drawer init consolidated at the top
