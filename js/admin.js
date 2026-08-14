@@ -929,12 +929,6 @@ async function confirmExcelImport() {
    DAILY DEALS MANAGEMENT
 ══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  const select = document.getElementById('daily-deal-product-select');
-  const tbody = document.getElementById('daily-deals-table-body');
-  const btnAdd = document.getElementById('btn-add-daily-deal');
-  const btnSave = document.getElementById('btn-save-daily-deals');
-  if (!select || !tbody) return;
-  
   let currentDeals = window.FarahDB && window.FarahDB.Storage ? FarahDB.Storage.get('daily_deals_queue', []) : [];
   
   const select = document.getElementById('daily-deal-product-select');
