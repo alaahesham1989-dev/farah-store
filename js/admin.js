@@ -496,18 +496,19 @@ function changeOrderStatus(orderId) {
   const order = orders.find(item => item.id === orderId);
   if (!order) return;
 
+  const currentStatus = order.status || order.orderStatus;
   const nextStatus = {
     new: 'processing',
     processing: 'shipped',
     shipped: 'delivered',
     delivered: 'delivered',
     cancelled: 'cancelled',
-  }[order.orderStatus] || 'processing';
+  }[currentStatus] || 'processing';
 
   // Update in Firestore
   if (window.db && window.db.collection) {
     window.db.collection('orders').doc(orderId).update({ 
-      orderStatus: nextStatus,
+      status: nextStatus,
       updatedAt: new Date().toISOString()
     }).catch(err => {
       console.error('Error updating order status in Firestore:', err);
@@ -525,12 +526,13 @@ function renderOrdersTable() {
   const statusFilter = document.getElementById('orders-status-filter')?.value || 'all';
   const filteredOrders = statusFilter === 'all'
     ? orders
-    : orders.filter(order => order.orderStatus === statusFilter);
+    : orders.filter(order => (order.status || order.orderStatus) === statusFilter);
 
   const tbody = document.getElementById('orders-table-body');
   tbody.innerHTML = filteredOrders.map(order => {
-    const badgeClass = getStatusBadgeClass(order.orderStatus);
-    const badgeText = formatOrderStatus(order.orderStatus);
+    const currentStatus = order.status || order.orderStatus;
+    const badgeClass = getStatusBadgeClass(currentStatus);
+    const badgeText = formatOrderStatus(currentStatus);
     const createdAt = new Date(order.createdAt || order.updatedAt || Date.now()).toLocaleDateString('ar-EG');
     return `
       <tr>
