@@ -5,6 +5,38 @@
 
 'use strict';
 
+/* ══════════════════════════════════════
+   CRO CART VARS & PROGRESS
+══════════════════════════════════════ */
+function getFreeShippingThreshold() {
+  let threshold = 600;
+  if(window.FarahDB && window.FarahDB.adminSettings && window.FarahDB.adminSettings.shipping_threshold) {
+    threshold = parseInt(window.FarahDB.adminSettings.shipping_threshold, 10);
+  }
+  return threshold || 600;
+}
+
+function updateShippingProgress() {
+  const threshold = getFreeShippingThreshold();
+  const barFill = document.getElementById('shipping-bar-fill');
+  const msgEl = document.getElementById('shipping-msg');
+  const progContainer = document.getElementById('cart-shipping-progress');
+  if(!progContainer) return;
+
+  const { subtotal } = Cart.getTotal();
+  progContainer.style.display = 'block';
+
+  if (subtotal >= threshold) {
+    if(barFill) { barFill.style.width = '100%'; barFill.style.background = 'var(--success)'; }
+    if(msgEl) msgEl.innerHTML = `🎉 مبروك! لقد حصلت على <strong>شحن مجاني</strong>`;
+  } else {
+    const diff = threshold - subtotal;
+    const pct = Math.min(100, (subtotal / threshold) * 100);
+    if(barFill) { barFill.style.width = pct + '%'; barFill.style.background = 'var(--admin-gold)'; }
+    if(msgEl) msgEl.innerHTML = `أضف منتجات بقيمة <strong>${window.FarahDB ? window.FarahDB.formatPrice(diff) : diff + ' ج.م'}</strong> للحصول على شحن مجاني 🚚`;
+  }
+}
+
 const Cart = (() => {
   const CART_KEY = 'cart';
 
