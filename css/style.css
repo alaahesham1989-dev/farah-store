@@ -813,8 +813,8 @@ select.form-control { appearance: none; cursor: pointer; background-image: url("
 
 .mobile-nav-overlay { position: fixed; inset: 0; background: rgba(26,26,46,0.6); z-index: 1099; opacity: 0; transition: opacity var(--t-base); backdrop-filter: blur(8px); pointer-events: none; }
 .mobile-nav-overlay.open { opacity: 1; pointer-events: all; }
-.mobile-nav { position: fixed; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: var(--white); z-index: 1100; transform: translateX(100%); transition: transform var(--t-slow); display: flex; flex-direction: column; }
-.mobile-nav.open { transform: translateX(0); }
+.mobile-nav { position: fixed; visibility: hidden; pointer-events: none; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: var(--white); z-index: 1100; transform: translateX(100%); transition: transform var(--t-slow); display: flex; flex-direction: column; }
+.mobile-nav.open { transform: translateX(0); visibility: visible; pointer-events: all; }
 .mobile-nav-header { padding: 1.5rem; border-bottom: 1px solid var(--cream-2); display: flex; justify-content: space-between; align-items: center; }
 .mobile-nav-links { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
 .mobile-nav-links a { padding: 12px 20px; font-size: 1.1rem; font-weight: 800; border-radius: var(--r-md); }

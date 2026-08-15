@@ -538,11 +538,24 @@ function initProductActions(product) {
 
   // Header nav
   const hamburger = document.getElementById('hamburger');
-  const navLinks  = document.getElementById('nav-links');
-  hamburger?.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navLinks?.classList.toggle('open');
-  });
+  const mobileNav = document.getElementById('mobile-nav');
+  const navOverlay = document.getElementById('mobile-nav-overlay');
+  const closeBtn  = document.getElementById('mobile-nav-close');
+
+  const openNav  = () => { mobileNav?.classList.add('open'); navOverlay?.classList.add('open'); hamburger?.classList.add('open'); document.body.style.overflow = 'hidden'; };
+  const closeNav = () => { mobileNav?.classList.remove('open'); navOverlay?.classList.remove('open'); hamburger?.classList.remove('open'); document.body.style.overflow = ''; };
+
+  hamburger?.addEventListener('click', () => mobileNav?.classList.contains('open') ? closeNav() : openNav());
+  closeBtn?.addEventListener('click', closeNav);
+  navOverlay?.addEventListener('click', closeNav);
+  
+  const bottomCartToggle = document.getElementById('cart-toggle-bottom');
+  if(bottomCartToggle && window.openCartDrawer) {
+     bottomCartToggle.addEventListener('click', (e) => {
+         e.preventDefault();
+         window.openCartDrawer();
+     });
+  }
 }
 
 // ─── Scroll ───────────────────────────────────────
