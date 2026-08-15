@@ -280,13 +280,13 @@ h1, h2, h3, h4, h5, h6 {
    CINEMATIC HERO
    ═══════════════════════════════════════════════ */
 .cinematic-hero {
-  position: relative; width: 100%; height: auto; min-height: 70vh; padding: 150px 0 80px;
+  position: relative; width: 100%; height: auto; min-height: 70vh; min-height: 70dvh; padding: 150px 0 80px;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
   margin-top: 0;
 }
 @media (max-width: 768px) {
   .cinematic-hero {
-    min-height: 60vh;
+    min-height: 60vh; min-height: 60dvh;
     padding: 120px 0 60px;
   }
 }
@@ -932,7 +932,7 @@ select.form-control { appearance: none; cursor: pointer; background-image: url("
   .prod-card-body { padding: 0.75rem; }
   .prod-price-now { font-size: 0.95rem; }
   /* Hero mobile fixes */
-  .cinematic-hero { min-height: 55vh; padding: 100px 0 50px; }
+  .cinematic-hero { min-height: 55vh; min-height: 55dvh; padding: 100px 0 50px; }
   .hero-quick-links { gap: 6px; margin-top: 0.75rem; justify-content: center; }
   .hero-quick-links .quick-link { padding: 5px 10px; font-size: 0.8rem; gap: 4px; }
   .hero-brand-name { font-size: clamp(1.8rem, 8vw, 2.6rem); }
