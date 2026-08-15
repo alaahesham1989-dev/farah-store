@@ -963,36 +963,51 @@ const sellersSchema = {
  * دلوقتي: ثابت — ممكن يتطور لاحقاً بالمحافظة
  */
 function calculateShipping(subtotal, governorate = '') {
-  // Default fallback settings
+  // Default fallback settings (تُحدَّث من Firestore عبر onSnapshot في main.js)
   let settings = {
     freeShippingThreshold: 600,
-    rates: {
-      zone1: 85,
-      zone2: 95,
-      zone3: 110
-    }
+    rates: { zone1: 85, zone2: 95, zone3: 110 }
   };
-  
+
   // Read dynamic settings from Storage (Firestore cache)
   if (window.FarahDB && FarahDB.Storage) {
     const saved = FarahDB.Storage.get('shipping_settings');
     if (saved) settings = saved;
   }
-  
-  // If subtotal is over threshold, shipping is free!
+
+  // Free shipping threshold
   if (subtotal >= settings.freeShippingThreshold) return 0;
-  
-  const gov = governorate.trim().toLowerCase();
-  
-  const zone1 = ['القاهرة', 'الجيزة', 'الإسكندرية', 'القليوبية', 'الدقهلية', 'الغربية', 'البحيرة', 'المنوفية', 'الشرقية', 'كفر الشيخ', 'دمياط', 'بورسعيد', 'السويس', 'الإسماعيلية', 'cairo', 'giza', 'alexandria'];
-  const zone2 = ['الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'البحر الأحمر'];
-  const zone3 = ['مطروح', 'الوادي الجديد', 'جنوب سيناء'];
-  
+
+  const gov = (governorate || '').trim().toLowerCase();
+
+  // English keys (from HTML select value attribute) + Arabic fallback
+  const zone1 = [
+    'cairo', 'giza', 'alexandria', 'qalubia', 'dakahlia', 'gharbia',
+    'beheira', 'monufia', 'sharqia', 'kafr-el-sheikh', 'damietta',
+    'port-said', 'suez', 'ismailia',
+    // Arabic fallback
+    'القاهرة', 'الجيزة', 'الإسكندرية', 'القليوبية', 'الدقهلية',
+    'الغربية', 'البحيرة', 'المنوفية', 'الشرقية', 'كفر الشيخ',
+    'دمياط', 'بورسعيد', 'السويس', 'الإسماعيلية'
+  ];
+  const zone2 = [
+    'fayoum', 'beni-suef', 'minya', 'assiut', 'sohag', 'qena',
+    'luxor', 'aswan', 'red-sea',
+    // Arabic fallback
+    'الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج',
+    'قنا', 'الأقصر', 'أسوان', 'البحر الأحمر'
+  ];
+  const zone3 = [
+    'matrouh', 'new-valley', 'south-sinai', 'north-sinai',
+    // Arabic fallback
+    'مطروح', 'الوادي الجديد', 'جنوب سيناء', 'شمال سيناء'
+  ];
+
   if (zone1.includes(gov)) return settings.rates.zone1;
   if (zone2.includes(gov)) return settings.rates.zone2;
   if (zone3.includes(gov)) return settings.rates.zone3;
-  
-  // Default to zone 1 if unknown
+
+  // Default to zone1 if unknown
   return settings.rates.zone1;
 }
 

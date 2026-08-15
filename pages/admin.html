@@ -504,26 +504,59 @@
         <div id="tab-analytics" class="tab-content"><div class="page-header"><h2>الإحصائيات</h2></div></div>
         
         <div id="tab-settings" class="tab-content">
-          <div class="page-header"><h2>إعدادات المتجر</h2></div>
+          <div class="page-header"><h2>⚙️ إعدادات المتجر</h2></div>
+
+          <!-- ── Shipping Settings Card ── -->
+          <div class="glass-panel" style="margin-bottom: 24px;">
+            <h3 style="margin-bottom: 6px; color: var(--admin-gold);">🚚 إعدادات الشحن</h3>
+            <p style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin-bottom:20px;">
+              القيم تُحفظ مباشرة في Firestore وتُطبَّق فوراً على كل الطلبات الجديدة.
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+              <div class="form-group">
+                <input type="number" id="ship-zone1" class="form-control" placeholder=" " min="0" step="5">
+                <label class="floating-label">المنطقة 1 — سعر الشحن (ج.م)</label>
+                <small style="color:rgba(255,255,255,0.4); font-size:0.75rem;">
+                  القاهرة، الجيزة، الإسكندرية، القليوبية، الدقهلية، الغربية، البحيرة، المنوفية، الشرقية، كفر الشيخ، دمياط، بورسعيد، السويس، الإسماعيلية
+                </small>
+              </div>
+              <div class="form-group">
+                <input type="number" id="ship-zone2" class="form-control" placeholder=" " min="0" step="5">
+                <label class="floating-label">المنطقة 2 — سعر الشحن (ج.م)</label>
+                <small style="color:rgba(255,255,255,0.4); font-size:0.75rem;">
+                  الفيوم، بني سويف، المنيا، أسيوط، سوهاج، قنا، الأقصر، أسوان، البحر الأحمر
+                </small>
+              </div>
+              <div class="form-group">
+                <input type="number" id="ship-zone3" class="form-control" placeholder=" " min="0" step="5">
+                <label class="floating-label">المنطقة 3 — سعر الشحن (ج.م)</label>
+                <small style="color:rgba(255,255,255,0.4); font-size:0.75rem;">
+                  مطروح، الوادي الجديد، جنوب سيناء، شمال سيناء
+                </small>
+              </div>
+              <div class="form-group">
+                <input type="number" id="ship-free-threshold" class="form-control" placeholder=" " min="0" step="50">
+                <label class="floating-label">حد الشحن المجاني (ج.م)</label>
+                <small style="color:rgba(255,255,255,0.4); font-size:0.75rem;">
+                  أي طلب يتجاوز هذا المبلغ يحصل على شحن مجاني
+                </small>
+              </div>
+            </div>
+            <div id="ship-settings-msg" style="display:none; margin-top:14px; padding:10px 14px; border-radius:8px; font-size:0.88rem;"></div>
+            <div style="margin-top: 20px; display:flex; gap:12px; align-items:center;">
+              <button id="btn-save-shipping" class="btn btn-gold" style="padding: 12px 28px; font-weight:700;">
+                💾 حفظ إعدادات الشحن
+              </button>
+              <span id="ship-last-saved" style="font-size:0.8rem; color:rgba(255,255,255,0.4);"></span>
+            </div>
+          </div>
+
+          <!-- ── Store Info Card ── -->
           <div class="glass-panel">
-            <h3 style="margin-bottom: 20px; color: var(--admin-gold);">معلومات المتجر</h3>
+            <h3 style="margin-bottom: 20px; color: var(--admin-gold);">🏪 معلومات المتجر</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-              <div class="form-group"><input type="text" class="form-control" value="فرح لستور" placeholder=" "><label class="floating-label">اسم المتجر</label></div>
-              <div class="form-group"><input type="text" class="form-control" value="01000000000" placeholder=" "><label class="floating-label">الهاتف</label></div>
-            </div>
-            <h3 style="margin-bottom: 20px; margin-top: 30px; color: var(--admin-gold);">إعدادات الدفع</h3>
-            <div style="display: flex; gap: 40px;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
-                <span>تفعيل الدفع عند الاستلام</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
-                <span>تفعيل Paymob</span>
-              </div>
-            </div>
-            <div style="margin-top: 30px;">
-              <button class="btn btn-gold">حفظ الإعدادات</button>
+              <div class="form-group"><input type="text" class="form-control" value="فرح مصر ستور" placeholder=" "><label class="floating-label">اسم المتجر</label></div>
+              <div class="form-group"><input type="text" class="form-control" value="201000000000" placeholder=" "><label class="floating-label">رقم واتساب المتجر</label></div>
             </div>
           </div>
         </div>

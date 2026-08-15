@@ -567,6 +567,9 @@ function initDashboard() {
       item.classList.add('active');
       const targetId = item.getAttribute('data-tab');
       document.getElementById(targetId).classList.add('active');
+
+      // Load shipping settings when the settings tab is opened
+      if (targetId === 'tab-settings') initShippingSettings();
     });
   });
 
@@ -1083,62 +1086,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 500);
 
-  // ════════════════════════════════════════════════
-  //  SHIPPING SETTINGS MANAGEMENT
-  // ════════════════════════════════════════════════
-  const shippingForm = {
-    threshold: document.getElementById('shipping-free-threshold'),
-    zone1: document.getElementById('shipping-zone1'),
-    zone2: document.getElementById('shipping-zone2'),
-    zone3: document.getElementById('shipping-zone3'),
-    btnSave: document.getElementById('btn-save-shipping-settings')
-  };
-
-  if (shippingForm.btnSave) {
-    // Load existing settings
-    function loadShippingSettings() {
-      if (window.FarahDB && FarahDB.Storage) {
-        const saved = FarahDB.Storage.get('shipping_settings');
-        if (saved) {
-          if (shippingForm.threshold) shippingForm.threshold.value = saved.freeShippingThreshold || 600;
-          if (shippingForm.zone1 && saved.rates) shippingForm.zone1.value = saved.rates.zone1 || 85;
-          if (shippingForm.zone2 && saved.rates) shippingForm.zone2.value = saved.rates.zone2 || 95;
-          if (shippingForm.zone3 && saved.rates) shippingForm.zone3.value = saved.rates.zone3 || 110;
-        } else {
-          // Defaults
-          if (shippingForm.threshold) shippingForm.threshold.value = 600;
-          if (shippingForm.zone1) shippingForm.zone1.value = 85;
-          if (shippingForm.zone2) shippingForm.zone2.value = 95;
-          if (shippingForm.zone3) shippingForm.zone3.value = 110;
-        }
-      }
-    }
-
-    // Save settings
-    shippingForm.btnSave.addEventListener('click', () => {
-      const settings = {
-        freeShippingThreshold: parseFloat(shippingForm.threshold.value) || 600,
-        rates: {
-          zone1: parseFloat(shippingForm.zone1.value) || 85,
-          zone2: parseFloat(shippingForm.zone2.value) || 95,
-          zone3: parseFloat(shippingForm.zone3.value) || 110
-        },
-        updatedAt: Date.now()
-      };
-      
-      if (window.FarahDB && FarahDB.Storage) {
-        FarahDB.Storage.set('shipping_settings', settings);
-        alert('تم حفظ إعدادات الشحن بنجاح!');
-      }
-    });
-
-    // Try to load after DB initializes
-    const shippingInit = setInterval(() => {
-      if (window.FarahDB && FarahDB.Storage) {
-        clearInterval(shippingInit);
-        loadShippingSettings();
-      }
-    }, 500);
-  }
+  // (shipping settings are now managed via initShippingSettings() called when tab opens)
 
 });
+
+/* ══════════════════════════════════════
+   ADMIN — SHIPPING SETTINGS (Firestore)
+══════════════════════════════════════ */
+function initShippingSettings() {
+  const zone1El     = document.getElementById('ship-zone1');
+  const zone2El     = document.getElementById('ship-zone2');
+  const zone3El     = document.getElementById('ship-zone3');
+  const thresholdEl = document.getElementById('ship-free-threshold');
+  const btnSave     = document.getElementById('btn-save-shipping');
+  const msgEl       = document.getElementById('ship-settings-msg');
+  const lastSavedEl = document.getElementById('ship-last-saved');
+
+  if (!btnSave) return;
+
+  function showMsg(text, ok = true) {
+    if (!msgEl) return;
+    msgEl.style.display = 'block';
+    msgEl.style.background = ok ? 'rgba(46,204,113,0.12)' : 'rgba(231,76,60,0.12)';
+    msgEl.style.border     = `1px solid ${ok ? 'rgba(46,204,113,0.3)' : 'rgba(231,76,60,0.3)'}`;
+    msgEl.style.color      = ok ? '#2ecc71' : '#e74c3c';
+    msgEl.textContent      = text;
+    setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+  }
+
+  // ── Load current values from Firestore (live) ──
+  function populateForm(data) {
+    if (!data) return;
+    if (thresholdEl) thresholdEl.value = data.freeShippingThreshold ?? 600;
+    if (data.rates) {
+      if (zone1El) zone1El.value = data.rates.zone1 ?? 85;
+      if (zone2El) zone2El.value = data.rates.zone2 ?? 95;
+      if (zone3El) zone3El.value = data.rates.zone3 ?? 110;
+    }
+    if (lastSavedEl && data.updatedAt) {
+      const d = new Date(data.updatedAt);
+      lastSavedEl.textContent = `آخر حفظ: ${d.toLocaleDateString('ar-EG')} ${d.toLocaleTimeString('ar-EG')}`;
+    }
+  }
+
+  // Try Firestore first, then Storage fallback
+  if (window.db) {
+    window.db.collection('settings').doc('shipping').get()
+      .then(snap => {
+        if (snap.exists) {
+          populateForm(snap.data());
+        } else {
+          // fallback to storage
+          const saved = window.FarahDB?.Storage?.get('shipping_settings');
+          if (saved) populateForm(saved);
+          else populateForm({ freeShippingThreshold: 600, rates: { zone1: 85, zone2: 95, zone3: 110 } });
+        }
+      })
+      .catch(() => {
+        const saved = window.FarahDB?.Storage?.get('shipping_settings');
+        if (saved) populateForm(saved);
+      });
+  } else {
+    const saved = window.FarahDB?.Storage?.get('shipping_settings');
+    populateForm(saved || { freeShippingThreshold: 600, rates: { zone1: 85, zone2: 95, zone3: 110 } });
+  }
+
+  // ── Save to Firestore on button click ──
+  btnSave.onclick = async () => {
+    const settings = {
+      freeShippingThreshold: parseFloat(thresholdEl?.value) || 600,
+      rates: {
+        zone1: parseFloat(zone1El?.value) || 85,
+        zone2: parseFloat(zone2El?.value) || 95,
+        zone3: parseFloat(zone3El?.value) || 110,
+      },
+      updatedAt: Date.now()
+    };
+
+    // Cache in Storage immediately
+    if (window.FarahDB?.Storage) {
+      window.FarahDB.Storage.set('shipping_settings', settings);
+    }
+
+    if (window.db) {
+      try {
+        await window.db.collection('settings').doc('shipping').set(settings);
+        showMsg('✅ تم حفظ إعدادات الشحن في Firestore بنجاح!');
+        if (lastSavedEl) lastSavedEl.textContent = `آخر حفظ: ${new Date().toLocaleString('ar-EG')}`;
+      } catch (err) {
+        console.error('Shipping settings save error:', err);
+        showMsg('⚠️ تم الحفظ محلياً فقط — تحقق من اتصال Firestore', false);
+      }
+    } else {
+      showMsg('⚠️ تم الحفظ محلياً فقط (Firestore غير متاح)', false);
+    }
+  };
+}
+

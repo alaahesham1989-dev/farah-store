@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeroVideo();
   initThemeSwitcher();
   initDSHero();
+  syncShippingSettings(); // ← Firestore shipping settings sync
 
   const renderAllSections = () => {
     initCounterAnimation();
@@ -47,6 +48,47 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAllProducts();
   });
 });
+
+/* ══════════════════════════════════════
+   SHIPPING SETTINGS — Firestore Sync
+══════════════════════════════════════ */
+/**
+ * يستمع لـ settings/shipping في Firestore ويخزن النتيجة في Storage
+ * لتستخدمها calculateShipping() بشكل تلقائي في كل حساب.
+ * لو المستند غير موجود، يكتب القيم الافتراضية فيه.
+ */
+function syncShippingSettings() {
+  if (!window.db) return; // Firestore غير متاح
+
+  const DEFAULT_SETTINGS = {
+    freeShippingThreshold: 600,
+    rates: { zone1: 85, zone2: 95, zone3: 110 }
+  };
+
+  const ref = window.db.collection('settings').doc('shipping');
+
+  ref.get().then(snap => {
+    if (!snap.exists) {
+      // أول مرة: اكتب القيم الافتراضية
+      ref.set(DEFAULT_SETTINGS)
+        .then(() => console.log('[Farah] Seeded default shipping settings in Firestore'))
+        .catch(err => console.warn('[Farah] Could not seed shipping settings:', err));
+    }
+  });
+
+  // استمع للتغييرات اللحظية
+  ref.onSnapshot(snap => {
+    if (snap.exists) {
+      const data = snap.data();
+      if (window.FarahDB && FarahDB.Storage) {
+        FarahDB.Storage.set('shipping_settings', data);
+      }
+    }
+  }, err => {
+    console.warn('[Farah] Shipping settings onSnapshot error:', err);
+  });
+}
+
 
 /* ══════════════════════════════════════
    NAVBAR

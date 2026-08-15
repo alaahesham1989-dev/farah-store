@@ -171,7 +171,7 @@ const Cart = (() => {
       id:              FarahDB.generateOrderId(),
       customerName:    customerData.name,
       customerPhone:   customerData.phone,
-      customerAddress: customerData.address,
+      address:         customerData.address,
       items:           items.map(i => ({
         productId:       i.productId,
         sku:             i.sku,
@@ -183,13 +183,14 @@ const Cart = (() => {
       })),
       subtotal,
       shipping,
-      discount: 0,
+      discount:        0,
       total,
       paymentMethod:   customerData.paymentMethod || 'cash_on_delivery',
       paymentStatus:   'pending',
-      orderStatus:     'new',
+      status:          'new',
       notes:           customerData.notes || '',
       createdAt:       new Date().toISOString(),
+      updatedAt:       new Date().toISOString(),
     };
   }
 
