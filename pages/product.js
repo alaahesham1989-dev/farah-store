@@ -448,7 +448,11 @@ function initProductActions(product) {
 
   newBtnBuy?.addEventListener('click', () => {
     Cart.add(product, qty, getSelectedVariant());
-    window.location.href = 'checkout.html';
+    if (window.openCartDrawer) {
+      window.openCartDrawer();
+    } else {
+      window.location.href = 'checkout.html'; // Fallback
+    }
   });
 
   // Messenger Inquiry

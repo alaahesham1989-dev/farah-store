@@ -232,7 +232,13 @@ function initCartDrawer() {
   function open()  { drawer?.classList.add('open'); overlay?.classList.add('active'); document.body.style.overflow = 'hidden'; }
   function close() { drawer?.classList.remove('open'); overlay?.classList.remove('active'); document.body.style.overflow = ''; }
 
-  toggles.forEach(btn => btn?.addEventListener('click', () => drawer?.classList.contains('open') ? close() : open()));
+  window.openCartDrawer = open;
+  window.closeCartDrawer = close;
+
+  toggles.forEach(btn => btn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    drawer?.classList.contains('open') ? close() : open();
+  }));
   overlay?.addEventListener('click', close);
 
   document.getElementById('cart-empty-shop')?.addEventListener('click', close);

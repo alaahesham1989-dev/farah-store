@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearch();
   initBento();
   initFlashTimer();
-  initCartDrawer();
+
   Cart.updateUI();
   renderCartDrawerNew(); // Fix: Render cart items on page load
   initMobileBottomNav();
@@ -752,26 +752,8 @@ function closeQV() {
 }
 
 /* ══════════════════════════════════════
-   CART DRAWER
+   (Cart Drawer logic is now in cart.js)
 ══════════════════════════════════════ */
-function initCartDrawer() {
-  const overlay = document.getElementById('cart-overlay');
-  const drawer  = document.getElementById('cart-drawer');
-  const closeBtn = document.getElementById('cart-close');
-  const toggle   = document.getElementById('cart-toggle');
-  const emptyShop = document.getElementById('cart-empty-shop');
-
-  const open  = () => { drawer?.classList.add('open'); overlay?.classList.add('open'); document.body.style.overflow='hidden'; };
-  const close = () => { drawer?.classList.remove('open'); overlay?.classList.remove('open'); document.body.style.overflow=''; };
-
-  toggle?.addEventListener('click', () => drawer?.classList.contains('open') ? close() : open());
-  overlay?.addEventListener('click', close);
-  closeBtn?.addEventListener('click', close);
-  emptyShop?.addEventListener('click', close);
-  document.getElementById('clear-cart')?.addEventListener('click', () => { Cart.clear(); showToast('🗑️ تم إفراغ السلة', 'info', 2000); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer?.classList.contains('open')) close(); });
-}
-
 // ─── CRO CART VARS ─────────────────────────────
 function getFreeShippingThreshold() {
   let threshold = 600;
