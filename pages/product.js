@@ -195,6 +195,64 @@ function renderProduct(product) {
     if (discountBadge) discountBadge.style.display = 'none';
   }
 
+
+  // ─── Landing Page Sections ────────────────────────
+  const heroHookBlock = document.getElementById('hero-hook-block');
+  const infoHeroScript = document.getElementById('info-hero-script');
+  if (product.landingPageScript && heroHookBlock && infoHeroScript) {
+    infoHeroScript.innerHTML = product.landingPageScript.replace(/\n/g, '<br>');
+    heroHookBlock.style.display = 'block';
+  }
+
+  const lpBenefitsSection = document.getElementById('lp-benefits-section');
+  const infoUses = document.getElementById('info-uses');
+  const infoProblems = document.getElementById('info-problems');
+  const lpUsesCard = document.getElementById('lp-uses-card');
+  const lpProblemsCard = document.getElementById('lp-problems-card');
+  
+  let hasBenefits = false;
+  if (product.uses && infoUses) {
+    infoUses.innerHTML = product.uses.replace(/\n/g, '<br>');
+    if(lpUsesCard) lpUsesCard.style.display = 'block';
+    hasBenefits = true;
+  }
+  if (product.problemsSolved && infoProblems) {
+    infoProblems.innerHTML = product.problemsSolved.replace(/\n/g, '<br>');
+    if(lpProblemsCard) lpProblemsCard.style.display = 'block';
+    hasBenefits = true;
+  }
+  if (hasBenefits && lpBenefitsSection) {
+    lpBenefitsSection.style.display = 'block';
+  }
+
+  const lpHowItWorksSection = document.getElementById('lp-how-it-works-section');
+  const infoHowWorks = document.getElementById('info-how-works');
+  if (product.howItWorks && infoHowWorks && lpHowItWorksSection) {
+    infoHowWorks.innerHTML = product.howItWorks.replace(/\n/g, '<br>');
+    lpHowItWorksSection.style.display = 'block';
+  }
+
+  const lpHowToUseSection = document.getElementById('lp-how-to-use-section');
+  const infoSteps = document.getElementById('info-steps');
+  if (product.howToUse && infoSteps && lpHowToUseSection) {
+    const stepsText = product.howToUse;
+    // split by numbers like "1. ", "2. ", etc.
+    const stepsArray = stepsText.split(/(?=\d+\.\s)/).filter(s => s.trim().length > 0);
+    if (stepsArray.length > 1) {
+       infoSteps.innerHTML = stepsArray.map(step => {
+         let stepMatch = step.match(/^(\d+)\.\s*(.*)/);
+         if(stepMatch) {
+            return `<div class="lp-step-item"><div class="lp-step-number">${stepMatch[1]}</div><div class="lp-step-text">${stepMatch[2]}</div></div>`;
+         } else {
+            return `<div class="lp-step-item"><div class="lp-step-number">✨</div><div class="lp-step-text">${step}</div></div>`;
+         }
+       }).join('');
+    } else {
+       infoSteps.innerHTML = `<div class="lp-step-item"><div class="lp-step-number">📌</div><div class="lp-step-text">${product.howToUse}</div></div>`;
+    }
+    lpHowToUseSection.style.display = 'block';
+  }
+
   // Variants
   const variantsSection = document.getElementById('variants-section');
   if (product.variants && Object.keys(product.variants).length > 0) {

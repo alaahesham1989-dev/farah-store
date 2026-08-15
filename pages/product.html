@@ -122,24 +122,16 @@
             </div>
             <span class="price-original" id="info-original-price"></span>
           </div>
+          <!-- Hero Hook (Landing Page Script) -->
+          <div id="hero-hook-block" class="hero-hook-block" style="display:none;">
+            <div class="hero-hook-content" id="info-hero-script"></div>
+          </div>
+
 
           <!-- English / Category Info -->
           <div class="product-en-box">
             <div class="product-category" id="info-category"></div>
             <div class="product-name-en" id="info-name-en"></div>
-          </div>
-
-          <!-- Description Box -->
-          <div class="product-desc-box">
-            <div class="desc-header">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              <h3>الوصف الشامل للمنتج</h3>
-            </div>
-            <div class="product-description" id="info-desc">
-              <!-- gradient overlay for long text -->
-              <div id="desc-overlay" class="desc-overlay"></div>
-            </div>
-            <button id="btn-show-more" class="btn-show-more">عرض المزيد</button>
           </div>
 
           <!-- Variants -->
@@ -165,7 +157,77 @@
             </button>
           </div>
 
-          <!-- Notify Me Form (Hidden by default) -->
+          
+          <!-- ================= LANDING PAGE SECTIONS ================= -->
+          <div class="landing-sections-wrapper">
+          
+            <!-- Why you need it / Problems & Uses (Grid Cards) -->
+            <div id="lp-benefits-section" class="lp-section" style="display:none;">
+              <h3 class="lp-title">لماذا تحتاج هذا المنتج؟ ✨</h3>
+              <div class="lp-grid">
+                <div class="lp-card lp-problems" id="lp-problems-card" style="display:none;">
+                  <div class="lp-card-icon">❌</div>
+                  <h4 class="lp-card-title">وداعاً للمشاكل</h4>
+                  <p id="info-problems"></p>
+                </div>
+                <div class="lp-card lp-uses" id="lp-uses-card" style="display:none;">
+                  <div class="lp-card-icon">✅</div>
+                  <h4 class="lp-card-title">استخدامات مذهلة</h4>
+                  <p id="info-uses"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- How it works -->
+            <div id="lp-how-it-works-section" class="lp-section" style="display:none;">
+              <h3 class="lp-title">كيف يعمل؟ ⚙️</h3>
+              <div class="lp-how-box">
+                <p id="info-how-works"></p>
+              </div>
+            </div>
+
+            <!-- How to use (Steps) -->
+            <div id="lp-how-to-use-section" class="lp-section" style="display:none;">
+              <h3 class="lp-title">طريقة الاستخدام 📋</h3>
+              <div class="lp-steps" id="info-steps">
+                <!-- Steps injected via JS -->
+              </div>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="lp-trust-badges">
+              <div class="badge-item">
+                <span class="badge-icon">🚚</span>
+                <span>توصيل سريع</span>
+              </div>
+              <div class="badge-item">
+                <span class="badge-icon">💵</span>
+                <span>دفع عند الاستلام</span>
+              </div>
+              <div class="badge-item">
+                <span class="badge-icon">🛡️</span>
+                <span>ضمان الجودة</span>
+              </div>
+            </div>
+
+          </div>
+          <!-- ========================================================= -->
+
+<!-- Description Box -->
+          <div class="product-desc-box">
+            <div class="desc-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <h3>الوصف الشامل للمنتج</h3>
+            </div>
+            <div class="product-description" id="info-desc">
+              <!-- gradient overlay for long text -->
+              <div id="desc-overlay" class="desc-overlay"></div>
+            </div>
+            <button id="btn-show-more" class="btn-show-more">عرض المزيد</button>
+          </div>
+
+          
+<!-- Notify Me Form (Hidden by default) -->
           <div id="notify-me-block" style="display:none; background: rgba(11, 110, 79, 0.05); border: 1px dashed var(--primary-color); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
             <h4 style="color: var(--primary-color); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
