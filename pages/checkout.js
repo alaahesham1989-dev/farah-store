@@ -192,7 +192,7 @@ function initPlaceOrder() {
       showToast('⚠️ حدث خطأ أثناء إرسال الطلب، لكن تم حفظه في جهازك.', 'error');
     }
 
-    showSuccessModal(order);
+    showSuccessModal(order, btn);
 
     Cart.clear();
   });
@@ -243,80 +243,104 @@ function getGovArabicName(gov) {
 }
 
 // ─── Success Modal ────────────────────────────────
-function showSuccessModal(order) {
-  const modal   = document.getElementById('success-modal');
-  const idDisplay = document.getElementById('order-id-display');
+function showSuccessModal(order, btn) {
+  const modal          = document.getElementById('success-modal');
+  const idDisplay      = document.getElementById('order-id-display');
   const detailsDisplay = document.getElementById('order-details-display');
-  const btnWhatsApp = document.getElementById('btn-success-whatsapp');
+  const btnWhatsApp    = document.getElementById('btn-success-whatsapp');
   if (!modal) return;
+
+  // ── Normalize: support both old schema (customer.x) and new (customerName/customerAddress) ──
+  const customerName    = order.customerName    || order.customer?.name    || '—';
+  const customerPhone   = order.customerPhone   || order.customer?.phone   || '—';
+  const customerNotes   = order.notes           || order.customer?.notes   || '';
+  const addr = order.customerAddress || order.customer?.address || {};
+  const addrGov    = addr.governorate || '';
+  const addrCity   = addr.city        || '';
+  const addrStreet = addr.street      || '';
 
   if (idDisplay) idDisplay.textContent = `رقم الطلب: ${order.id}`;
 
   if (detailsDisplay) {
     let itemsHTML = '';
-    order.items.forEach(item => {
-      const variantText = item.variant && Object.values(item.variant).length 
-        ? ` (${Object.values(item.variant).join(' / ')})` : '';
-      itemsHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; gap: 10px;">
-        <span style="color: var(--text-mid); text-align:right;">🔹 ${item.name}${variantText} (عدد ${item.qty})</span>
-        <span style="font-weight:700; text-align:left;">${FarahDB.formatPrice(item.price * item.qty)}</span>
+    (order.items || []).forEach(item => {
+      // support both variantSelected (new) and variant (old)
+      const variantObj  = item.variantSelected || item.variant || {};
+      const variantVals = Object.values(variantObj).filter(Boolean);
+      const variantText = variantVals.length ? ` (${variantVals.join(' / ')})` : '';
+      itemsHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; gap:10px; padding-bottom:6px; border-bottom:1px solid #f0f0f0;">
+        <span style="color:var(--text-mid); text-align:right; flex:1;">🔹 ${item.name}${variantText} &times;${item.qty}</span>
+        <span style="font-weight:700; white-space:nowrap;">${FarahDB.formatPrice((item.lineTotal || item.price * item.qty) || 0)}</span>
       </div>`;
     });
 
+    const payLabel = getPaymentMethodArabicName(order.paymentMethod || 'cash_on_delivery');
+    const govLabel = getGovArabicName(addrGov);
+
     detailsDisplay.innerHTML = `
-      <div style="font-weight:800; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px; color: var(--navy);">تفاصيل الفاتورة:</div>
+      <div style="font-weight:800; margin-bottom:12px; border-bottom:2px solid var(--primary); padding-bottom:8px; color:var(--navy);">🧾 تفاصيل الفاتورة</div>
       ${itemsHTML}
-      <div style="border-top:1px solid #eee; margin-top:10px; padding-top:8px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-          <span style="color: var(--text-mid);">المجموع الفرعي:</span>
-          <span>${FarahDB.formatPrice(order.subtotal)}</span>
+      <div style="border-top:2px solid #eee; margin-top:10px; padding-top:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span style="color:var(--text-mid);">المجموع الفرعي:</span>
+          <span>${FarahDB.formatPrice(order.subtotal || 0)}</span>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-          <span style="color: var(--text-mid);">تكلفة الشحن:</span>
-          <span>${order.shipping === 0 ? '🎉 مجاني' : FarahDB.formatPrice(order.shipping)}</span>
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span style="color:var(--text-mid);">تكلفة الشحن:</span>
+          <span>${(order.shipping === 0 || order.shipping === '0') ? '🎉 مجاني' : FarahDB.formatPrice(order.shipping || 0)}</span>
         </div>
-        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.05rem; margin-top:6px; color:var(--primary-color);">
-          <span>الإجمالي الكلي:</span>
-          <span>${FarahDB.formatPrice(order.total)}</span>
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:1.1rem; margin-top:8px; color:var(--primary); padding-top:8px; border-top:1px solid #eee;">
+          <span>💰 الإجمالي الكلي:</span>
+          <span>${FarahDB.formatPrice(order.total || 0)}</span>
         </div>
       </div>
-      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-soft); border-top: 1px dashed #eee; padding-top: 8px;">
-        💳 طريقة الدفع: <span style="font-weight:700; color:var(--navy);">${getPaymentMethodArabicName(order.paymentMethod)}</span>
-      </div>
-      <div style="margin-top:4px; font-size:0.85rem; color:var(--text-soft);">
-        📍 العنوان: ${order.customer.address.city}، ${order.customer.address.street} (${getGovArabicName(order.customer.address.governorate)})
+      <div style="margin-top:12px; font-size:0.85rem; background:#f8f8f8; border-radius:8px; padding:10px;">
+        <div style="margin-bottom:4px;">💳 طريقة الدفع: <strong style="color:var(--navy);">${payLabel}</strong></div>
+        <div style="margin-bottom:2px;">👤 الاسم: ${customerName}</div>
+        <div style="margin-bottom:2px;">📱 الهاتف: ${customerPhone}</div>
+        <div>📍 ${addrCity}، ${addrStreet} (${govLabel})</div>
+        ${customerNotes ? `<div style="margin-top:4px;">📝 ملاحظات: ${customerNotes}</div>` : ''}
       </div>
     `;
   }
 
-  // Set up WhatsApp Confirmation Link
+  // ── WhatsApp link ──
   if (btnWhatsApp) {
     let productsText = '';
-    order.items.forEach((item, idx) => {
-      const variantText = item.variant && Object.values(item.variant).length 
-        ? ` (${Object.values(item.variant).join(' / ')})` : '';
+    (order.items || []).forEach((item, idx) => {
+      const variantObj  = item.variantSelected || item.variant || {};
+      const variantVals = Object.values(variantObj).filter(Boolean);
+      const variantText = variantVals.length ? ` (${variantVals.join(' / ')})` : '';
       productsText += `${idx + 1}- ${item.name}${variantText} [عدد: ${item.qty}] (${item.price} ج.م)\n`;
     });
 
-    const govText = getGovArabicName(order.customer.address.governorate);
-    const payMethodText = getPaymentMethodArabicName(order.paymentMethod);
+    const govText      = getGovArabicName(addrGov);
+    const payMethodText = getPaymentMethodArabicName(order.paymentMethod || 'cash_on_delivery');
 
-    const message = `السلام عليكم يا فرح استور،\nأود تأكيد طلبي بمتجركم 🛍️\n\n📌 تفاصيل الطلب رقم: ${order.id}\n----------------------------------\n${productsText}----------------------------------\n🔹 المجموع الفرعي: ${order.subtotal} ج.م\n🚚 الشحن: ${order.shipping === 0 ? 'مجاني' : order.shipping + ' ج.م'}\n💳 طريقة الدفع: ${payMethodText}\n💰 الإجمالي الكلي: ${order.total} ج.م\n\n📌 عنوان التوصيل:\n👤 الاسم: ${order.customer.name}\n📱 الهاتف: ${order.customer.phone}\n📍 المحافظة: ${govText}\n🏙️ المدينة/المركز: ${order.customer.address.city}\n🏠 العنوان بالتفصيل: ${order.customer.address.street}\n${order.customer.notes ? '📝 ملاحظات: ' + order.customer.notes : ''}\n\nيرجى تأكيد الطلب للشحن في أسرع وقت. شكراً لكم!`;
-    
+    const message = `السلام عليكم يا فرح استور،\nأود تأكيد طلبي بمتجركم 🛍️\n\n📌 تفاصيل الطلب رقم: ${order.id}\n----------------------------------\n${productsText}----------------------------------\n🔹 المجموع الفرعي: ${order.subtotal} ج.م\n🚚 الشحن: ${order.shipping === 0 ? 'مجاني' : (order.shipping || 0) + ' ج.م'}\n💳 طريقة الدفع: ${payMethodText}\n💰 الإجمالي الكلي: ${order.total} ج.م\n\n📌 عنوان التوصيل:\n👤 الاسم: ${customerName}\n📱 الهاتف: ${customerPhone}\n📍 المحافظة: ${govText}\n🏙️ المدينة/المركز: ${addrCity}\n🏠 العنوان بالتفصيل: ${addrStreet}\n${customerNotes ? '📝 ملاحظات: ' + customerNotes : ''}\n\nيرجى تأكيد الطلب للشحن في أسرع وقت. شكراً لكم!`;
+
     btnWhatsApp.href = `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    
+
     // Auto-open WhatsApp on submission
     try {
       window.open(btnWhatsApp.href, '_blank');
     } catch(e) {
-      console.warn("Auto-open WhatsApp blocked by popup blocker:", e);
+      console.warn('Auto-open WhatsApp blocked by popup blocker:', e);
     }
   }
 
+  // ── Show modal ──
   modal.style.display = 'flex';
 
-  // Close on backdrop click
-  modal.addEventListener('click', e => {
+  // ── Reset the order button ──
+  if (btn) {
+    btn.disabled    = false;
+    btn.textContent = '✅ تأكيد الطلب';
+  }
+
+  // ── Close on backdrop click ──
+  modal.onclick = e => {
     if (e.target === modal) modal.style.display = 'none';
-  });
+  };
 }
+
