@@ -132,6 +132,10 @@ function initPlaceOrder() {
   btn?.addEventListener('click', async () => {
     if (!validate()) return;
 
+    // ── 1. Lock button immediately ──
+    btn.disabled    = true;
+    btn.textContent = '⏳ جاري تأكيد الطلب...';
+
     const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'cash_on_delivery';
     const gov           = document.getElementById('field-gov')?.value;
 
@@ -148,52 +152,55 @@ function initPlaceOrder() {
       governorate:   gov,
     };
 
-    // Build order payload
+    // ── 2. Build order payload ──
     const order = Cart.prepareOrderPayload(customerData);
 
-    // ── Save order to Firestore & Local (Fallback/History) ──
+    // ── 3. Save to localStorage first (instant fallback) ──
     const orders = FarahDB.Storage.get('orders', []);
     orders.unshift(order);
     FarahDB.Storage.set('orders', orders);
 
-    try {
-      if (window.db && window.db.collection) {
+    // ── 4. Write to Firestore ──
+    if (window.db && window.db.collection) {
+      try {
         await window.db.collection('orders').doc(order.id).set(order);
+        console.log('[Farah] ✅ Order saved to Firestore:', order.id);
+
+        // Also save customer record (upsert by phone)
+        if (order.customerPhone) {
+          window.db.collection('customers').doc(order.customerPhone).set({
+            name:      order.customerName,
+            phone:     order.customerPhone,
+            lastOrder: order.id,
+            lastSeen:  order.createdAt,
+          }, { merge: true }).catch(e => console.warn('[Farah] Customer record update failed:', e));
+        }
+      } catch (e) {
+        console.error('[Farah] ❌ Firestore write failed:', e);
+        showToast('⚠️ تعذّر حفظ الطلب في قاعدة البيانات — سيظهر في السجل المحلي فقط.', 'warning', 5000);
       }
-    } catch (e) {
-      console.warn('Firestore write failed:', e);
+    } else {
+      console.warn('[Farah] window.db not available — Firestore not initialized on this page.');
     }
 
-    // ── Loading state ──
-    btn.disabled     = true;
-    btn.textContent  = '⏳ جاري تأكيد الطلب...';
-
+    // ── 5. Send to Google Sheets backup ──
     try {
       if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'ضع_رابط_جوجل_سكربت_هنا') {
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
+        await fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
-          mode: 'no-cors', // لتفادي مشاكل CORS مع جوجل سكربت
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            action: 'create_order',
-            data: order
-          })
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'create_order', data: order })
         });
-        // لا يمكن قراءة response.json() عند استخدام no-cors ولكن الطلب سيصل
       } else {
-        // Simulate API call if URL not set
-        await new Promise(r => setTimeout(r, 1200));
-        console.warn("Google Script URL is not configured. Order saved locally only.");
+        await new Promise(r => setTimeout(r, 800));
       }
     } catch (error) {
-      console.error("Error sending order to Google Sheets:", error);
-      showToast('⚠️ حدث خطأ أثناء إرسال الطلب، لكن تم حفظه في جهازك.', 'error');
+      console.error('[Farah] Google Sheets error:', error);
     }
 
+    // ── 6. Show success modal & clear cart ──
     showSuccessModal(order, btn);
-
     Cart.clear();
   });
 }
