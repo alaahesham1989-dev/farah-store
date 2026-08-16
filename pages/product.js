@@ -404,7 +404,6 @@ function renderRelated(product) {
       }
     });
   });
-});
 }
 
 // ─── Notify Me Logic ──────────────────────────────
