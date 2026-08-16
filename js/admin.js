@@ -1036,7 +1036,25 @@ function processExcelData(rows) {
       }
     }
     
-    products.push({
+    // Parse marketing columns if present
+    let marketing = null;
+    const uses = String(row['استخدامات المنتج'] || '').trim();
+    const problemsSolved = String(row['المشاكل التي يحلها المنتج'] || '').trim();
+    const howItWorks = String(row['كيف يعمل المنتج'] || '').trim();
+    const howToUse = String(row['إزاي استخدمه'] || '').trim();
+    const landingPageScript = String(row['سكريبت احترافي لصفحة الهبوط'] || '').trim();
+
+    if (uses || problemsSolved || howItWorks || howToUse || landingPageScript) {
+      marketing = {
+        uses: uses === 'nan' ? '' : uses,
+        problemsSolved: problemsSolved === 'nan' ? '' : problemsSolved,
+        howItWorks: howItWorks === 'nan' ? '' : howItWorks,
+        howToUse: howToUse === 'nan' ? '' : howToUse,
+        landingPageScript: landingPageScript === 'nan' ? '' : landingPageScript
+      };
+    }
+
+    const prodObj = {
       id: pid,
       sku: sku,
       name: name && name !== 'nan' ? name : nameEn,
@@ -1057,7 +1075,13 @@ function processExcelData(rows) {
       badgeType: "new",
       featured: true,
       createdAt: new Date().toISOString().split('T')[0]
-    });
+    };
+
+    if (marketing) {
+      prodObj.marketing = marketing;
+    }
+
+    products.push(prodObj);
   });
   
   return products;
