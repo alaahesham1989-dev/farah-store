@@ -121,69 +121,27 @@ function renderProduct(product) {
       infoDesc.innerHTML = `<div class="marketing-content" style="width: 100%;">${product.marketing}</div>`;
       
     } else {
-      const isObjectDesc = typeof product.description === 'object' && product.description !== null;
+      // Fallback: Display whatever description is available as a simple text block
+      if (btnShowMore) btnShowMore.style.display = 'none';
+      if (descOverlay) descOverlay.style.display = 'none';
+      infoDesc.style.maxHeight = 'none';
+      infoDesc.style.overflow = 'visible';
       
-      if (isObjectDesc) {
-      // Structured description object (Phase 3)
-      const container = infoDesc.closest('.product-desc-box');
-      if (container) {
-        // Hide show more button and overlay since tabs are self-contained
-        if (btnShowMore) btnShowMore.style.display = 'none';
-        if (descOverlay) descOverlay.style.display = 'none';
-        
-        // Remove style constraints on infoDesc
-        infoDesc.style.maxHeight = 'none';
-        infoDesc.style.overflow = 'visible';
-        
-        const desc = product.description;
-        container.innerHTML = `
-          <div class="desc-tabs" style="display:flex; gap:8px; border-bottom:2px solid var(--cream-2); margin-bottom:1rem; overflow-x:auto; padding-bottom:8px;">
-            <button class="desc-tab-btn active" data-tab="overview" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid var(--primary-color); cursor:pointer; color:var(--primary-color); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">🔎 نظرة عامة</button>
-            <button class="desc-tab-btn" data-tab="indications" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid transparent; cursor:pointer; color:var(--text-soft); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">💡 دواعي الاستعمال</button>
-            <button class="desc-tab-btn" data-tab="howToUse" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid transparent; cursor:pointer; color:var(--text-soft); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">🛠️ طريقة الاستخدام</button>
-            <button class="desc-tab-btn" data-tab="problemsSolved" style="font-family:'Almarai',sans-serif; font-weight:700; padding:8px 16px; border:none; background:none; border-bottom:3px solid transparent; cursor:pointer; color:var(--text-soft); white-space:nowrap; font-size:0.92rem; transition: all var(--t-fast);">✅ المشاكل المحلولة</button>
-          </div>
-          <div class="desc-tab-content" id="desc-tab-content" style="font-family:'Cairo',sans-serif; line-height:1.7; font-size:0.95rem; color:var(--text-dark); min-height:100px;">
-            ${desc.overview || 'لا توجد تفاصيل.'}
-          </div>
-        `;
-        
-        const tabBtns = container.querySelectorAll('.desc-tab-btn');
-        const contentEl = container.querySelector('#desc-tab-content');
-        
-        tabBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            tabBtns.forEach(b => {
-              b.classList.remove('active');
-              b.style.color = 'var(--text-soft)';
-              b.style.borderColor = 'transparent';
-            });
-            btn.classList.add('active');
-            btn.style.color = 'var(--primary-color)';
-            btn.style.borderColor = 'var(--primary-color)';
-            
-            const tabName = btn.dataset.tab;
-            contentEl.innerHTML = desc[tabName] || '<span style="color:var(--text-soft)">لا توجد تفاصيل متوفرة.</span>';
-          });
-        });
+      let finalDesc = '';
+      if (typeof product.description === 'object' && product.description !== null) {
+          finalDesc = `
+            <div style="font-family:'Cairo',sans-serif; line-height:1.8; font-size:1.05rem; color:var(--text-dark);">
+              ${product.description.overview ? `<p>${product.description.overview}</p>` : ''}
+              ${product.description.howToUse ? `<h4>كيفية الاستخدام:</h4><p>${product.description.howToUse}</p>` : ''}
+              ${product.description.indications ? `<h4>دواعي الاستخدام:</h4><p>${product.description.indications}</p>` : ''}
+              ${product.description.problemsSolved ? `<h4>المشاكل التي يحلها:</h4><p>${product.description.problemsSolved}</p>` : ''}
+            </div>
+          `;
+      } else {
+          finalDesc = `<div style="font-family:'Cairo',sans-serif; line-height:1.8; font-size:1.05rem; color:var(--text-dark);">${product.description || 'لا يوجد وصف متاح.'}</div>`;
       }
-    } else {
-      // Legacy string description
-      infoDesc.innerHTML = product.description || '';
-      if (btnShowMore) {
-        btnShowMore.addEventListener('click', () => {
-          if (infoDesc.style.maxHeight === '100px') {
-            infoDesc.style.maxHeight = '1000px';
-            if (descOverlay) descOverlay.style.display = 'none';
-            btnShowMore.textContent = 'عرض أقل';
-          } else {
-            infoDesc.style.maxHeight = '100px';
-            if (descOverlay) descOverlay.style.display = 'block';
-            btnShowMore.textContent = 'عرض المزيد';
-          }
-        });
-      }
-    }
+      
+      infoDesc.innerHTML = `<div class="marketing-content" style="width: 100%; padding: 1rem 0;">${finalDesc}</div>`;
     } // End of marketing else branch
   }
 
@@ -373,7 +331,7 @@ function renderRelated(product) {
     return `
     <article class="prod-grid-card fade-up active" data-id="${p.id}" style="animation-delay:${i*0.08}s; opacity:1; transform:none; margin:0 auto; cursor:pointer;" onclick="window.location.href='product.html?id=${p.id}'">
       <div class="prod-card-img">
-        <img src="${(p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/260x260/f3efe7/0b1929?text=No+Image'}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/260x260/f3efe7/0b1929?text=لا+توجد+صورة'" />
+        <img src="${(p.images && p.images.length > 0) ? getImageUrl(p.images[0]) : \'https://via.placeholder.com/260x260/f3efe7/0b1929?text=No+Image\'}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/260x260/f3efe7/0b1929?text=لا+توجد+صورة'" />
         ${badge}
       </div>
       <div class="prod-card-body">
