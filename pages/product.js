@@ -45,6 +45,7 @@ function getImageUrl(src) {
 }
 
 function renderProduct(product) {
+  try {
   // Page title
   document.title = `${product.name} | فرح استور`;
   const metaDesc = document.querySelector('meta[name="description"]');
@@ -104,46 +105,49 @@ function renderProduct(product) {
 
   // Description and Marketing Content
   const infoDesc = document.getElementById('info-desc');
-  const btnShowMore = document.getElementById('btn-show-more');
-  const descOverlay = document.getElementById('desc-overlay');
-  const descContainer = infoDesc ? infoDesc.closest('.product-desc-box') : null;
-  
-  if (infoDesc) {
-    // If we have rich marketing content (Landing Page design from Admin)
-    if (product.marketing) {
-      if (btnShowMore) btnShowMore.style.display = 'none';
-      if (descOverlay) descOverlay.style.display = 'none';
-      
-      infoDesc.style.maxHeight = 'none';
-      infoDesc.style.overflow = 'visible';
-      
-      // Inject full-width marketing content
-      infoDesc.innerHTML = `<div class="marketing-content" style="width: 100%;">${product.marketing}</div>`;
-      
-    } else {
-      // Fallback: Display whatever description is available as a simple text block
+    const btnShowMore = document.getElementById('btn-show-more');
+    const descOverlay = document.getElementById('desc-overlay');
+    
+    if (infoDesc) {
       if (btnShowMore) btnShowMore.style.display = 'none';
       if (descOverlay) descOverlay.style.display = 'none';
       infoDesc.style.maxHeight = 'none';
       infoDesc.style.overflow = 'visible';
       
-      let finalDesc = '';
-      if (typeof product.description === 'object' && product.description !== null) {
-          finalDesc = `
-            <div style="font-family:'Cairo',sans-serif; line-height:1.8; font-size:1.05rem; color:var(--text-dark);">
-              ${product.description.overview ? `<p>${product.description.overview}</p>` : ''}
-              ${product.description.howToUse ? `<h4>كيفية الاستخدام:</h4><p>${product.description.howToUse}</p>` : ''}
-              ${product.description.indications ? `<h4>دواعي الاستخدام:</h4><p>${product.description.indications}</p>` : ''}
-              ${product.description.problemsSolved ? `<h4>المشاكل التي يحلها:</h4><p>${product.description.problemsSolved}</p>` : ''}
-            </div>
-          `;
-      } else {
-          finalDesc = `<div style="font-family:'Cairo',sans-serif; line-height:1.8; font-size:1.05rem; color:var(--text-dark);">${product.description || 'لا يوجد وصف متاح.'}</div>`;
+      // PRIORITY 1 REQUEST: Optional chaining and explicit fallback
+      const hookText = product?.marketing?.landingPageScript || product?.description?.overview || "";
+      const howToText = product?.marketing?.howToUse || product?.description?.howToUse || "";
+      const indicationsText = product?.marketing?.indications || product?.description?.indications || "";
+      const problemsText = product?.marketing?.problemsSolved || product?.description?.problemsSolved || "";
+
+      let finalDesc = `<div style="font-family:'Cairo',sans-serif; line-height:1.8; font-size:1.05rem; color:var(--text-dark);">`;
+      
+      if (hookText) {
+         finalDesc += `<p>${hookText}</p>`;
+      }
+      if (howToText) {
+         finalDesc += `<h4>كيفية الاستخدام:</h4><p>${howToText}</p>`;
+      }
+      if (indicationsText) {
+         finalDesc += `<h4>دواعي الاستخدام:</h4><p>${indicationsText}</p>`;
+      }
+      if (problemsText) {
+         finalDesc += `<h4>المشاكل التي يحلها:</h4><p>${problemsText}</p>`;
       }
       
+      if (!hookText && !howToText && !indicationsText && !problemsText) {
+         if (typeof product?.description === 'string' && product?.description) {
+            finalDesc += `<p>${product.description}</p>`;
+         } else {
+            // Hide the entire block if absolutely empty (Request #3)
+            const descContainer = infoDesc.closest('.product-desc-box');
+            if (descContainer) descContainer.style.display = 'none';
+         }
+      }
+      finalDesc += `</div>`;
+      
       infoDesc.innerHTML = `<div class="marketing-content" style="width: 100%; padding: 1rem 0;">${finalDesc}</div>`;
-    } // End of marketing else branch
-  }
+    }
 
   // Price
   const priceCurrent = document.getElementById('info-price');
@@ -283,7 +287,14 @@ function renderProduct(product) {
     if(buyNowWrap) buyNowWrap.style.display = 'none';
     if(notifyMeBlock) notifyMeBlock.style.display = 'block';
   }
-}
+} catch (err) {
+    console.error("Error rendering product:", err);
+  } finally {
+    const breadcrumbName = document.getElementById('breadcrumb-name');
+    if (breadcrumbName && breadcrumbName.textContent.includes('جاري التحميل')) {
+       breadcrumbName.textContent = 'حدث خطأ';
+    }
+  }}
 
 // ─── Render Stars ─────────────────────────────────
 function renderStars(rating) {
