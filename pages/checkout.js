@@ -9,6 +9,62 @@
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5jcrNpzC1oiMSQA3geOI8d883UezPlp1CElgDwdZCuWbJSBj84AnDewhgtfYhDHIh/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Dynamic City Dropdown Logic
+  const govSelect = document.getElementById('field-gov');
+  const citySelect = document.getElementById('field-city');
+  const cityOtherInput = document.getElementById('field-city-other');
+  
+  if (govSelect && citySelect && window.EGYPT_LOCATIONS) {
+    govSelect.addEventListener('change', () => {
+      const selectedGov = govSelect.value;
+      const cities = window.EGYPT_LOCATIONS[selectedGov];
+      
+      citySelect.innerHTML = '';
+      cityOtherInput.style.display = 'none';
+      cityOtherInput.value = '';
+      cityOtherInput.removeAttribute('required');
+      
+      if (cities && cities.length > 0) {
+        citySelect.removeAttribute('disabled');
+        
+        let defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        defaultOption.textContent = 'اختر المدينة / المركز';
+        citySelect.appendChild(defaultOption);
+        
+        cities.forEach(city => {
+          let option = document.createElement('option');
+          option.value = city;
+          option.textContent = city;
+          citySelect.appendChild(option);
+        });
+        
+        let otherOption = document.createElement('option');
+        otherOption.value = 'other';
+        otherOption.textContent = 'مدينة أخرى (اكتبها يدوياً)';
+        citySelect.appendChild(otherOption);
+      } else {
+        citySelect.setAttribute('disabled', 'disabled');
+        let option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'اختر المحافظة أولاً';
+        citySelect.appendChild(option);
+      }
+    });
+    
+    citySelect.addEventListener('change', () => {
+      if (citySelect.value === 'other') {
+        cityOtherInput.style.display = 'block';
+        cityOtherInput.setAttribute('required', 'required');
+      } else {
+        cityOtherInput.style.display = 'none';
+        cityOtherInput.removeAttribute('required');
+      }
+    });
+  }
+
   if (Cart.isEmpty()) {
     document.getElementById('empty-cart-msg').style.display   = 'block';
     document.getElementById('checkout-content').style.display = 'none';
@@ -106,9 +162,16 @@ function validate() {
   ];
 
   for (const field of fields) {
-    const el = document.getElementById(field.id);
+    let el = document.getElementById(field.id);
     if (!el) continue;
-    const val = el.value.trim();
+    let val = el.value.trim();
+    
+    // Custom logic for city
+    if (field.id === 'field-city' && val === 'other') {
+      el = document.getElementById('field-city-other');
+      val = el ? el.value.trim() : '';
+    }
+    
     if (!val) {
       el.style.borderColor = 'var(--danger)';
       el.focus();
@@ -144,7 +207,7 @@ function initPlaceOrder() {
       phone:  document.getElementById('field-phone')?.value?.trim(),
       address: {
         governorate: gov,
-        city:   document.getElementById('field-city')?.value?.trim(),
+        city:   (document.getElementById('field-city')?.value === 'other' ? document.getElementById('field-city-other')?.value?.trim() : document.getElementById('field-city')?.value?.trim()),
         street: document.getElementById('field-street')?.value?.trim(),
       },
       notes:         document.getElementById('field-notes')?.value?.trim(),

@@ -119,11 +119,14 @@
                     <option value="matrouh">مطروح</option>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label class="form-label" for="field-city">🏘️ المدينة / المنطقة *</label>
-                  <input type="text" id="field-city" class="form-control" placeholder="مثال: مدينة نصر" required />
+                  <div class="form-group">
+                    <label class="form-label" for="field-city">المدينة / المركز *</label>
+                    <select id="field-city" class="form-control" required disabled>
+                      <option value="" disabled selected>اختر المحافظة أولاً</option>
+                    </select>
+                    <input type="text" id="field-city-other" class="form-control" placeholder="اكتب اسم مدينتك هنا..." style="display: none; margin-top: 10px;" />
+                  </div>
                 </div>
-              </div>
               <div class="form-group">
                 <label class="form-label" for="field-street">🏠 العنوان بالتفصيل *</label>
                 <input type="text" id="field-street" class="form-control" placeholder="الشارع، رقم المبنى، الدور، الشقة" required />
@@ -266,6 +269,7 @@
   <script src="../js/i18n.js"></script>
   <script src="../js/data.js"></script>
   <script src="../js/cart.js"></script>
+  <script src="../js/egypt-locations.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
