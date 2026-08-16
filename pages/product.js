@@ -102,15 +102,28 @@ function renderProduct(product) {
   const infoSold = document.getElementById('info-sold');
   if(infoSold) infoSold.textContent    = `${product.sold.toLocaleString('ar-EG')} مبيع`;
 
-  // Description
+  // Description and Marketing Content
   const infoDesc = document.getElementById('info-desc');
   const btnShowMore = document.getElementById('btn-show-more');
   const descOverlay = document.getElementById('desc-overlay');
+  const descContainer = infoDesc ? infoDesc.closest('.product-desc-box') : null;
   
   if (infoDesc) {
-    const isObjectDesc = typeof product.description === 'object' && product.description !== null;
-    
-    if (isObjectDesc) {
+    // If we have rich marketing content (Landing Page design from Admin)
+    if (product.marketing) {
+      if (btnShowMore) btnShowMore.style.display = 'none';
+      if (descOverlay) descOverlay.style.display = 'none';
+      
+      infoDesc.style.maxHeight = 'none';
+      infoDesc.style.overflow = 'visible';
+      
+      // Inject full-width marketing content
+      infoDesc.innerHTML = `<div class="marketing-content" style="width: 100%;">${product.marketing}</div>`;
+      
+    } else {
+      const isObjectDesc = typeof product.description === 'object' && product.description !== null;
+      
+      if (isObjectDesc) {
       // Structured description object (Phase 3)
       const container = infoDesc.closest('.product-desc-box');
       if (container) {
@@ -171,6 +184,7 @@ function renderProduct(product) {
         });
       }
     }
+    } // End of marketing else branch
   }
 
   // Price
@@ -335,37 +349,62 @@ function renderRelated(product) {
     return;
   }
 
+  // Helper for rendering stars locally since main.js isn't available
+  const getStars = (rating) => {
+    const full = Math.floor(rating || 0), half = (rating || 0) % 1 >= 0.5, empty = 5 - full - (half ? 1 : 0);
+    return '★'.repeat(full) + (half ? '★' : '') + '☆'.repeat(empty);
+  };
+  
+  const getCatName = (id) => FarahDB.CATEGORIES.find(c => c.id === id)?.name || id;
+
   grid.innerHTML = related.map((p, i) => {
-    const hasDiscount = p.discount > 0 && p.priceOriginal;
+    const hasDiscount = p.priceOriginal && p.discount > 0;
+    const badge = p.badge ? `<span class="prod-card-badge badge-${p.badgeType||'sale'}">${p.badge}</span>` : '';
+    const stars = getStars(p.rating);
+    const catName = getCatName(p.category);
+    const isOutOfStock = p.stock <= 0;
+    
+    const cartBtnHtml = isOutOfStock
+      ? `<button class="prod-add-btn notify-btn" data-id="${p.id}" aria-label="أعلمني عند التوفر" style="width: auto; padding: 0 12px; font-size: 0.8rem; border-radius: 4px; background: #666; color: #fff; font-family: var(--font);">أعلمني متى</button>`
+      : `<button class="prod-add-btn add-cart-btn" data-id="${p.id}" aria-label="أضف للسلة">
+           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+         </button>`;
+         
     return `
-      <article class="product-card animate-in" data-id="${p.id}" style="animation-delay:${i*0.08}s" role="button" tabindex="0" aria-label="${p.name}">
-        <div class="product-img-wrap">
-          <img src="${p.images[0]}" alt="${p.name}" class="product-img" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/f3f0ea/0d1b2a?text=📦'" />
-          ${p.badge ? `<span class="product-badge badge-${p.badgeType||'sale'}">${p.badge}</span>` : ''}
-        </div>
-        <div class="product-body">
-          <div class="product-name">${p.name}</div>
-          <div class="product-price-row">
-            <div class="price-current">${p.price.toLocaleString('ar-EG')} ج.م</div>
-            <button class="btn-add-cart" data-id="${p.id}" aria-label="أضف للسلة">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
+    <article class="prod-grid-card fade-up active" data-id="${p.id}" style="animation-delay:${i*0.08}s; opacity:1; transform:none; margin:0 auto; cursor:pointer;" onclick="window.location.href='product.html?id=${p.id}'">
+      <div class="prod-card-img">
+        <img src="${(p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/260x260/f3efe7/0b1929?text=No+Image'}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/260x260/f3efe7/0b1929?text=لا+توجد+صورة'" />
+        ${badge}
+      </div>
+      <div class="prod-card-body">
+        <div class="prod-card-cat">${catName}</div>
+        <div class="prod-card-name">${p.name}</div>
+        <div class="prod-card-stars">${stars} <span>(${p.reviews || 0})</span></div>
+        <div class="prod-card-footer">
+          <div class="prod-card-price">
+            <span class="prod-price-now">${p.price.toLocaleString('ar-EG')} <span>ج.م</span></span>
+            ${hasDiscount ? `<span class="prod-price-was">${p.priceOriginal.toLocaleString('ar-EG')} <span>ج.م</span></span>` : ''}
           </div>
+          ${cartBtnHtml}
         </div>
-      </article>
+      </div>
+    </article>
     `;
   }).join('');
 
-  grid.querySelectorAll('[data-id]').forEach(el => {
-    el.querySelector('.btn-add-cart')?.addEventListener('click', e => {
-      e.stopPropagation();
-      const p = FarahDB.getProductById(el.dataset.id);
-      if (p) Cart.add(p);
-    });
-    el.addEventListener('click', () => {
-      window.location.href = `product.html?id=${el.dataset.id}`;
+  grid.querySelectorAll('.add-cart-btn, .notify-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // prevent card click
+      const p = FarahDB.getProductById(btn.dataset.id);
+      if (p && !btn.classList.contains('notify-btn')) {
+        Cart.add(p);
+        // Animate button
+        btn.classList.add('added');
+        setTimeout(() => btn.classList.remove('added'), 2000);
+      }
     });
   });
+});
 }
 
 // ─── Notify Me Logic ──────────────────────────────

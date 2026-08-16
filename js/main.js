@@ -855,6 +855,20 @@ function initMobileBottomNav() {
       document.getElementById('cart-overlay')?.classList.add('open');
     });
   }
+  
+  // Close drawers when navigating via bottom nav
+  const bottomNavLinks = document.querySelectorAll('.mobile-bottom-nav a');
+  bottomNavLinks.forEach(link => {
+    if (link.id !== 'cart-toggle-bottom') {
+      link.addEventListener('click', () => {
+        document.getElementById('cart-drawer')?.classList.remove('open');
+        document.getElementById('cart-overlay')?.classList.remove('open');
+        document.getElementById('cats-drawer')?.classList.remove('open');
+        document.getElementById('cats-overlay')?.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    }
+  });
 }
 
 function initCategoriesDrawer() {
