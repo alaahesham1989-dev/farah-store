@@ -316,11 +316,17 @@
               <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
             </div>
           </div>
-          <div class="filter-bar">
-            <div class="search-bar">
+          <div class="filter-bar" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div class="search-bar" style="flex: 1; min-width: 200px;">
               <span>🔍</span>
-              <input type="text" id="products-search" placeholder="بحث عن منتج...">
+              <input type="text" id="products-search" placeholder="بحث عن منتج بالاسم أو الكود (SKU)...">
             </div>
+            <select class="form-control" id="products-sort" style="width: auto;">
+              <option value="default">الفرز الافتراضي</option>
+              <option value="top-selling">الأعلى مبيعاً</option>
+              <option value="low-stock">الأقل مخزوناً</option>
+              <option value="high-profit">الأعلى ربحاً</option>
+            </select>
             <select class="form-control" id="products-category-filter" style="width: auto;">
               <option value="all">جميع الفئات</option>
               <option value="beauty">العناية الشخصية</option>
@@ -338,13 +344,15 @@
               <thead>
                 <tr>
                   <th>صورة</th>
+                  <th>الكود (SKU)</th>
                   <th>الاسم</th>
                   <th>الفئة</th>
                   <th>سعر الجملة</th>
                   <th>سعر البيع</th>
                   <th>المكسب</th>
                   <th>المخزون</th>
-                  <th>الحالة</th>
+                  <th>المباع</th>
+                  <th>الحالة (تفعيل)</th>
                   <th>الإجراءات</th>
                 </tr>
               </thead>
@@ -358,7 +366,16 @@
           <div class="page-header">
             <h2>إدارة الطلبات</h2>
           </div>
-          <div class="filter-bar">
+          <div class="filter-bar" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div class="search-bar" style="flex: 1; min-width: 200px;">
+              <span>🔍</span>
+              <input type="text" id="orders-search" placeholder="بحث بالاسم، الهاتف، أو رقم الطلب...">
+            </div>
+            <div style="display: flex; gap: 5px; align-items: center;">
+              <input type="date" id="orders-date-from" class="form-control" style="width: auto;" title="من تاريخ">
+              <span style="color: var(--admin-text-soft);">إلى</span>
+              <input type="date" id="orders-date-to" class="form-control" style="width: auto;" title="إلى تاريخ">
+            </div>
             <select class="form-control" id="orders-status-filter" style="width: auto;">
               <option value="all">الكل</option>
               <option value="new">جديد</option>
@@ -367,19 +384,20 @@
               <option value="delivered">مكتمل</option>
               <option value="cancelled">ملغي</option>
             </select>
+            <button class="btn btn-secondary" id="btn-export-orders" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);">📊 تصدير Excel</button>
           </div>
           <div class="glass-panel table-container">
-            <table>
+            <table id="orders-table">
               <thead>
                 <tr>
+                  <th style="width: 40px;"></th>
                   <th>رقم الطلب</th>
                   <th>العميل</th>
                   <th>الهاتف</th>
                   <th>المبلغ</th>
                   <th>طريقة الدفع</th>
-                  <th>الحالة</th>
                   <th>التاريخ</th>
-                  <th>الإجراءات</th>
+                  <th>الحالة</th>
                 </tr>
               </thead>
               <tbody id="orders-table-body"></tbody>
@@ -635,6 +653,24 @@
     </div>
   </div>
 
+  <!-- Marketing Modal -->
+  <div id="marketing-editor-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+    <div class="glass-panel" style="max-width:600px;width:100%;position:relative;padding:25px;background:#131326;backdrop-filter:blur(20px);box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+      <button id="close-marketing-editor" style="position:absolute;top:16px;right:16px;border:none;background:transparent;font-size:1.4rem;color:#fff;cursor:pointer;">✕</button>
+      <h3 style="margin-bottom:18px;">تعديل المحتوى التسويقي <span id="marketing-modal-title" style="color:var(--admin-gold);font-size:0.9em;"></span></h3>
+      <div style="display:grid;gap:16px; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+        <div class="form-group"><textarea id="edit-market-uses" class="form-control" placeholder=" " style="height:70px;"></textarea><label class="floating-label">استخدامات المنتج (Uses)</label></div>
+        <div class="form-group"><textarea id="edit-market-problems" class="form-control" placeholder=" " style="height:70px;"></textarea><label class="floating-label">المشاكل التي يحلها (Problems Solved)</label></div>
+        <div class="form-group"><textarea id="edit-market-howitworks" class="form-control" placeholder=" " style="height:70px;"></textarea><label class="floating-label">كيف يعمل (How It Works)</label></div>
+        <div class="form-group"><textarea id="edit-market-howtouse" class="form-control" placeholder=" " style="height:70px;"></textarea><label class="floating-label">خطوات الاستخدام (How To Use)</label></div>
+        <div class="form-group"><textarea id="edit-market-script" class="form-control" placeholder=" " style="height:100px;"></textarea><label class="floating-label">سكريبت صفحة الهبوط (Landing Page Script)</label></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:22px;">
+        <button class="btn btn-secondary" id="cancel-marketing-edit">إلغاء</button>
+        <button class="btn btn-gold" id="save-marketing-edit">حفظ التغييرات</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>

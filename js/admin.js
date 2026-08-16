@@ -268,48 +268,74 @@ function renderDashboardStats() {
 }
 
 function renderProductsTable() {
-  const searchQuery = document.getElementById('products-search')?.value || '';
+  const searchQuery = document.getElementById('products-search')?.value.toLowerCase() || '';
   const categoryFilter = document.getElementById('products-category-filter')?.value || 'all';
+  const sortFilter = document.getElementById('products-sort')?.value || 'default';
+  
   let filteredProducts = FarahDB.PRODUCTS;
 
   if (categoryFilter !== 'all') {
-    filteredProducts = filteredProducts.filter(product => product.category === categoryFilter);
+    filteredProducts = filteredProducts.filter(p => p.category === categoryFilter);
   }
-  if (searchQuery.trim()) {
-    const query = searchQuery.trim().toLowerCase();
+  
+  if (searchQuery) {
     filteredProducts = filteredProducts.filter(product =>
-      product.name.toLowerCase().includes(query) ||
-      product.nameEn?.toLowerCase().includes(query) ||
-      product.description?.toLowerCase().includes(query)
+      product.name.toLowerCase().includes(searchQuery) ||
+      (product.nameEn && product.nameEn.toLowerCase().includes(searchQuery)) ||
+      (product.id && product.id.toLowerCase().includes(searchQuery))
     );
+  }
+  
+  if (sortFilter === 'top-selling') {
+    filteredProducts.sort((a, b) => (b.sold || 0) - (a.sold || 0));
+  } else if (sortFilter === 'low-stock') {
+    filteredProducts.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+  } else if (sortFilter === 'high-profit') {
+    filteredProducts.sort((a, b) => {
+      const profitA = (a.price || 0) - (a.priceWholesale || 0);
+      const profitB = (b.price || 0) - (b.priceWholesale || 0);
+      return profitB - profitA;
+    });
   }
 
   const tbody = document.getElementById('products-table-body');
   tbody.innerHTML = filteredProducts.map(product => {
-    const badgeClass = product.stock > 0 ? 'badge badge-success' : 'badge badge-danger';
-    const badgeText = product.stock > 0 ? 'نشط' : 'غير متوفر';
+    const isLowStock = product.stock < 10;
+    const stockStyle = isLowStock ? 'color: var(--admin-danger); font-weight: bold;' : '';
+    const stockWarning = isLowStock ? ' ⚠️' : '';
+    
     let thumb = product.images?.[0] || 'https://via.placeholder.com/48x48?text=No';
-    // admin page sits in /pages/, product image paths in data are relative to root
     if (thumb && !thumb.startsWith('http') && !thumb.startsWith('/')) {
       thumb = '../' + thumb.replace(/^\.\//, '');
     }
+    
+    const isActive = product.isActive !== false; // Default true
+    
     return `
       <tr>
         <td><img src="${thumb}" alt="${product.name}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;" onerror="this.src='https://via.placeholder.com/48x48?text=No'"/></td>
+        <td style="font-family: monospace; color: var(--admin-text-soft);">${product.id || '-'}</td>
         <td>${product.name}</td>
         <td>${getCategoryLabel(product.category)}</td>
         <td style="color:var(--admin-warning);">${(product.priceWholesale || 0).toLocaleString('ar-EG')} ج.م</td>
         <td style="font-weight:bold;">${product.price.toLocaleString('ar-EG')} ج.م</td>
         <td style="color:var(--admin-success); font-weight:bold;">${((product.price || 0) - (product.priceWholesale || 0)).toLocaleString('ar-EG')} ج.م</td>
-        <td>${product.stock}</td>
-        <td><span class="${badgeClass}">${badgeText}</span></td>
+        <td style="${stockStyle}">${product.stock}${stockWarning}</td>
+        <td>${product.sold || 0}</td>
         <td>
-          <button class="btn-icon" data-product-id="${product.id}" data-action="edit">✏️</button>
-          <button class="btn-icon" data-product-id="${product.id}" data-action="delete" style="color: var(--admin-danger)">🗑️</button>
+          <label class="toggle-switch">
+            <input type="checkbox" class="product-active-toggle" data-product-id="${product.id}" ${isActive ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
+        </td>
+        <td style="display: flex; gap: 8px; justify-content: center;">
+          <button class="btn-icon" data-product-id="${product.id}" data-action="marketing" title="المحتوى التسويقي">📝</button>
+          <button class="btn-icon" data-product-id="${product.id}" data-action="edit" title="تعديل">✏️</button>
+          <button class="btn-icon" data-product-id="${product.id}" data-action="delete" style="color: var(--admin-danger)" title="حذف">🗑️</button>
         </td>
       </tr>
     `;
-  }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد منتجات لعرضها</td></tr>';
+  }).join('') || '<tr><td colspan="11" style="text-align:center;">لا توجد منتجات لعرضها</td></tr>';
 
   tbody.querySelectorAll('button[data-product-id]').forEach(button => {
     button.addEventListener('click', () => {
@@ -317,12 +343,33 @@ function renderProductsTable() {
       const action = button.getAttribute('data-action');
       if (action === 'edit') {
         openProductEditor(productId);
+      } else if (action === 'marketing') {
+        openMarketingModal(productId);
       } else if (action === 'delete') {
         deleteProduct(productId);
       }
     });
   });
+  
+  tbody.querySelectorAll('.product-active-toggle').forEach(toggle => {
+    toggle.addEventListener('change', async (e) => {
+      const productId = e.target.getAttribute('data-product-id');
+      const isActive = e.target.checked;
+      try {
+        if (window.db && window.db.collection) {
+          await window.db.collection('products').doc(productId).update({ isActive });
+          const p = FarahDB.PRODUCTS.find(p => p.id === productId);
+          if (p) p.isActive = isActive;
+        }
+      } catch (err) {
+        console.warn('Failed to update product status', err);
+        e.target.checked = !isActive;
+        alert('حدث خطأ أثناء التحديث.');
+      }
+    });
+  });
 }
+
 
 function openProductEditor(productId = null) {
   const modal = document.getElementById('product-editor-modal');
@@ -524,37 +571,179 @@ function changeOrderStatus(orderId) {
 function renderOrdersTable() {
   const orders = window.AdminOrders || [];
   const statusFilter = document.getElementById('orders-status-filter')?.value || 'all';
-  const filteredOrders = statusFilter === 'all'
-    ? orders
-    : orders.filter(order => (order.status || order.orderStatus) === statusFilter);
+  const searchQuery = document.getElementById('orders-search')?.value.toLowerCase() || '';
+  const dateFrom = document.getElementById('orders-date-from')?.value;
+  const dateTo = document.getElementById('orders-date-to')?.value;
+  
+  let filteredOrders = orders;
+  
+  if (statusFilter !== 'all') {
+    filteredOrders = filteredOrders.filter(order => (order.status || order.orderStatus) === statusFilter);
+  }
+  
+  if (searchQuery) {
+    filteredOrders = filteredOrders.filter(order => 
+      (order.customerName && order.customerName.toLowerCase().includes(searchQuery)) ||
+      (order.customerPhone && order.customerPhone.includes(searchQuery)) ||
+      (order.id && order.id.toLowerCase().includes(searchQuery))
+    );
+  }
+  
+  if (dateFrom) {
+    const fromTime = new Date(dateFrom).setHours(0, 0, 0, 0);
+    filteredOrders = filteredOrders.filter(order => new Date(order.createdAt || order.updatedAt || Date.now()).getTime() >= fromTime);
+  }
+  
+  if (dateTo) {
+    const toTime = new Date(dateTo).setHours(23, 59, 59, 999);
+    filteredOrders = filteredOrders.filter(order => new Date(order.createdAt || order.updatedAt || Date.now()).getTime() <= toTime);
+  }
 
   const tbody = document.getElementById('orders-table-body');
-  tbody.innerHTML = filteredOrders.map(order => {
-    const currentStatus = order.status || order.orderStatus;
-    const badgeClass = getStatusBadgeClass(currentStatus);
-    const badgeText = formatOrderStatus(currentStatus);
-    const createdAt = new Date(order.createdAt || order.updatedAt || Date.now()).toLocaleDateString('ar-EG');
-    return `
-      <tr>
-        <td>${order.id || 'بدون رقم'}</td>
-        <td>${order.customerName || '-'}</td>
-        <td>${order.customerPhone || '-'}</td>
-        <td>${FarahDB.formatPrice(order.total || 0)}</td>
-        <td>${order.paymentMethod === 'paymob_card' ? 'بطاقة مصرفية' : order.paymentMethod === 'paymob_wallet' ? 'محفظة إلكترونية' : 'الدفع عند الاستلام'}</td>
-        <td><span class="${badgeClass}">${badgeText}</span></td>
-        <td>${createdAt}</td>
-        <td><button class="btn-icon" data-order-id="${order.id}">➡️</button></td>
-      </tr>
-    `;
-  }).join('') || '<tr><td colspan="8" style="text-align:center;">لا توجد طلبات محفوظة</td></tr>';
+  
+  let html = '';
+  if (filteredOrders.length === 0) {
+    html = '<tr><td colspan="8" style="text-align:center;">لا توجد طلبات لعرضها</td></tr>';
+  } else {
+    filteredOrders.forEach(order => {
+      const currentStatus = order.status || order.orderStatus;
+      const createdAt = new Date(order.createdAt || order.updatedAt || Date.now()).toLocaleString('ar-EG');
+      const address = order.address ? `${order.address.governorate || ''}, ${order.address.city || ''}, ${order.address.street || ''} ${order.address.details || ''}` : '-';
+      
+      let itemsHtml = '';
+      if (order.items && order.items.length > 0) {
+        itemsHtml = `
+          <table style="width:100%; margin-top: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+            <thead><tr><th>المنتج</th><th>الكمية</th><th>السعر</th></tr></thead>
+            <tbody>
+              ${order.items.map(item => `
+                <tr>
+                  <td>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                      <img src="${item.image || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:4px; object-fit:cover;">
+                      <span>${item.name} ${item.variant ? Object.values(item.variant).join('-') : ''}</span>
+                    </div>
+                  </td>
+                  <td>${item.qty}</td>
+                  <td>${FarahDB.formatPrice(item.price)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+      
+      html += `
+        <tr>
+          <td>
+            <button class="btn-icon expand-order-btn" data-order-id="${order.id}" style="font-size: 1.2rem;">➕</button>
+          </td>
+          <td>${order.id || 'بدون رقم'}</td>
+          <td>${order.customerName || '-'}</td>
+          <td>${order.customerPhone || '-'}</td>
+          <td>${FarahDB.formatPrice(order.total || 0)}</td>
+          <td>${order.paymentMethod === 'paymob_card' ? 'بطاقة مصرفية' : order.paymentMethod === 'paymob_wallet' ? 'محفظة إلكترونية' : 'الدفع عند الاستلام'}</td>
+          <td>${createdAt}</td>
+          <td>
+            <select class="form-control status-dropdown" data-order-id="${order.id}" style="width:120px; padding: 4px 8px; font-size: 0.9rem;">
+              <option value="new" ${currentStatus==='new'?'selected':''}>جديد</option>
+              <option value="processing" ${currentStatus==='processing'?'selected':''}>قيد التجهيز</option>
+              <option value="shipped" ${currentStatus==='shipped'?'selected':''}>تم الشحن</option>
+              <option value="delivered" ${currentStatus==='delivered'?'selected':''}>مكتمل</option>
+              <option value="cancelled" ${currentStatus==='cancelled'?'selected':''}>ملغي</option>
+              <option value="returned" ${currentStatus==='returned'?'selected':''}>مرتجع</option>
+            </select>
+          </td>
+        </tr>
+        <tr class="order-details-row" id="details-${order.id}" style="display:none; background: rgba(255,255,255,0.02);">
+          <td colspan="8" style="padding: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div>
+                <h4 style="color: var(--admin-gold); margin-bottom: 10px;">عناصر الطلب</h4>
+                ${itemsHtml}
+              </div>
+              <div>
+                <h4 style="color: var(--admin-gold); margin-bottom: 10px;">تفاصيل إضافية</h4>
+                <p><strong>العنوان:</strong> ${address}</p>
+                <p><strong>ملاحظات العميل:</strong> ${order.notes || 'لا يوجد'}</p>
+                
+                <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
+                  <input type="text" class="form-control tracking-input" id="tracking-${order.id}" placeholder="رقم التتبع (Tracking Number)" value="${order.trackingNumber || ''}" style="max-width: 200px;">
+                  <button class="btn btn-secondary save-tracking-btn" data-order-id="${order.id}">حفظ رقم التتبع</button>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                  <button class="btn btn-gold print-invoice-btn" data-order-id="${order.id}">🖨️ طباعة بوليصة الشحن</button>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+  }
+  tbody.innerHTML = html;
 
-  tbody.querySelectorAll('button[data-order-id]').forEach(button => {
-    button.addEventListener('click', () => {
-      const orderId = button.getAttribute('data-order-id');
-      changeOrderStatus(orderId);
+  // Add event listeners for new buttons
+  tbody.querySelectorAll('.expand-order-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const orderId = e.target.getAttribute('data-order-id');
+      const row = document.getElementById(`details-${orderId}`);
+      if (row.style.display === 'none') {
+        row.style.display = 'table-row';
+        e.target.textContent = '➖';
+      } else {
+        row.style.display = 'none';
+        e.target.textContent = '➕';
+      }
+    });
+  });
+  
+  tbody.querySelectorAll('.status-dropdown').forEach(dropdown => {
+    dropdown.addEventListener('change', async (e) => {
+      const orderId = e.target.getAttribute('data-order-id');
+      const newStatus = e.target.value;
+      try {
+        if (window.db && window.db.collection) {
+          await window.db.collection('orders').doc(orderId).update({ 
+            status: newStatus,
+            updatedAt: new Date().toISOString()
+          });
+        }
+      } catch (err) {
+        console.warn('Failed to update order status', err);
+        alert('حدث خطأ أثناء تحديث حالة الطلب.');
+      }
+    });
+  });
+  
+  tbody.querySelectorAll('.save-tracking-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const orderId = e.target.getAttribute('data-order-id');
+      const trackingNumber = document.getElementById(`tracking-${orderId}`).value;
+      try {
+        if (window.db && window.db.collection) {
+          await window.db.collection('orders').doc(orderId).update({ 
+            trackingNumber: trackingNumber,
+            updatedAt: new Date().toISOString()
+          });
+          alert('تم حفظ رقم التتبع بنجاح.');
+        }
+      } catch (err) {
+        console.warn('Failed to update tracking', err);
+        alert('حدث خطأ أثناء حفظ رقم التتبع.');
+      }
+    });
+  });
+  
+  tbody.querySelectorAll('.print-invoice-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const orderId = e.target.getAttribute('data-order-id');
+      printOrderInvoice(orderId);
     });
   });
 }
+
 
 function initDashboard() {
   // Tab Switching
@@ -1185,3 +1374,182 @@ function initShippingSettings() {
   };
 }
 
+
+
+// ==========================================
+// Print Invoice
+// ==========================================
+function printOrderInvoice(orderId) {
+  const orders = window.AdminOrders || [];
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return;
+  
+  const address = order.address ? `${order.address.governorate || ''}, ${order.address.city || ''}, ${order.address.street || ''} ${order.address.details || ''}` : '-';
+  const createdAt = new Date(order.createdAt || order.updatedAt || Date.now()).toLocaleString('ar-EG');
+  
+  let itemsHtml = order.items ? order.items.map(item => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.name} ${item.variant ? Object.values(item.variant).join('-') : ''}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${item.qty}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${item.price} ج.م</td>
+      <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${item.price * item.qty} ج.م</td>
+    </tr>
+  `).join('') : '';
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html dir="rtl" lang="ar">
+    <head>
+      <title>فاتورة شحن - ${order.id}</title>
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; color: #333; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #FFB400; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-size: 24px; font-weight: bold; color: #FFB400; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .box { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background: #f9f9f9; padding: 10px; text-align: right; border-bottom: 2px solid #ddd; }
+        .total { text-align: left; font-size: 1.2rem; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="logo">فرح ستور - Farah Store</div>
+        <div>
+          <h2>فاتورة طلب / بوليصة شحن</h2>
+          <p>رقم الطلب: <strong>${order.id}</strong></p>
+          <p>التاريخ: ${createdAt}</p>
+        </div>
+      </div>
+      
+      <div class="details-grid">
+        <div class="box">
+          <h3>بيانات العميل</h3>
+          <p><strong>الاسم:</strong> ${order.customerName}</p>
+          <p><strong>الهاتف:</strong> ${order.customerPhone}</p>
+          <p><strong>العنوان:</strong> ${address}</p>
+          <p><strong>الملاحظات:</strong> ${order.notes || 'لا يوجد'}</p>
+        </div>
+        <div class="box">
+          <h3>معلومات الشحن</h3>
+          <p><strong>رقم التتبع:</strong> ${order.trackingNumber || 'غير محدد'}</p>
+          <p><strong>طريقة الدفع:</strong> ${order.paymentMethod === 'cash_on_delivery' ? 'الدفع عند الاستلام' : 'دفع مسبق'}</p>
+          <p><strong>حالة الطلب:</strong> ${order.status || order.orderStatus}</p>
+        </div>
+      </div>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>المنتج</th>
+            <th style="text-align: center;">الكمية</th>
+            <th style="text-align: center;">سعر الوحدة</th>
+            <th style="text-align: center;">الإجمالي</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+      
+      <div class="total">
+        <p>إجمالي الطلب: <span style="color: #FFB400;">${order.total || 0} ج.م</span></p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 50px; font-size: 0.9rem; color: #777;">
+        <p>شكراً لتسوقكم من فرح ستور</p>
+      </div>
+      
+      <script>
+        window.onload = function() { window.print(); }
+      </script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// ==========================================
+// Marketing Editor Modal
+// ==========================================
+function openMarketingModal(productId) {
+  const product = FarahDB.PRODUCTS.find(p => p.id === productId);
+  if (!product) return;
+  
+  const m = product.marketing || {};
+  document.getElementById('edit-market-uses').value = m.uses || '';
+  document.getElementById('edit-market-problems').value = m.problemsSolved || '';
+  document.getElementById('edit-market-howitworks').value = m.howItWorks || '';
+  document.getElementById('edit-market-howtouse').value = m.howToUse || '';
+  document.getElementById('edit-market-script').value = m.landingPageScript || '';
+  
+  document.getElementById('marketing-modal-title').textContent = `(${product.name})`;
+  document.getElementById('save-marketing-edit').setAttribute('data-product-id', productId);
+  
+  document.getElementById('marketing-editor-modal').style.display = 'flex';
+}
+
+document.getElementById('close-marketing-editor')?.addEventListener('click', () => {
+  document.getElementById('marketing-editor-modal').style.display = 'none';
+});
+document.getElementById('cancel-marketing-edit')?.addEventListener('click', () => {
+  document.getElementById('marketing-editor-modal').style.display = 'none';
+});
+document.getElementById('save-marketing-edit')?.addEventListener('click', async (e) => {
+  const productId = e.target.getAttribute('data-product-id');
+  
+  const marketingData = {
+    uses: document.getElementById('edit-market-uses').value.trim(),
+    problemsSolved: document.getElementById('edit-market-problems').value.trim(),
+    howItWorks: document.getElementById('edit-market-howitworks').value.trim(),
+    howToUse: document.getElementById('edit-market-howtouse').value.trim(),
+    landingPageScript: document.getElementById('edit-market-script').value.trim()
+  };
+  
+  try {
+    if (window.db && window.db.collection) {
+      await window.db.collection('products').doc(productId).update({ marketing: marketingData });
+      
+      // Update local array
+      const product = FarahDB.PRODUCTS.find(p => p.id === productId);
+      if (product) {
+        product.marketing = marketingData;
+      }
+      
+      document.getElementById('marketing-editor-modal').style.display = 'none';
+      alert('تم حفظ المحتوى التسويقي بنجاح!');
+    }
+  } catch (err) {
+    console.warn('Failed to save marketing data', err);
+    alert('حدث خطأ أثناء حفظ المحتوى التسويقي.');
+  }
+});
+
+// Event listeners for filters
+document.getElementById('products-sort')?.addEventListener('change', renderProductsTable);
+document.getElementById('orders-search')?.addEventListener('input', renderOrdersTable);
+document.getElementById('orders-date-from')?.addEventListener('change', renderOrdersTable);
+document.getElementById('orders-date-to')?.addEventListener('change', renderOrdersTable);
+
+document.getElementById('btn-export-orders')?.addEventListener('click', () => {
+  const orders = window.AdminOrders || [];
+  if (orders.length === 0) return alert('لا توجد طلبات للتصدير');
+  
+  const exportData = orders.map(o => ({
+    'رقم الطلب': o.id,
+    'اسم العميل': o.customerName,
+    'الهاتف': o.customerPhone,
+    'المبلغ': o.total,
+    'الحالة': o.status || o.orderStatus,
+    'التاريخ': new Date(o.createdAt || o.updatedAt || Date.now()).toLocaleString('ar-EG'),
+    'طريقة الدفع': o.paymentMethod,
+    'العنوان': o.address ? `${o.address.governorate || ''}, ${o.address.city || ''}, ${o.address.street || ''} ${o.address.details || ''}` : '',
+    'الملاحظات': o.notes || '',
+    'رقم التتبع': o.trackingNumber || ''
+  }));
+  
+  const ws = window.XLSX.utils.json_to_sheet(exportData);
+  const wb = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(wb, ws, "الطلبات");
+  window.XLSX.writeFile(wb, `orders_${new Date().getTime()}.xlsx`);
+});
