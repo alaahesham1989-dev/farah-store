@@ -42,6 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAllSections();
   }
 
+  // Safety fallback if PRODUCTS array is populated but UI was rendered empty due to timing
+  setTimeout(() => {
+    const grid = document.getElementById('all-products-grid');
+    if (grid && grid.children.length <= 1 && FarahDB.PRODUCTS && FarahDB.PRODUCTS.length > 0) {
+      renderAllSections();
+    }
+  }, 800);
+
   window.addEventListener('FarahDBProductsUpdated', () => {
     initNewArrivals();
     initDailyDeal();
@@ -262,7 +270,7 @@ function initCounterAnimation() {
 function buildProdCard(product, type = 'card') {
   const badge     = product.badge ? `<span class="prod-card-badge badge-${product.badgeType||'sale'}">${product.badge}</span>` : '';
   const hasDisc   = product.priceOriginal && product.discount > 0;
-  const stars     = renderStars(product.rating);
+  const stars     = renderStars(product.rating || 0);
   const catName   = getCatName(product.category);
   const isOutOfStock = product.stock <= 0;
   
@@ -276,7 +284,7 @@ function buildProdCard(product, type = 'card') {
     return `
     <article class="prod-card fade-up" data-id="${product.id}">
       <div class="prod-card-img">
-        <img src="${product.images[0]}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/240x220/f3efe7/0b1929?text=📦'" />
+        <img src="${(product.images && product.images.length > 0) ? product.images[0] : 'https://via.placeholder.com/240x220/f3efe7/0b1929?text=No+Image'}" alt="${product.name || 'Product'}" loading="lazy" onerror="this.src='https://via.placeholder.com/240x220/f3efe7/0b1929?text=📦'" />
         ${badge}
         <div class="prod-card-actions">
           <button class="prod-action-btn quick-view-btn" data-id="${product.id}" aria-label="عرض سريع" title="عرض سريع">👁️</button>
@@ -302,7 +310,7 @@ function buildProdCard(product, type = 'card') {
   return `
   <article class="prod-grid-card fade-up" data-id="${product.id}">
     <div class="prod-card-img">
-      <img src="${product.images[0]}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/260x260/f3efe7/0b1929?text=📦'" />
+      <img src="${(product.images && product.images.length > 0) ? product.images[0] : 'https://via.placeholder.com/240x220/f3efe7/0b1929?text=No+Image'}" alt="${product.name || 'Product'}" loading="lazy" onerror="this.src='https://via.placeholder.com/260x260/f3efe7/0b1929?text=📦'" />
       ${badge}
       <div class="prod-card-actions">
         <button class="prod-action-btn quick-view-btn" data-id="${product.id}" aria-label="عرض سريع" title="عرض سريع">👁️</button>
