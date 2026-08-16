@@ -236,10 +236,11 @@ function applyFirestoreProducts(products) {
 }
 
 function initProductsRealtime() {
-  // 1) RESOLVE IMMEDIATELY so the UI doesn't hang! We have the hardcoded PRODUCTS array ready.
-  productsReadyResolve(PRODUCTS);
+  // We removed the immediate resolve because the hardcoded array is now empty.
+  // We must wait for Firestore to return the first snapshot so the UI renders correctly.
   
   if (!window.db || !window.db.collection) {
+    productsReadyResolve(PRODUCTS);
     console.warn('Firebase Firestore is not available, using built-in product data');
     dispatchProductsUpdated();
     return;
