@@ -190,6 +190,59 @@ const Cart = (() => {
     if (grandEl) grandEl.textContent = formatFn(total);
     
     updateShippingProgress();
+    
+    // Dynamic One-Click Upsell Logic (Requirement #1)
+    const upsellContainer = document.getElementById('cart-upsell-card');
+    if (upsellContainer) {
+      const firstItem = items[0];
+      let targetUpsellSku = 'code0004'; // Default fallback
+      if (firstItem && window.FarahDB && FarahDB.PRODUCTS) {
+        const prodData = FarahDB.PRODUCTS.find(p => p.id === firstItem.productId || p.sku === firstItem.sku);
+        if (prodData && prodData.upsellSku) {
+          targetUpsellSku = prodData.upsellSku;
+        }
+      }
+      
+      const isUpsellInCart = items.some(i => i.sku === targetUpsellSku || i.productId === targetUpsellSku.toLowerCase());
+      const upsellProduct = window.FarahDB && FarahDB.PRODUCTS ? FarahDB.PRODUCTS.find(p => p.sku === targetUpsellSku || p.id === targetUpsellSku.toLowerCase()) : null;
+      
+      const threshold = getFreeShippingThreshold();
+      const nearThreshold = threshold - 150; // default 450 EGP
+      const showUpsell = !isEmpty() && subtotal >= nearThreshold && subtotal < threshold && !isUpsellInCart && upsellProduct && upsellProduct.stock > 0;
+      
+      if (showUpsell) {
+        const imgSrc = (upsellProduct.images && upsellProduct.images.length > 0) ? upsellProduct.images[0] : 'https://via.placeholder.com/80?text=📦';
+        upsellContainer.innerHTML = `
+          <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+            <img src="${imgSrc}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" alt="${upsellProduct.name}">
+            <div style="flex: 1; padding: 0 5px;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: var(--navy); line-height: 1.2;">${upsellProduct.name}</div>
+              <div style="font-size: 0.75rem; color: var(--gold-dark); font-weight: 700; margin-top: 2px;">أضفه ووفر الشحن 🎁</div>
+              <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-top: 2px;">${formatFn(upsellProduct.price)}</div>
+            </div>
+            <button id="btn-upsell-add" class="btn btn-gold btn-upsell-pulse" style="padding: 6px 10px; font-size: 0.78rem; border-radius: 4px; white-space: nowrap;">➕ أضف ووفر</button>
+          </div>
+        `;
+        upsellContainer.style.display = 'block';
+        setTimeout(() => upsellContainer.classList.remove('hidden-fade'), 10);
+        
+        const btnAddUpsell = document.getElementById('btn-upsell-add');
+        if (btnAddUpsell) {
+          btnAddUpsell.onclick = () => {
+            add(upsellProduct);
+          };
+        }
+      } else {
+        upsellContainer.classList.add('hidden-fade');
+        const onTransitionEnd = () => {
+          if (upsellContainer.classList.contains('hidden-fade')) {
+            upsellContainer.style.display = 'none';
+          }
+          upsellContainer.removeEventListener('transitionend', onTransitionEnd);
+        };
+        upsellContainer.addEventListener('transitionend', onTransitionEnd);
+      }
+    }
   }
 
   function createCartItemElement(item) {

@@ -1017,10 +1017,28 @@ function processExcelData(rows) {
     let category = String(row['الفئة'] || '').trim();
     if (!category || category === 'nan') category = 'beauty';
     
-    let description = String(row['الوصف التفصيلي'] || '').trim();
-    if (description === 'nan' || !description) {
-      description = String(row['الوصف القصير'] || '').trim();
-      if (description === 'nan') description = '';
+    // Escape and merge short/detailed descriptions safely as String list (Requirement #2)
+    function escapeHTML(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    let shortDesc = String(row['الوصف القصير'] || '').trim();
+    let detailedDesc = String(row['الوصف التفصيلي'] || '').trim();
+
+    if (shortDesc === 'nan') shortDesc = '';
+    if (detailedDesc === 'nan') detailedDesc = '';
+
+    let description = '';
+    if (shortDesc || detailedDesc) {
+      description = `<ul class="product-features-list" style="list-style:disc; padding-right:20px; line-height:1.8;">`;
+      if (shortDesc) {
+        description += `<li><strong>نظرة عامة:</strong> ${escapeHTML(shortDesc)}</li>`;
+      }
+      if (detailedDesc) {
+        description += `<li><strong>التفاصيل:</strong> ${escapeHTML(detailedDesc)}</li>`;
+      }
+      description += `</ul>`;
     }
     
     let images = [];
