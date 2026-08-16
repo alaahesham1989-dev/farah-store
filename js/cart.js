@@ -131,69 +131,69 @@ const Cart = (() => {
     const footerEl  = document.getElementById('cart-footer');
     const totalEl   = document.getElementById('cart-total');
     const shippingEl= document.getElementById('cart-shipping');
+    const countLbl  = document.getElementById('cart-items-count');
+    const grandEl   = document.getElementById('cart-grand-total');
 
     if (!itemsEl) return;
+
+    const count = getCount();
+    if (countLbl) countLbl.textContent = `${count} ${count === 1 ? 'منتج' : 'منتجات'}`;
 
     if (isEmpty()) {
       if (emptyEl)  emptyEl.style.display  = 'flex';
       if (footerEl) footerEl.style.display = 'none';
-      // Clear product cards
-      Array.from(itemsEl.querySelectorAll('.cart-item')).forEach(el => el.remove());
+      Array.from(itemsEl.querySelectorAll('.cart-item-card')).forEach(el => el.remove());
       return;
     }
 
     if (emptyEl)  emptyEl.style.display  = 'none';
     if (footerEl) footerEl.style.display = 'flex';
 
-    // Re-render items
-    Array.from(itemsEl.querySelectorAll('.cart-item')).forEach(el => el.remove());
+    Array.from(itemsEl.querySelectorAll('.cart-item-card')).forEach(el => el.remove());
+    
     items.forEach(item => {
-      const el = createCartItemElement(item);
+      const el = document.createElement('div');
+      el.className = 'cart-item-card';
+      el.dataset.productId  = item.productId;
+      el.dataset.variantKey = item.variantKey;
+      const variantLabel = item.variant && Object.values(item.variant).length
+        ? `<div class="cart-item-variant">${Object.values(item.variant).join(' / ')}</div>` : '';
+      el.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" class="cart-item-img" onerror="this.src='https://via.placeholder.com/72x72/f3efe7/0b1929?text=صورة'" />
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          ${variantLabel}
+          <div class="cart-item-price">${window.FarahDB ? FarahDB.formatPrice(item.price * item.qty) : item.price * item.qty + ' ج.م'}</div>
+          <div class="cart-item-row">
+            <div class="qty-control">
+              <button class="qty-btn" data-action="decrease">−</button>
+              <span class="qty-num">${item.qty}</span>
+              <button class="qty-btn" data-action="increase">+</button>
+            </div>
+            <button class="cart-item-remove" data-action="remove">حذف</button>
+          </div>
+        </div>
+      `;
+      el.querySelector('[data-action="decrease"]').addEventListener('click', () => updateQty(item.productId, item.variantKey, item.qty - 1));
+      el.querySelector('[data-action="increase"]').addEventListener('click', () => updateQty(item.productId, item.variantKey, item.qty + 1));
+      el.querySelector('[data-action="remove"]').addEventListener('click', () => {
+        el.style.opacity = '0';
+        setTimeout(() => remove(item.productId, item.variantKey), 240);
+      });
       itemsEl.appendChild(el);
     });
 
-    // Update totals
     const { subtotal, shipping, total } = getTotal();
-    if (totalEl)   totalEl.textContent   = FarahDB.formatPrice(subtotal);
-    if (shippingEl) shippingEl.textContent = shipping === 0 ? '🎉 مجاني' : FarahDB.formatPrice(shipping);
+    const formatFn = window.FarahDB ? FarahDB.formatPrice : (p) => p + ' ج.م';
+    if (totalEl) totalEl.textContent = formatFn(subtotal);
+    if (shippingEl) shippingEl.textContent = shipping === 0 ? '🎉 مجاني' : formatFn(shipping);
+    if (grandEl) grandEl.textContent = formatFn(total);
+    
+    updateShippingProgress();
   }
 
   function createCartItemElement(item) {
-    const el = document.createElement('div');
-    el.className = 'cart-item';
-    el.dataset.productId  = item.productId;
-    el.dataset.variantKey = item.variantKey;
-
-    const variantLabel = item.variant && Object.values(item.variant).length
-      ? `<span style="font-size:0.75rem;color:var(--text-muted)">${Object.values(item.variant).join(' / ')}</span>`
-      : '';
-
-    el.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" class="cart-item-img" loading="lazy" onerror="this.src='https://via.placeholder.com/70x70/f3f0ea/0d1b2a?text=📦'" />
-      <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}</div>
-        ${variantLabel}
-        <div class="cart-item-price">${FarahDB.formatPrice(item.price * item.qty)}</div>
-        <div class="cart-item-actions">
-          <button class="qty-btn" data-action="decrease" aria-label="تقليل الكمية">−</button>
-          <span class="qty-display">${item.qty}</span>
-          <button class="qty-btn" data-action="increase" aria-label="زيادة الكمية">+</button>
-          <button class="cart-item-remove" data-action="remove">حذف</button>
-        </div>
-      </div>
-    `;
-
-    // Events
-    el.querySelector('[data-action="decrease"]').addEventListener('click', () =>
-      updateQty(item.productId, item.variantKey, item.qty - 1));
-    el.querySelector('[data-action="increase"]').addEventListener('click', () =>
-      updateQty(item.productId, item.variantKey, item.qty + 1));
-    el.querySelector('[data-action="remove"]').addEventListener('click', () => {
-      el.style.animation = 'toastOut 0.25s ease forwards';
-      setTimeout(() => remove(item.productId, item.variantKey), 240);
-    });
-
-    return el;
+    return document.createElement('div');
   }
 
   // ─── Checkout Data (للإرسال مع الطلب) ───────────

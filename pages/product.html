@@ -291,26 +291,44 @@
   <!-- ========== CART DRAWER ========== -->
   <div class="cart-overlay" id="cart-overlay"></div>
   <aside class="cart-drawer" id="cart-drawer" aria-label="سلة التسوق">
-    <div class="cart-header">
-      <h2>سلة التسوق</h2>
-      <button class="btn-icon" id="cart-close" aria-label="إغلاق">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+  <div class="drawer-header">
+    <div>
+      <h2>سلتك 🛒</h2>
+      <span class="cart-count-label" id="cart-items-count">0 منتج</span>
     </div>
-    <div class="cart-items" id="cart-items">
-      <div class="cart-empty" id="cart-empty">
-        <div class="cart-empty-icon">🛒</div>
-        <p>سلتك فاضية!</p>
-        <a href="../index.html#featured" class="btn btn-primary" id="cart-empty-shop">ابدأ التسوق</a>
-      </div>
+    <button class="drawer-close" id="cart-close" aria-label="إغلاق">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Free Shipping Progress -->
+  <div id="cart-shipping-progress" class="shipping-progress-container" style="display:none; padding: 15px; background: #fff; border-bottom: 1px solid #eee;">
+    <div id="shipping-msg" style="font-size: 0.9rem; font-weight: 500; margin-bottom: 8px; text-align: center;"></div>
+    <div class="progress-track" style="background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden; width: 100%;" role="progressbar" aria-valuemin="0" aria-valuemax="600" aria-valuenow="0" id="shipping-progress-bar">
+      <div id="shipping-bar-fill" class="progress-fill" style="background: var(--admin-gold); height: 100%; width: 0%; transition: width 0.4s ease, background 0.4s ease;"></div>
     </div>
-    <div class="cart-footer" id="cart-footer" style="display:none">
-      <div class="cart-total-row"><span>المجموع:</span><strong id="cart-total">0 ج.م</strong></div>
-      <div class="cart-total-row"><span>الشحن:</span><strong id="cart-shipping">سيتم احتسابه</strong></div>
-      <a href="checkout.html" class="btn btn-primary btn-full" id="checkout-btn">متابعة الدفع</a>
-      <button class="btn btn-ghost btn-full" id="clear-cart">إفراغ السلة</button>
+  </div>
+
+  <!-- Upsell Card (One-Click) -->
+  <div id="cart-upsell-card" class="upsell-card-container hidden-fade" style="display:none;"></div>
+
+  <div class="cart-body" id="cart-items">
+    <div class="cart-empty-state" id="cart-empty">
+      <div style="font-size:3.5rem">🛒</div>
+      <p>سلتك فاضية حالياً</p>
+      <button class="btn btn-gold" id="cart-empty-shop">ابدأ التسوق</button>
     </div>
-  </aside>
+  </div>
+  <div class="cart-footer-panel" id="cart-footer" style="display:none">
+    <div class="cart-summary">
+      <div class="cart-summary-row"><span>المجموع</span><strong id="cart-total">—</strong></div>
+      <div class="cart-summary-row"><span>الشحن</span><strong id="cart-shipping">—</strong></div>
+      <div class="cart-summary-row total-row"><span data-i18n="cart_total">الإجمالي</span><strong id="cart-grand-total">—</strong></div>
+    </div>
+    <a href="checkout.html" class="btn btn-gold w-full" style="font-size:1.05rem;padding:16px">متابعة الدفع ←</a>
+    <button class="btn btn-ghost w-full" id="clear-cart" style="margin-top:8px">إفراغ السلة</button>
+  </div>
+</aside>
   <div class="toast-container" id="toast-container"></div>
   <button class="back-to-top" id="back-to-top" aria-label="العودة لأعلى">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
