@@ -331,7 +331,7 @@ function renderRelated(product) {
     return `
     <article class="prod-grid-card fade-up active" data-id="${p.id}" style="animation-delay:${i*0.08}s; opacity:1; transform:none; margin:0 auto; cursor:pointer;" onclick="window.location.href='product.html?id=${p.id}'">
       <div class="prod-card-img">
-        <img src="${(p.images && p.images.length > 0) ? getImageUrl(p.images[0]) : \'https://via.placeholder.com/260x260/f3efe7/0b1929?text=No+Image\'}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/260x260/f3efe7/0b1929?text=لا+توجد+صورة'" />
+        <img src="${(p.images && p.images.length > 0) ? getImageUrl(p.images[0]) : 'https://via.placeholder.com/260x260/f3efe7/0b1929?text=No+Image'}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/260x260/f3efe7/0b1929?text=لا+توجد+صورة'" />
         ${badge}
       </div>
       <div class="prod-card-body">
