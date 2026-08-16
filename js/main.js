@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initFlashTimer();
 
   Cart.updateUI();
-  renderCartDrawerNew(); // Fix: Render cart items on page load
   initMobileBottomNav();
   initCategoriesDrawer();
   initAdvancedIntersectionObserver();
