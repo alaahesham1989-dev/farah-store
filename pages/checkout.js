@@ -5,8 +5,6 @@
 'use strict';
 
 // ─── CONFIGURATION ────────────────────────────────
-// ضع هنا الرابط (URL) الذي ستحصل عليه بعد نشر كود Google Apps Script
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5jcrNpzC1oiMSQA3geOI8d883UezPlp1CElgDwdZCuWbJSBj84AnDewhgtfYhDHIh/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Dynamic City Dropdown Logic
@@ -246,21 +244,8 @@ function initPlaceOrder() {
       console.warn('[Farah] window.db not available — Firestore not initialized on this page.');
     }
 
-    // ── 5. Send to Google Sheets backup ──
-    try {
-      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'ضع_رابط_جوجل_سكربت_هنا') {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'create_order', data: order })
-        });
-      } else {
-        await new Promise(r => setTimeout(r, 800));
-      }
-    } catch (error) {
-      console.error('[Farah] Google Sheets error:', error);
-    }
+    // ── 5. Simulate minimal delay for UX ──
+    await new Promise(r => setTimeout(r, 600));
 
     // ── 6. Show success modal & clear cart ──
     showSuccessModal(order, btn);
