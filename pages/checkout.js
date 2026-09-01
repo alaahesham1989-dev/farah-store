@@ -253,8 +253,7 @@ function initPlaceOrder() {
   });
 }
 
-// TODO: استبدل هذا الرقم برقم الواتساب الخاص بالمتجر لتلقي الطلبات
-const STORE_WHATSAPP_NUMBER = '201000000000'; 
+const STORE_WHATSAPP_NUMBER = '201017344345';
 
 function getPaymentMethodArabicName(method) {
   const mapping = {
