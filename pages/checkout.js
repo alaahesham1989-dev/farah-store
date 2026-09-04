@@ -244,6 +244,18 @@ function initPlaceOrder() {
       console.warn('[Farah] window.db not available — Firestore not initialized on this page.');
     }
 
+    // ── 4.5. Trigger Backend Notifications (Telegram & Facebook CAPI) ──
+    try {
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      });
+      console.log('[Farah] ✅ Notifications sent via backend');
+    } catch (err) {
+      console.error('[Farah] ❌ Backend notifications failed:', err);
+    }
+
     // ── 5. Simulate minimal delay for UX ──
     await new Promise(r => setTimeout(r, 600));
 
