@@ -56,17 +56,14 @@ export async function onRequestPost(context) {
             event_time: Math.floor(Date.now() / 1000),
             action_source: "website",
             user_data: {
-              client_ip_address: context.request.headers.get("cf-connecting-ip") || context.request.headers.get("x-forwarded-for"),
-              client_user_agent: context.request.headers.get("user-agent"),
-              ph: [ // Hash phone number (SHA-256) - simplified for edge
-                 // Ideally this should be hashed, but we send as is or skip if no crypto library
-                 // Since standard crypto is needed for hashing, we might just omit PII or send unhashed (FB might reject unhashed PII)
-              ]
+              client_ip_address: context.request.headers.get("cf-connecting-ip") || context.request.headers.get("x-forwarded-for") || null,
+              client_user_agent: context.request.headers.get("user-agent") || null,
             },
             custom_data: {
               currency: "EGP",
               value: parseFloat(order.total) || 0,
-              order_id: order.id
+              order_id: order.id,
+              num_items: (order.items || []).length,
             }
           }
         ]

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * FARAH STORE — Checkout Controller
  */
 
@@ -127,7 +127,7 @@ function initPaymentToggle() {
           noteEl.style.background = 'rgba(231,76,60,0.08)';
           noteEl.style.border = '1px solid rgba(231,76,60,0.2)';
           noteEl.style.color = '#c0392b';
-          noteEl.innerHTML = `💸 يرجى تحويل إجمالي الفاتورة إلى رقم محفظة فودافون كاش: <strong style="font-size:1.05rem;">01000000000</strong> (رقم المتجر)، وإرفاق لقطة شاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
+          noteEl.innerHTML = `💸 يرجى تحويل إجمالي الفاتورة إلى رقم محفظة فودافون كاش: <strong style="font-size:1.05rem;">01017344345</strong> (رقم المتجر)، وإرفاق لقطة شاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
         } else if (val === 'instapay') {
           noteEl.style.display = 'block';
           noteEl.style.background = 'rgba(46,204,113,0.08)';
