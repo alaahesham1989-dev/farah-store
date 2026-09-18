@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FARAH STORE — Checkout Controller
  */
 
@@ -133,7 +133,7 @@ function initPaymentToggle() {
           noteEl.style.background = 'rgba(46,204,113,0.08)';
           noteEl.style.border = '1px solid rgba(46,204,113,0.2)';
           noteEl.style.color = '#27ae60';
-          noteEl.innerHTML = `⚡ يرجى تحويل إجمالي الفاتورة عبر تطبيق InstaPay إلى العنوان التالي: <strong style="font-size:1.05rem;">farah@instapay</strong>، وإرفاق لقطة الشاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
+          noteEl.innerHTML = `⚡ يرجى تحويل إجمالي الفاتورة عبر تطبيق InstaPay إلى الرقم التالي: <strong style="font-size:1.05rem;">01127116395</strong>، وإرفاق لقطة الشاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
         } else {
           // Cash on delivery
           noteEl.style.display = 'none';
