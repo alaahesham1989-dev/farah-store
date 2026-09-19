@@ -377,12 +377,14 @@
               <input type="date" id="orders-date-to" class="form-control" style="width: auto;" title="إلى تاريخ">
             </div>
             <select class="form-control" id="orders-status-filter" style="width: auto;">
-              <option value="all">الكل</option>
-              <option value="new">جديد</option>
-              <option value="processing">قيد التجهيز</option>
-              <option value="shipped">تم الشحن</option>
-              <option value="delivered">مكتمل</option>
-              <option value="cancelled">ملغي</option>
+              <option value="all">كل الحالات</option>
+              <option value="pending_payment">بانتظار تأكيد الدفع 🔴</option>
+              <option value="payment_confirmed">تم تأكيد الدفع 🟢</option>
+              <option value="new">جديد 🆕</option>
+              <option value="processing">قيد التجهيز 📦</option>
+              <option value="shipped">تم الشحن 🚚</option>
+              <option value="delivered">مكتمل ✅</option>
+              <option value="cancelled">ملغي ❌</option>
             </select>
             <button class="btn btn-secondary" id="btn-export-orders" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);">📊 تصدير Excel</button>
           </div>

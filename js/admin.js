@@ -633,6 +633,12 @@ function renderOrdersTable() {
         `;
       }
       
+      let payText = 'الدفع عند الاستلام 💵';
+      if (order.paymentMethod === 'vodafone_cash') payText = 'فودافون كاش 🔴';
+      else if (order.paymentMethod === 'instapay') payText = 'انستاباي ⚡';
+      else if (order.paymentMethod === 'paymob_card') payText = 'بطاقة مصرفية 💳';
+      else if (order.paymentMethod === 'paymob_wallet') payText = 'محفظة إلكترونية 📱';
+
       html += `
         <tr>
           <td>
@@ -642,16 +648,18 @@ function renderOrdersTable() {
           <td>${order.customerName || '-'}</td>
           <td>${order.customerPhone || '-'}</td>
           <td>${FarahDB.formatPrice(order.total || 0)}</td>
-          <td>${order.paymentMethod === 'paymob_card' ? 'بطاقة مصرفية' : order.paymentMethod === 'paymob_wallet' ? 'محفظة إلكترونية' : 'الدفع عند الاستلام'}</td>
+          <td><span class="badge ${order.paymentMethod === 'vodafone_cash' || order.paymentMethod === 'instapay' ? 'badge-warning' : 'badge-info'}" style="padding:4px 8px; font-size:0.85rem;">${payText}</span></td>
           <td>${createdAt}</td>
           <td>
-            <select class="form-control status-dropdown" data-order-id="${order.id}" style="width:120px; padding: 4px 8px; font-size: 0.9rem;">
-              <option value="new" ${currentStatus==='new'?'selected':''}>جديد</option>
-              <option value="processing" ${currentStatus==='processing'?'selected':''}>قيد التجهيز</option>
-              <option value="shipped" ${currentStatus==='shipped'?'selected':''}>تم الشحن</option>
-              <option value="delivered" ${currentStatus==='delivered'?'selected':''}>مكتمل</option>
-              <option value="cancelled" ${currentStatus==='cancelled'?'selected':''}>ملغي</option>
-              <option value="returned" ${currentStatus==='returned'?'selected':''}>مرتجع</option>
+            <select class="form-control status-dropdown" data-order-id="${order.id}" style="width:140px; padding: 4px 8px; font-size: 0.85rem;">
+              <option value="new" ${currentStatus==='new'?'selected':''}>جديد 🆕</option>
+              <option value="pending_payment" ${currentStatus==='pending_payment'?'selected':''}>بانتظار تأكيد الدفع 🔴</option>
+              <option value="payment_confirmed" ${currentStatus==='payment_confirmed'?'selected':''}>تم تأكيد الدفع 🟢</option>
+              <option value="processing" ${currentStatus==='processing'?'selected':''}>قيد التجهيز 📦</option>
+              <option value="shipped" ${currentStatus==='shipped'?'selected':''}>تم الشحن 🚚</option>
+              <option value="delivered" ${currentStatus==='delivered'?'selected':''}>مكتمل ✅</option>
+              <option value="cancelled" ${currentStatus==='cancelled'?'selected':''}>ملغي ❌</option>
+              <option value="returned" ${currentStatus==='returned'?'selected':''}>مرتجع 🔄</option>
             </select>
           </td>
         </tr>
@@ -707,8 +715,22 @@ function renderOrdersTable() {
         if (window.db && window.db.collection) {
           await window.db.collection('orders').doc(orderId).update({ 
             status: newStatus,
+            orderStatus: newStatus,
             updatedAt: new Date().toISOString()
           });
+
+          // If Admin confirmed payment or sent to processing, notify Mahmoud via Telegram
+          if (newStatus === 'payment_confirmed' || newStatus === 'processing') {
+            const botToken = '8278939648:AAE-gvOU5e6JvCIrzcOOcNo2-AE70S4b2tU';
+            const supplierChatId = '6481778583';
+            const text = `✅ *تم تأكيد الدفع والاعتماد بواسطة الأدمن!*\n----------------------------------\nرقم الطلب: \`${orderId}\`\n\n🟢 *يمكنك الآن بدء التجميع والتغليف في المستودع!*`;
+            
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ chat_id: supplierChatId, text: text, parse_mode: 'Markdown' })
+            }).catch(err => console.warn('Supplier notify failed:', err));
+          }
         }
       } catch (err) {
         console.warn('Failed to update order status', err);
