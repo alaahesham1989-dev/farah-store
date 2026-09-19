@@ -813,6 +813,15 @@ function initDashboard() {
       snapshot.forEach(doc => {
         orders.push({ id: doc.id, ...doc.data() });
       });
+
+      // Merge with localStorage orders as fallback
+      const localOrders = (window.FarahDB && window.FarahDB.Storage) ? window.FarahDB.Storage.get('orders', []) : [];
+      localOrders.forEach(lo => {
+        if (!orders.some(o => o.id === lo.id)) {
+          orders.push(lo);
+        }
+      });
+
       // Sort orders by date descending
       orders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       
@@ -822,9 +831,17 @@ function initDashboard() {
       updateSalesChart();
     }, err => {
       console.error('Error fetching orders from Firestore:', err);
+      const localOrders = (window.FarahDB && window.FarahDB.Storage) ? window.FarahDB.Storage.get('orders', []) : [];
+      window.AdminOrders = localOrders;
+      renderOrdersTable();
+      renderDashboardStats();
     });
   } else {
     console.warn("Firestore not initialized for Orders listener.");
+    const localOrders = (window.FarahDB && window.FarahDB.Storage) ? window.FarahDB.Storage.get('orders', []) : [];
+    window.AdminOrders = localOrders;
+    renderOrdersTable();
+    renderDashboardStats();
   }
 
   document.getElementById('products-search')?.addEventListener('input', renderProductsTable);
