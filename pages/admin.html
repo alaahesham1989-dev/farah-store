@@ -569,12 +569,34 @@
             </div>
           </div>
 
+          <!-- ── Payment Methods Settings Card ── -->
+          <div class="glass-panel" style="margin-top: 20px;">
+            <h3 style="margin-bottom: 20px; color: var(--admin-gold);">💳 إعدادات وسائل الدفع الإلكتروني</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group">
+                <input type="text" id="setting-vodafone-cash" class="form-control" value="01017344345" placeholder=" ">
+                <label class="floating-label">رقم محفظة فودافون كاش</label>
+              </div>
+              <div class="form-group">
+                <input type="text" id="setting-instapay-address" class="form-control" value="01127116395" placeholder=" ">
+                <label class="floating-label">رقم / عنوان انستاباي (InstaPay)</label>
+              </div>
+            </div>
+            <div id="payment-settings-msg" style="display:none; margin-top:14px; padding:10px 14px; border-radius:8px; font-size:0.88rem;"></div>
+            <div style="margin-top: 20px; display:flex; gap:12px; align-items:center;">
+              <button id="btn-save-payment-settings" class="btn btn-gold" style="padding: 12px 28px; font-weight:700;">
+                💾 حفظ إعدادات وسائل الدفع
+              </button>
+              <span id="payment-last-saved" style="font-size:0.8rem; color:rgba(255,255,255,0.4);"></span>
+            </div>
+          </div>
+
           <!-- ── Store Info Card ── -->
-          <div class="glass-panel">
+          <div class="glass-panel" style="margin-top: 20px;">
             <h3 style="margin-bottom: 20px; color: var(--admin-gold);">🏪 معلومات المتجر</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
               <div class="form-group"><input type="text" class="form-control" value="فرح مصر ستور" placeholder=" "><label class="floating-label">اسم المتجر</label></div>
-              <div class="form-group"><input type="text" class="form-control" value="201000000000" placeholder=" "><label class="floating-label">رقم واتساب المتجر</label></div>
+              <div class="form-group"><input type="text" class="form-control" value="01017344345" placeholder=" "><label class="floating-label">رقم واتساب المتجر</label></div>
             </div>
           </div>
         </div>

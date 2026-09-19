@@ -122,18 +122,22 @@ function initPaymentToggle() {
       // Show payment notes depending on selected method
       const val = radio?.value;
       if (noteEl) {
+        let savedPay = (window.FarahDB && window.FarahDB.Storage) ? window.FarahDB.Storage.get('payment_settings') : null;
+        let vfNum = savedPay?.vodafone || '01017344345';
+        let instaNum = savedPay?.instapay || '01127116395';
+
         if (val === 'vodafone_cash') {
           noteEl.style.display = 'block';
           noteEl.style.background = 'rgba(231,76,60,0.08)';
           noteEl.style.border = '1px solid rgba(231,76,60,0.2)';
           noteEl.style.color = '#c0392b';
-          noteEl.innerHTML = `💸 يرجى تحويل إجمالي الفاتورة إلى رقم محفظة فودافون كاش: <strong style="font-size:1.05rem;">01017344345</strong> (رقم المتجر)، وإرفاق لقطة شاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
+          noteEl.innerHTML = `💸 يرجى تحويل إجمالي الفاتورة إلى رقم محفظة فودافون كاش: <strong style="font-size:1.05rem;">${vfNum}</strong> (رقم المتجر)، وإرفاق لقطة شاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
         } else if (val === 'instapay') {
           noteEl.style.display = 'block';
           noteEl.style.background = 'rgba(46,204,113,0.08)';
           noteEl.style.border = '1px solid rgba(46,204,113,0.2)';
           noteEl.style.color = '#27ae60';
-          noteEl.innerHTML = `⚡ يرجى تحويل إجمالي الفاتورة عبر تطبيق InstaPay إلى الرقم التالي: <strong style="font-size:1.05rem;">01127116395</strong>، وإرفاق لقطة الشاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
+          noteEl.innerHTML = `⚡ يرجى تحويل إجمالي الفاتورة عبر تطبيق InstaPay إلى الرقم التالي: <strong style="font-size:1.05rem;">${instaNum}</strong>، وإرفاق لقطة الشاشة للتحويل عند تأكيد الطلب عبر واتساب.`;
         } else {
           // Cash on delivery
           noteEl.style.display = 'none';

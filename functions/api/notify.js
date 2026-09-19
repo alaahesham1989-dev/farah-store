@@ -11,41 +11,83 @@ export async function onRequestPost(context) {
     const FB_PIXEL_ID = context.env.FB_PIXEL_ID || '879537130426521';
     const FB_CAPI_TOKEN = context.env.FB_CAPI_TOKEN || 'EAAZArh2o2arMBSTbaOPCjSEwlEDSVQBOl1XnCxl1nbCqaDbAdeNOzAZBbJrZASaXbT2sSq33V0N3RwVHLVwAlmWcEeR7ZB3ZCpdpHTYR5D19BXVZBGi3pEEUqEsszIg3BnNzp8ZA561E2uvXYsAn1cWFuAVLUY3Gm0AXAO9OARNyzMSjnnRfka5wd7KCb0Di4lL6wZDZD';
 
-    // 1. Send Telegram Notifications
-    const message = `🛍️ **طلب جديد عبر الموقع!**
-رقم الطلب: \`${order.id}\`
-العميل: ${order.customerName}
-الموبايل: ${order.customerPhone}
-الإجمالي: ${order.total} ج.م
-طريقة الدفع: ${order.paymentMethod === 'vodafone_cash' ? 'فودافون كاش 🔴' : order.paymentMethod === 'instapay' ? 'انستاباي ⚡' : 'الدفع عند الاستلام 💵'}
+    // Format Products list clearly (e.g. عدد 2 من منتج: جهاز ديرما بن)
+    const itemsList = (order.items || []).map(item => {
+      const qty = item.qty || 1;
+      const variantObj = item.variantSelected || item.variant || {};
+      const variantVals = Object.values(variantObj).filter(Boolean);
+      const variantText = variantVals.length ? ` (${variantVals.join(' / ')})` : '';
+      return `🔹 عدد ${qty} من منتج: ${item.name}${variantText}`;
+    }).join('\n');
 
-للتفاصيل كاملة، افتح لوحة التحكم.`;
+    // Extract address details
+    const addr = order.customerAddress || order.customer?.address || {};
+    const govLabel = addr.governorate || order.governorate || '';
+    const cityLabel = addr.city || '';
+    const streetLabel = addr.street || '';
+    const fullAddress = [cityLabel, streetLabel, govLabel].filter(Boolean).join(' - ');
+
+    const isElectronicPay = order.paymentMethod === 'vodafone_cash' || order.paymentMethod === 'instapay';
+    const payLabel = order.paymentMethod === 'vodafone_cash' ? 'فودافون كاش 🔴' : order.paymentMethod === 'instapay' ? 'انستاباي ⚡' : 'الدفع عند الاستلام 💵';
+
+    // 1. Build Message for Admin
+    const adminMessage = `📦 **طلب جديد عبر الموقع!**
+----------------------------------
+رقم الطلب: \`${order.id}\`
+
+👤 الاسم: ${order.customerName || '—'}
+📱 رقم الموبايل: ${order.customerPhone || '—'}
+📍 العنوان: ${fullAddress || '—'}
+
+🛍️ **المنتجات المطلوبة:**
+${itemsList || '—'}
+
+${order.notes ? `📝 ملاحظات: ${order.notes}\n` : ''}----------------------------------
+💳 طريقة الدفع: ${payLabel}
+💰 الإجمالي الكلي: ${order.total} ج.م
+${isElectronicPay ? '\n⚠️ *يتطلب مراجعة وتأكيد الدفع قبل الشحن*' : ''}`;
+
+    // 2. Build Message for Supplier (Mahmoud)
+    const supplierMessage = `📦 **طلب جديد للتجميع والتغليف**
+----------------------------------
+رقم الطلب: \`${order.id}\`
+
+👤 الاسم: ${order.customerName || '—'}
+📱 رقم الموبايل: ${order.customerPhone || '—'}
+📍 العنوان: ${fullAddress || '—'}
+
+🛍️ **المنتجات المطلوب تغليفها:**
+${itemsList || '—'}
+
+${order.notes ? `📝 ملاحظات: ${order.notes}\n` : ''}----------------------------------
+💳 طريقة الدفع: ${payLabel}
+${isElectronicPay ? '\n🛑 *بانتظار مراجعة الأدمن وتأكيد الدفع — حظر الشحن حالياً*' : ''}`;
 
     const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    
+
     // Notify Admin
     await fetch(telegramUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: TELEGRAM_CHAT_ID,
-        text: message,
+        text: adminMessage,
         parse_mode: 'Markdown'
       })
     }).catch(e => console.error('Telegram Admin Error:', e));
 
-    // Notify Supplier
+    // Notify Supplier (Mahmoud)
     await fetch(telegramUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: TELEGRAM_SUPPLIER_CHAT_ID,
-        text: message,
+        text: supplierMessage,
         parse_mode: 'Markdown'
       })
     }).catch(e => console.error('Telegram Supplier Error:', e));
 
-    // 2. Send Facebook Conversions API (Purchase Event)
+    // 3. Send Facebook Conversions API (Purchase Event)
     if (FB_CAPI_TOKEN && FB_PIXEL_ID) {
       const fbUrl = `https://graph.facebook.com/v19.0/${FB_PIXEL_ID}/events?access_token=${FB_CAPI_TOKEN}`;
       

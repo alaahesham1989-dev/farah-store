@@ -1612,3 +1612,69 @@ document.getElementById('btn-export-orders')?.addEventListener('click', () => {
   window.XLSX.utils.book_append_sheet(wb, ws, "الطلبات");
   window.XLSX.writeFile(wb, `orders_${new Date().getTime()}.xlsx`);
 });
+
+// ─── PAYMENT SETTINGS HANDLER ───
+(function initPaymentSettings() {
+  const vfInput = document.getElementById('setting-vodafone-cash');
+  const instaInput = document.getElementById('setting-instapay-address');
+  const btnSave = document.getElementById('btn-save-payment-settings');
+  const msgEl = document.getElementById('payment-settings-msg');
+  const lastSavedEl = document.getElementById('payment-last-saved');
+
+  if (!btnSave) return;
+
+  // Load from Storage or Firestore
+  const saved = (window.FarahDB && window.FarahDB.Storage) ? window.FarahDB.Storage.get('payment_settings') : null;
+  if (saved) {
+    if (vfInput && saved.vodafone) vfInput.value = saved.vodafone;
+    if (instaInput && saved.instapay) instaInput.value = saved.instapay;
+  }
+
+  if (window.db && window.db.collection) {
+    window.db.collection('settings').doc('payment_methods').get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        if (vfInput && data.vodafone) vfInput.value = data.vodafone;
+        if (instaInput && data.instapay) instaInput.value = data.instapay;
+        if (window.FarahDB && window.FarahDB.Storage) {
+          window.FarahDB.Storage.set('payment_settings', data);
+        }
+      }
+    }).catch(err => console.warn('Payment settings read failed:', err));
+  }
+
+  btnSave.addEventListener('click', async () => {
+    const vodafone = vfInput?.value?.trim() || '01017344345';
+    const instapay = instaInput?.value?.trim() || '01127116395';
+
+    const payload = {
+      vodafone,
+      instapay,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (window.FarahDB && window.FarahDB.Storage) {
+      window.FarahDB.Storage.set('payment_settings', payload);
+    }
+
+    if (window.db && window.db.collection) {
+      try {
+        await window.db.collection('settings').doc('payment_methods').set(payload);
+      } catch (err) {
+        console.warn('Firestore payment settings set failed:', err);
+      }
+    }
+
+    if (msgEl) {
+      msgEl.style.display = 'block';
+      msgEl.style.background = 'rgba(46,204,113,0.15)';
+      msgEl.style.color = '#2ecc71';
+      msgEl.textContent = '✅ تم حفظ إعدادات وسائل الدفع بنجاح وسيتم تطبيقها فوراً على المتجر!';
+      setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+    }
+
+    if (lastSavedEl) {
+      lastSavedEl.textContent = `آخر حفظ: ${new Date().toLocaleTimeString('ar-EG')}`;
+    }
+  });
+})();
