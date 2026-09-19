@@ -86,6 +86,24 @@ function supplierKeyboard() {
 
 import { getFirebaseAuthToken, fetchPendingOrders, fetchDailySummary, fetchSupplierSummary, fetchReadyOrders, markOrderPacked } from './firebase-rest.js';
 
+async function fetchTelegramFileBase64(fileId) {
+  const fileRes = await fetch(`${TG}/getFile?file_id=${fileId}`);
+  const fileData = await fileRes.json();
+  if (!fileData.ok) return null;
+  
+  const dlUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
+  const dlRes = await fetch(dlUrl);
+  const arrayBuffer = await dlRes.arrayBuffer();
+  
+  // Convert ArrayBuffer to Base64 in Cloudflare Worker
+  let binary = '';
+  const bytes = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 // ─── FIRESTORE INTEGRATION ──────────────────────────────────────────────────
 
 async function getAdminToken(context) {
@@ -103,23 +121,34 @@ async function getAdminToken(context) {
 
 // ─── GEMINI AI HANDLER ────────────────────────────────────────────────────────
 
-async function askGemini(userMessage, role, apiKey, context = '') {
+async function askGemini(userMessage, role, apiKey, context = '', mediaData = null) {
   const systemContext = role === 'admin'
     ? `أنت مساعد ذكي لأدمن متجر فرح للعناية بالبشرة. تجيب باللغة العربية العامية المصرية. المتجر يبيع أجهزة وادوات العناية بالبشرة. الأدمن اسمه علاء وهو مسؤول عن المبيعات والمدفوعات والتحكم الكامل. المورد اسمه محمود في الموسكي. وسائل الدفع الإلكترونية: فودافون كاش 01017344345 وانستاباي 01127116395.`
     : `أنت مساعد ذكي لمحمود مسؤول المخزن في متجر فرح للعناية بالبشرة. تجيب باللغة العربية العامية المصرية. مهمتك مساعدة محمود في تجميع وتغليف طلبات متجر فرح. الطلبات المعتمدة فقط هي اللي يشتغل عليها محمود بعد تأكيد الدفع من الأدمن.`;
 
   const fullPrompt = context
-    ? `${systemContext}\n\nبيانات حالية من السيستم:\n${context}\n\nسؤال المستخدم: ${userMessage}`
-    : `${systemContext}\n\nسؤال المستخدم: ${userMessage}`;
+    ? `${systemContext}\n\nبيانات حالية من السيستم:\n${context}\n\nسؤال المستخدم: ${userMessage || '[تسجيل صوتي]'}`
+    : `${systemContext}\n\nسؤال المستخدم: ${userMessage || '[تسجيل صوتي]'}`;
+
+  const parts = [];
+  if (mediaData) {
+    parts.push({
+      inlineData: {
+        mimeType: mediaData.mimeType,
+        data: mediaData.data
+      }
+    });
+  }
+  parts.push({ text: fullPrompt });
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: fullPrompt }] }],
+          contents: [{ parts }],
           generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
         })
       }
@@ -435,7 +464,7 @@ export async function onRequestPost(context) {
         }
       }
 
-      // ── Fallback: Gemini AI (free-text) ──
+      // ── Fallback: Gemini AI (free-text or voice) ──
       // Show typing indicator
       await fetch(`${TG}/sendChatAction`, {
         method: 'POST',
@@ -445,7 +474,23 @@ export async function onRequestPost(context) {
 
       // Try Gemini AI
       const GEMINI_API_KEY = context.env.GEMINI_API_KEY || '';
-      const aiReply = await askGemini(text, user.role, GEMINI_API_KEY);
+      
+      let mediaData = null;
+      if (msg.voice) {
+        const base64Audio = await fetchTelegramFileBase64(msg.voice.file_id);
+        if (base64Audio) {
+          mediaData = {
+            mimeType: msg.voice.mime_type || 'audio/ogg',
+            data: base64Audio
+          };
+        }
+      }
+
+      if (!text && !mediaData) {
+        return new Response('OK');
+      }
+
+      const aiReply = await askGemini(text, user.role, GEMINI_API_KEY, '', mediaData);
 
       if (aiReply) {
         await sendMessage(chat_id,
