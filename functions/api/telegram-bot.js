@@ -246,35 +246,27 @@ ${'─'.repeat(30)}
 
 async function handleConfirmPayment(chat_id, orderId, context) {
   // Update Firestore Document directly via REST PATCH
-  const token = await getAdminToken(context);
+  const auth = await getAdminToken(context);
+  if (auth.error) return sendMessage(chat_id, `⚠️ ${auth.error}`, { reply_markup: adminKeyboard() });
+  const token = auth.token;
   if (token) {
     const PROJECT_ID = "farah-store-6bf78";
     await fetch(
       `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/orders/${orderId}?updateMask.fieldPaths=status`,
       {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          fields: { status: { stringValue: 'payment_confirmed' } }
-        })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ fields: { status: { stringValue: 'payment_confirmed' } } })
       }
     );
   }
 
-  // Notify Mahmoud
-  const notifyMahmoud = await sendMessage(
-    '6481778583',
-    `✅ <b>تم تأكيد الدفع!</b>\n\nالطلب رقم <code>${orderId}</code> مؤكد بواسطة الأدمن.\n📦 يمكنك الآن تجميع وتغليف هذا الطلب وتسليمه لشركة الشحن.`,
-    { reply_markup: { inline_keyboard: [[{ text: '✅ تم التغليف والتجهيز', callback_data: `packed_${orderId}` }]] } }
-  );
+  // Notify Admin
+  await sendMessage(chat_id, `✅ تم تأكيد الدفع للطلب: ${orderId} بنجاح!\n🔔 تم تنبيه محمود في المخزن.`);
 
-  await sendMessage(chat_id,
-    `✅ تم تأكيد دفع الطلب <code>${orderId}</code> بنجاح وتحديثه في قاعدة البيانات!\n🔔 تم إخطار محمود بالمخزن للتجهيز.`,
-    { reply_markup: adminKeyboard() }
-  );
+  // Notify Supplier (Mahmoud)
+  const supplierChatId = '6481778583';
+  await sendMessage(supplierChatId, `🟢 <b>تنبيه من الإدارة:</b>\nتم تأكيد الدفع للطلب <code>${orderId}</code>.\nالطلب الآن جاهز للتجميع والتغليف! 📦`, { reply_markup: supplierKeyboard() });
 }
 
 // ─── COMMAND HANDLERS — SUPPLIER (MAHMOUD) ───────────────────────────────────
