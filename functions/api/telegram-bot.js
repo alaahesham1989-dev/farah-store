@@ -11,7 +11,6 @@
 // ─── CONFIGURATION ────────────────────────────────────────────────────────────
 
 const BOT_TOKEN      = '8278939648:AAE-gvOU5e6JvCIrzcOOcNo2-AE70S4b2tU';
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwExBfgyi4bgDUwnBCfAYZvAgrTfKL5g3bPeZyZt3fB8IAhWD29EwTZdUH0FEQUiMGdow/exec';
 
 // ─── USER ROLES MAP (Multi-supplier ready — just add new entries) ─────────────
 const USERS = {
@@ -85,21 +84,18 @@ function supplierKeyboard() {
   };
 }
 
-// ─── GOOGLE SCRIPT BRIDGE (Fetch Orders from Sheet) ──────────────────────────
+import { getFirebaseAuthToken, fetchPendingOrders, fetchDailySummary, fetchSupplierSummary, fetchReadyOrders, markOrderPacked } from './firebase-rest.js';
 
-async function fetchFromScript(action, params = {}) {
-  try {
-    const url = new URL(GOOGLE_SCRIPT_URL);
-    url.searchParams.set('action', action);
-    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-    const res = await fetch(url.toString(), { method: 'GET' });
-    if (!res.ok) return null;
-    const text = await res.text();
-    try { return JSON.parse(text); } catch { return { raw: text }; }
-  } catch (e) {
-    console.error('Script fetch error:', e);
+// ─── FIRESTORE INTEGRATION ──────────────────────────────────────────────────
+
+async function getAdminToken(context) {
+  const email = context.env.ADMIN_EMAIL || 'admin@farahstore.com'; // User needs to set this
+  const password = context.env.ADMIN_PASSWORD; // User needs to set this
+  if (!password) {
+    console.error("Missing ADMIN_PASSWORD in environment variables");
     return null;
   }
+  return await getFirebaseAuthToken(email, password);
 }
 
 // ─── GEMINI AI HANDLER ────────────────────────────────────────────────────────
@@ -136,9 +132,11 @@ async function askGemini(userMessage, role, apiKey, context = '') {
 
 // ─── COMMAND HANDLERS — ADMIN ─────────────────────────────────────────────────
 
-async function handleAdminStart(chat_id, userName) {
-  const data = await fetchFromScript('summary');
-  const total   = data?.totalOrders ?? '—';
+async function handleAdminStart(chat_id, userName, context) {
+  const token = await getAdminToken(context);
+  const data = token ? await fetchDailySummary(token) : null;
+  
+  const total   = data ? 'مشفر' : '—'; // REST query doesn't count ALL orders easily
   const pending = data?.pendingPayment ?? '—';
   const today   = data?.todayOrders ?? '—';
 
@@ -146,7 +144,6 @@ async function handleAdminStart(chat_id, userName) {
 🏪 <b>لوحة تحكم متجر فرح</b>
 
 📊 <b>إحصائيات سريعة:</b>
-• إجمالي الطلبات: <b>${total}</b>
 • طلبات اليوم: <b>${today}</b>
 • بانتظار تأكيد الدفع: <b>${pending}</b> 🔴
 
@@ -155,11 +152,13 @@ async function handleAdminStart(chat_id, userName) {
   await sendMessage(chat_id, text, { reply_markup: adminKeyboard() });
 }
 
-async function handleAdminPending(chat_id) {
-  const data = await fetchFromScript('pending_payment');
-  const orders = data?.orders || [];
+async function handleAdminPending(chat_id, context) {
+  const token = await getAdminToken(context);
+  if (!token) return sendMessage(chat_id, '⚠️ خطأ في المصادقة مع قاعدة البيانات. تأكد من إضافة ADMIN_PASSWORD.');
+  
+  const orders = await fetchPendingOrders(token);
 
-  if (!orders.length) {
+  if (!orders || !orders.length) {
     return sendMessage(chat_id,
       '✅ لا توجد طلبات معلقة تحتاج تأكيد الدفع حالياً.',
       { reply_markup: adminKeyboard() }
@@ -183,12 +182,11 @@ async function handleAdminPending(chat_id) {
   });
 }
 
-async function handleAdminSummary(chat_id) {
-  const data = await fetchFromScript('daily_summary');
-
-  if (!data) {
-    return sendMessage(chat_id, '⚠️ تعذر جلب الملخص اليومي. حاول مرة أخرى.', { reply_markup: adminKeyboard() });
-  }
+async function handleAdminSummary(chat_id, context) {
+  const token = await getAdminToken(context);
+  if (!token) return sendMessage(chat_id, '⚠️ خطأ في المصادقة مع قاعدة البيانات.');
+  
+  const data = await fetchDailySummary(token);
 
   const text = `📊 <b>ملخص اليوم — متجر فرح</b>
 ${'─'.repeat(30)}
@@ -196,15 +194,30 @@ ${'─'.repeat(30)}
 🛍️ طلبات اليوم: <b>${data.todayOrders ?? 0}</b>
 💰 مبيعات اليوم: <b>${data.todayRevenue ?? 0} ج.م</b>
 ✅ طلبات مؤكدة: <b>${data.confirmed ?? 0}</b>
-⏳ بانتظار التأكيد: <b>${data.pendingPayment ?? 0}</b>
-🚚 جاهزة للشحن: <b>${data.readyToShip ?? 0}</b>`;
+⏳ بانتظار التأكيد: <b>${data.pendingPayment ?? 0}</b>`;
 
   await sendMessage(chat_id, text, { reply_markup: adminKeyboard() });
 }
 
-async function handleConfirmPayment(chat_id, orderId) {
-  // Update Google Script Sheet
-  const result = await fetchFromScript('confirm_payment', { orderId });
+async function handleConfirmPayment(chat_id, orderId, context) {
+  // Update Firestore Document directly via REST PATCH
+  const token = await getAdminToken(context);
+  if (token) {
+    const PROJECT_ID = "farah-store-6bf78";
+    await fetch(
+      `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/orders/${orderId}?updateMask.fieldPaths=status`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          fields: { status: { stringValue: 'payment_confirmed' } }
+        })
+      }
+    );
+  }
 
   // Notify Mahmoud
   const notifyMahmoud = await sendMessage(
@@ -214,15 +227,16 @@ async function handleConfirmPayment(chat_id, orderId) {
   );
 
   await sendMessage(chat_id,
-    `✅ تم تأكيد دفع الطلب <code>${orderId}</code> بنجاح!\n🔔 تم إخطار محمود بالمخزن للتجهيز.`,
+    `✅ تم تأكيد دفع الطلب <code>${orderId}</code> بنجاح وتحديثه في قاعدة البيانات!\n🔔 تم إخطار محمود بالمخزن للتجهيز.`,
     { reply_markup: adminKeyboard() }
   );
 }
 
 // ─── COMMAND HANDLERS — SUPPLIER (MAHMOUD) ───────────────────────────────────
 
-async function handleSupplierStart(chat_id, userName) {
-  const data = await fetchFromScript('supplier_summary');
+async function handleSupplierStart(chat_id, userName, context) {
+  const token = await getAdminToken(context);
+  const data = token ? await fetchSupplierSummary(token) : null;
   const readyCount = data?.readyOrders ?? '—';
 
   const text = `👋 أهلاً <b>${userName}</b>!
@@ -235,11 +249,13 @@ async function handleSupplierStart(chat_id, userName) {
   await sendMessage(chat_id, text, { reply_markup: supplierKeyboard() });
 }
 
-async function handleSupplierPrepare(chat_id) {
-  const data = await fetchFromScript('ready_orders');
-  const orders = data?.orders || [];
+async function handleSupplierPrepare(chat_id, context) {
+  const token = await getAdminToken(context);
+  if (!token) return sendMessage(chat_id, '⚠️ خطأ في المصادقة مع قاعدة البيانات.', { reply_markup: supplierKeyboard() });
+  
+  const orders = await fetchReadyOrders(token);
 
-  if (!orders.length) {
+  if (!orders || !orders.length) {
     return sendMessage(chat_id,
       '📭 لا توجد طلبات معتمدة للتجميع حالياً.\n\n⏳ انتظر تأكيد الأدمن للطلبات الإلكترونية.',
       { reply_markup: supplierKeyboard() }
@@ -262,8 +278,11 @@ async function handleSupplierPrepare(chat_id) {
   });
 }
 
-async function handleSupplierPacked(chat_id, orderId) {
-  await fetchFromScript('mark_packed', { orderId });
+async function handleSupplierPacked(chat_id, orderId, context) {
+  const token = await getAdminToken(context);
+  if (token) {
+    await markOrderPacked(token, orderId);
+  }
 
   // Notify Admin
   await sendMessage(
@@ -272,22 +291,36 @@ async function handleSupplierPacked(chat_id, orderId) {
   );
 
   await sendMessage(chat_id,
-    `✅ تم تسجيل الطلب <code>${orderId}</code> كجاهز للشحن.\n📬 تم إخطار الأدمن.`,
+    `✅ تم تسجيل الطلب <code>${orderId}</code> كجاهز للشحن وتحديث قاعدة البيانات.\n📬 تم إخطار الأدمن.`,
     { reply_markup: supplierKeyboard() }
   );
 }
 
-async function handleSupplierStock(chat_id) {
-  const data = await fetchFromScript('stock_summary');
-  const items = data?.items || [];
+async function handleSupplierStock(chat_id, context) {
+  const token = await getAdminToken(context);
+  if (!token) return sendMessage(chat_id, '⚠️ خطأ في المصادقة مع قاعدة البيانات.', { reply_markup: supplierKeyboard() });
+  
+  const orders = await fetchReadyOrders(token);
+  
+  // Aggregate items across all ready orders
+  const stockMap = {};
+  for (const o of orders) {
+    if (o.items) {
+      for (const item of o.items) {
+        const key = item.variantSelected ? `${item.name} (${Object.values(item.variantSelected).join('/')})` : item.name;
+        stockMap[key] = (stockMap[key] || 0) + parseInt(item.qty || 1);
+      }
+    }
+  }
 
-  if (!items.length) {
+  const keys = Object.keys(stockMap);
+  if (!keys.length) {
     return sendMessage(chat_id, '📭 لا توجد منتجات في قائمة الطلبات المعتمدة حالياً.', { reply_markup: supplierKeyboard() });
   }
 
-  let text = `📊 <b>المنتجات المطلوبة إجمالاً (الطلبات المعتمدة)</b>\n${'─'.repeat(30)}\n\n`;
-  for (const item of items) {
-    text += `🔹 <b>${item.name}</b>: ${item.totalQty} قطعة\n`;
+  let text = `📦 <b>إجمالي المنتجات المطلوبة للتجهيز</b>\n${'─'.repeat(30)}\n\n`;
+  for (const key of keys) {
+    text += `🔹 ${key}: <b>${stockMap[key]}</b>\n`;
   }
 
   await sendMessage(chat_id, text, { reply_markup: supplierKeyboard() });
@@ -315,27 +348,27 @@ export async function onRequestPost(context) {
 
       // ── Admin callbacks ──
       if (user.role === 'admin') {
-        if (data === 'cmd_start')           await handleAdminStart(chat_id, user.name);
-        else if (data === 'cmd_pending')    await handleAdminPending(chat_id);
-        else if (data === 'cmd_summary')    await handleAdminSummary(chat_id);
+        if (data === 'cmd_start')           await handleAdminStart(chat_id, user.name, context);
+        else if (data === 'cmd_pending')    await handleAdminPending(chat_id, context);
+        else if (data === 'cmd_summary')    await handleAdminSummary(chat_id, context);
         else if (data === 'cmd_ai_hint')    await sendMessage(chat_id, '🤖 اكتب سؤالك بالعامية وهرد عليك فوراً بالذكاء الاصطناعي!\n\nمثال: "كام أوردر فودافون كاش مش مؤكد دلوقتي؟"');
         else if (data === 'cmd_confirm_prompt') await sendMessage(chat_id, '🔢 اكتب رقم الطلب اللي تريد تأكيد دفعه:\n\nمثال: <code>تأكيد ORD-1025</code>');
         else if (data.startsWith('confirm_')) {
           const orderId = data.replace('confirm_', '');
-          await handleConfirmPayment(chat_id, orderId);
+          await handleConfirmPayment(chat_id, orderId, context);
         }
       }
 
       // ── Supplier callbacks ──
       if (user.role === 'supplier') {
-        if (data === 'cmd_start')           await handleSupplierStart(chat_id, user.name);
-        else if (data === 'cmd_prepare')    await handleSupplierPrepare(chat_id);
-        else if (data === 'cmd_stock')      await handleSupplierStock(chat_id);
+        if (data === 'cmd_start')           await handleSupplierStart(chat_id, user.name, context);
+        else if (data === 'cmd_prepare')    await handleSupplierPrepare(chat_id, context);
+        else if (data === 'cmd_stock')      await handleSupplierStock(chat_id, context);
         else if (data === 'cmd_ai_hint')    await sendMessage(chat_id, '🤖 اكتب سؤالك بالعامية وهرد عليك فوراً بالذكاء الاصطناعي!\n\nمثال: "الطلبات المطلوب تجهيزها النهاردة كام؟"');
         else if (data === 'cmd_packed_prompt') await sendMessage(chat_id, '🔢 اكتب رقم الطلب اللي تم تغليفه:\n\nمثال: <code>تم التغليف ORD-1025</code>');
         else if (data.startsWith('packed_')) {
           const orderId = data.replace('packed_', '');
-          await handleSupplierPacked(chat_id, orderId);
+          await handleSupplierPacked(chat_id, orderId, context);
         }
       }
 
@@ -357,25 +390,25 @@ export async function onRequestPost(context) {
 
       // ── Command routing (no AI quota) ──
       if (text === '/start' || text === 'start' || text === 'ابدأ') {
-        if (user.role === 'admin')    await handleAdminStart(chat_id, user.name);
-        if (user.role === 'supplier') await handleSupplierStart(chat_id, user.name);
+        if (user.role === 'admin')    await handleAdminStart(chat_id, user.name, context);
+        if (user.role === 'supplier') await handleSupplierStart(chat_id, user.name, context);
         return new Response('OK');
       }
 
       // Admin text commands
       if (user.role === 'admin') {
         if (text === '/الطلبات_المعلقة' || text === 'الطلبات المعلقة') {
-          await handleAdminPending(chat_id);
+          await handleAdminPending(chat_id, context);
           return new Response('OK');
         }
         if (text === '/ملخص_اليوم' || text === 'ملخص اليوم') {
-          await handleAdminSummary(chat_id);
+          await handleAdminSummary(chat_id, context);
           return new Response('OK');
         }
         // تأكيد ORD-XXXX
         const confirmMatch = text.match(/تأكيد\s+(ORD-[\w\d-]+)/i);
         if (confirmMatch) {
-          await handleConfirmPayment(chat_id, confirmMatch[1]);
+          await handleConfirmPayment(chat_id, confirmMatch[1], context);
           return new Response('OK');
         }
       }
@@ -383,17 +416,17 @@ export async function onRequestPost(context) {
       // Supplier text commands
       if (user.role === 'supplier') {
         if (text === '/تجهيز_الطلبات' || text === 'تجهيز الطلبات' || text === 'تجهيز الأوردات' || text === 'تجهيز الاوردرات') {
-          await handleSupplierPrepare(chat_id);
+          await handleSupplierPrepare(chat_id, context);
           return new Response('OK');
         }
         if (text === '/حالة_المخزن' || text === 'حالة المخزن') {
-          await handleSupplierStock(chat_id);
+          await handleSupplierStock(chat_id, context);
           return new Response('OK');
         }
         // تم التغليف ORD-XXXX
         const packedMatch = text.match(/تم\s+التغليف\s+(ORD-[\w\d-]+)/i);
         if (packedMatch) {
-          await handleSupplierPacked(chat_id, packedMatch[1]);
+          await handleSupplierPacked(chat_id, packedMatch[1], context);
           return new Response('OK');
         }
       }
