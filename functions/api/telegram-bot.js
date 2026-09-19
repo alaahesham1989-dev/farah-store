@@ -92,10 +92,13 @@ async function getAdminToken(context) {
   const email = context.env.FARAH_ADMIN_EMAIL || context.env.ADMIN_EMAIL || 'admin@farahstore.com'; 
   const password = context.env.FARAH_ADMIN_PASSWORD || context.env.ADMIN_PASSWORD; 
   if (!password) {
-    console.error("Missing ADMIN_PASSWORD in environment variables");
-    return null;
+    throw new Error('Missing FARAH_ADMIN_PASSWORD in Cloudflare env Variables.');
   }
-  return await getFirebaseAuthToken(email, password);
+  const token = await getFirebaseAuthToken(email, password);
+  if (!token) {
+    throw new Error(`Firebase Auth failed for email: ${email}. Check Firebase Users tab.`);
+  }
+  return token;
 }
 
 // ─── GEMINI AI HANDLER ────────────────────────────────────────────────────────
@@ -329,8 +332,9 @@ async function handleSupplierStock(chat_id, context) {
 // ─── MAIN WEBHOOK HANDLER ─────────────────────────────────────────────────────
 
 export async function onRequestPost(context) {
+  let body;
   try {
-    const body = await context.request.json();
+    body = await context.request.json();
 
     // Handle callback_query (button press)
     if (body.callback_query) {
@@ -462,6 +466,16 @@ export async function onRequestPost(context) {
     return new Response('OK');
   } catch (err) {
     console.error('Telegram Bot Error:', err);
+    try {
+      const chat_id = body?.message?.chat?.id || body?.callback_query?.message?.chat?.id;
+      if (chat_id) {
+         await fetch(`${TG}/sendMessage`, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ chat_id, text: `🚨 <b>خطأ برمجي:</b>\n<code>${err.message}</code>\n\nStack:\n<pre>${err.stack}</pre>`, parse_mode: 'HTML' })
+         });
+      }
+    } catch (e) {}
     return new Response('OK'); // Always return 200 to Telegram
   }
 }
