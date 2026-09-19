@@ -34,39 +34,63 @@ export async function onRequestPost(context) {
     const payLabel = order.paymentMethod === 'vodafone_cash' ? 'فودافون كاش 🔴' : order.paymentMethod === 'instapay' ? 'انستاباي ⚡' : 'الدفع عند الاستلام 💵';
 
     // 1. Build Message for Admin
-    const adminMessage = `📦 **طلب جديد عبر الموقع!**
-----------------------------------
-رقم الطلب: \`${order.id}\`
+    const adminMessage = `📦 <b>طلب جديد عبر الموقع!</b>
+──────────────────────────
+رقم الطلب: <code>${order.id}</code>
 
 👤 الاسم: ${order.customerName || '—'}
 📱 رقم الموبايل: ${order.customerPhone || '—'}
 📍 العنوان: ${fullAddress || '—'}
 
-🛍️ **المنتجات المطلوبة:**
+🛍️ <b>المنتجات المطلوبة:</b>
 ${itemsList || '—'}
 
-${order.notes ? `📝 ملاحظات: ${order.notes}\n` : ''}----------------------------------
+${order.notes ? `📝 ملاحظات: ${order.notes}\n` : ''}──────────────────────────
 💳 طريقة الدفع: ${payLabel}
-💰 الإجمالي الكلي: ${order.total} ج.م
-${isElectronicPay ? '\n⚠️ *يتطلب مراجعة وتأكيد الدفع قبل الشحن*' : ''}`;
+💰 الإجمالي الكلي: <b>${order.total} ج.م</b>
+${isElectronicPay ? '\n⚠️ <b>يتطلب مراجعة وتأكيد الدفع قبل الشحن</b>' : ''}`;
 
     // 2. Build Message for Supplier (Mahmoud)
-    const supplierMessage = `📦 **طلب جديد للتجميع والتغليف**
-----------------------------------
-رقم الطلب: \`${order.id}\`
+    const supplierMessage = `📦 <b>طلب جديد للتجميع والتغليف</b>
+──────────────────────────
+رقم الطلب: <code>${order.id}</code>
 
 👤 الاسم: ${order.customerName || '—'}
 📱 رقم الموبايل: ${order.customerPhone || '—'}
 📍 العنوان: ${fullAddress || '—'}
 
-🛍️ **المنتجات المطلوب تغليفها:**
+🛍️ <b>المنتجات المطلوب تغليفها:</b>
 ${itemsList || '—'}
 
-${order.notes ? `📝 ملاحظات: ${order.notes}\n` : ''}----------------------------------
+${order.notes ? `📝 ملاحظات: ${order.notes}\n` : ''}──────────────────────────
 💳 طريقة الدفع: ${payLabel}
-${isElectronicPay ? '\n🛑 *بانتظار مراجعة الأدمن وتأكيد الدفع — حظر الشحن حالياً*' : ''}`;
+${isElectronicPay ? '\n🛑 <b>بانتظار مراجعة الأدمن وتأكيد الدفع — حظر الشحن حالياً</b>' : ''}`;
 
     const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+    // Admin inline keyboard — quick action buttons on notification
+    const adminKeyboard = isElectronicPay
+      ? { inline_keyboard: [[
+            { text: `✅ تأكيد الدفع — ${order.id}`, callback_data: `confirm_${order.id}` }
+          ], [
+            { text: '📋 الطلبات المعلقة', callback_data: 'cmd_pending' },
+            { text: '📊 ملخص اليوم', callback_data: 'cmd_summary' }
+          ]] }
+      : { inline_keyboard: [[
+            { text: '📋 الطلبات المعلقة', callback_data: 'cmd_pending' },
+            { text: '📊 ملخص اليوم', callback_data: 'cmd_summary' }
+          ]] };
+
+    // Supplier inline keyboard on notification
+    const supplierKeyboard = isElectronicPay
+      ? { inline_keyboard: [[
+            { text: '📦 عرض قائمة التجهيز', callback_data: 'cmd_prepare' }
+          ]] }
+      : { inline_keyboard: [[
+            { text: `✅ تم تغليف ${order.id}`, callback_data: `packed_${order.id}` }
+          ], [
+            { text: '📦 عرض قائمة التجهيز', callback_data: 'cmd_prepare' }
+          ]] };
 
     // Notify Admin
     await fetch(telegramUrl, {
@@ -75,7 +99,8 @@ ${isElectronicPay ? '\n🛑 *بانتظار مراجعة الأدمن وتأكي
       body: JSON.stringify({
         chat_id: TELEGRAM_CHAT_ID,
         text: adminMessage,
-        parse_mode: 'Markdown'
+        parse_mode: 'HTML',
+        reply_markup: adminKeyboard
       })
     }).catch(e => console.error('Telegram Admin Error:', e));
 
@@ -86,7 +111,8 @@ ${isElectronicPay ? '\n🛑 *بانتظار مراجعة الأدمن وتأكي
       body: JSON.stringify({
         chat_id: TELEGRAM_SUPPLIER_CHAT_ID,
         text: supplierMessage,
-        parse_mode: 'Markdown'
+        parse_mode: 'HTML',
+        reply_markup: supplierKeyboard
       })
     }).catch(e => console.error('Telegram Supplier Error:', e));
 
