@@ -7,6 +7,9 @@ export async function onRequestPost(context) {
     const TELEGRAM_CHAT_ID = context.env.TELEGRAM_CHAT_ID || '1044745883';
     const TELEGRAM_SUPPLIER_CHAT_ID = context.env.TELEGRAM_SUPPLIER_CHAT_ID || '6481778583';
 
+    // Google Script URL (Telegram Bot Backend / Sheet Database)
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwExBfgyi4bgDUwnBCfAYZvAgrTfKL5g3bPeZyZt3fB8IAhWD29EwTZdUH0FEQUiMGdow/exec';
+
     // Facebook CAPI Details
     const FB_PIXEL_ID = context.env.FB_PIXEL_ID || '879537130426521';
     const FB_CAPI_TOKEN = context.env.FB_CAPI_TOKEN || 'EAAZArh2o2arMBSTbaOPCjSEwlEDSVQBOl1XnCxl1nbCqaDbAdeNOzAZBbJrZASaXbT2sSq33V0N3RwVHLVwAlmWcEeR7ZB3ZCpdpHTYR5D19BXVZBGi3pEEUqEsszIg3BnNzp8ZA561E2uvXYsAn1cWFuAVLUY3Gm0AXAO9OARNyzMSjnnRfka5wd7KCb0Di4lL6wZDZD';
@@ -87,7 +90,16 @@ ${isElectronicPay ? '\n🛑 *بانتظار مراجعة الأدمن وتأكي
       })
     }).catch(e => console.error('Telegram Supplier Error:', e));
 
-    // 3. Send Facebook Conversions API (Purchase Event)
+    // 3. Forward Order to Google Script (Google Sheet Database for Telegram Bot Commands)
+    if (GOOGLE_SCRIPT_URL) {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      }).catch(e => console.error('Google Script Forward Error:', e));
+    }
+
+    // 4. Send Facebook Conversions API (Purchase Event)
     if (FB_CAPI_TOKEN && FB_PIXEL_ID) {
       const fbUrl = `https://graph.facebook.com/v19.0/${FB_PIXEL_ID}/events?access_token=${FB_CAPI_TOKEN}`;
       
