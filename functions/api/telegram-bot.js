@@ -89,8 +89,8 @@ import { getFirebaseAuthToken, fetchPendingOrders, fetchDailySummary, fetchSuppl
 // ─── FIRESTORE INTEGRATION ──────────────────────────────────────────────────
 
 async function getAdminToken(context) {
-  const email = context.env.ADMIN_EMAIL || 'admin@farahstore.com'; // User needs to set this
-  const password = context.env.ADMIN_PASSWORD; // User needs to set this
+  const email = context.env.FARAH_ADMIN_EMAIL || context.env.ADMIN_EMAIL || 'admin@farahstore.com'; 
+  const password = context.env.FARAH_ADMIN_PASSWORD || context.env.ADMIN_PASSWORD; 
   if (!password) {
     console.error("Missing ADMIN_PASSWORD in environment variables");
     return null;
