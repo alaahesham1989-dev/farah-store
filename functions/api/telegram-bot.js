@@ -490,7 +490,25 @@ export async function onRequestPost(context) {
         return new Response('OK');
       }
 
-      const aiReply = await askGemini(text, user.role, GEMINI_API_KEY, '', mediaData);
+      // Fetch Live Database Context for AI
+      let dbContext = '';
+      try {
+        const auth = await getAdminToken(context);
+        if (auth && !auth.error && auth.token) {
+           if (user.role === 'admin') {
+             const pending = await fetchPendingOrders(auth.token);
+             const summary = await fetchDailySummary(auth.token);
+             dbContext = `طلبات بانتظار تأكيد الدفع (${pending.length}):\n${pending.map(p => `- ${p.id} (دفع إلكتروني)`).join('\n')}\n\nملخص مبيعات اليوم: ${summary.todayOrders} طلب بإجمالي ${summary.todayRevenue} ج.م.`;
+           } else {
+             const ready = await fetchReadyOrders(auth.token);
+             dbContext = `الطلبات المعتمدة الجاهزة للتغليف (${ready.length}):\n${ready.map(r => `- ${r.id}`).join('\n')}`;
+           }
+        }
+      } catch (e) {
+        console.error('Failed to fetch DB context for AI', e);
+      }
+
+      const aiReply = await askGemini(text, user.role, GEMINI_API_KEY, dbContext, mediaData);
 
       if (aiReply) {
         await sendMessage(chat_id,
