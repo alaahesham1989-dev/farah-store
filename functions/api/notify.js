@@ -116,14 +116,7 @@ ${isElectronicPay ? '\n🛑 <b>بانتظار مراجعة الأدمن وتأك
       })
     }).catch(e => console.error('Telegram Supplier Error:', e));
 
-    // 3. Forward Order to Google Script (Google Sheet Database for Telegram Bot Commands)
-    if (GOOGLE_SCRIPT_URL) {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(order)
-      }).catch(e => console.error('Google Script Forward Error:', e));
-    }
+    // 3. (Removed Google Script forwarding - Using Firestore REST API directly in Bot now)
 
     // 4. Send Facebook Conversions API (Purchase Event)
     if (FB_CAPI_TOKEN && FB_PIXEL_ID) {
